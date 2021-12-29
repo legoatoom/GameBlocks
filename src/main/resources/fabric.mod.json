@@ -19,10 +19,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "com.legoatoom.gameblocks.gameblocks.client.GameblocksClient"
+      "com.legoatoom.gameblocks.client.GameblocksClient"
     ],
     "main": [
-      "com.legoatoom.gameblocks.gameblocks.GameBlocks"
+      "com.legoatoom.gameblocks.GameBlocks"
     ]
   },
   "mixins": [
