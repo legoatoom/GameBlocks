@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "gameblocks",
+  "version": "${version}",
+  "name": "Gameblocks",
+  "description": "Gameblocks tries to recreate well known board games into Minecraft",
+  "authors": [
+    "legoatoom"
+  ],
+  "contact": {},
+  "credit": "Chess Pieces by Lucas312 licensed CC-BY 3.0 and CC-BY-SA 3.0: https://opengameart.org/content/pixel-chess-pieces",
+  "license": "LGPL-3.0",
+  "icon": "assets/gameblocks/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.legoatoom.gameblocks.gameblocks.client.GameblocksClient"
+    ],
+    "main": [
+      "com.legoatoom.gameblocks.gameblocks.GameBlocks"
+    ]
+  },
+  "mixins": [
+    "gameblocks.mixins.json"
+  ],
+  "accessWidener": "gameblocks.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.12.12",
+    "fabric": "*",
+    "minecraft": "1.18.1"
+  }
+}
