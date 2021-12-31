@@ -15,37 +15,130 @@
 package com.legoatoom.gameblocks.items;
 
 import com.legoatoom.gameblocks.GameBlocks;
+import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.item.Item;
 import net.minecraft.util.registry.Registry;
+import org.apache.commons.lang3.function.TriFunction;
+
+import java.util.*;
+import java.util.function.BiFunction;
 
 import static com.legoatoom.gameblocks.GameBlocks.GAME_BLOCKS;
 
 public enum ChessPiece {
-    BLACK_PAWN("pawn", 8),
-    ROOK("rook", 2),
-    BISHOP("bishop", 2),
-    KNIGHT("knight", 2),
-    QUEEN("queen",1),
-    KING("king",1);
+    BLACK_BISHOP(true, 2, (chessBoardSlots, chessBoardSlot) -> new ArrayList<>(), 2, 5),
+    BLACK_KING(true, 1, ChessPiece::hoverKing, 4),
+    BLACK_KNIGHT(true, 2, ChessPiece::hoverKnight, 1, 6),
+    BLACK_PAWN(true, 8, ChessPiece::hoverPawn, 8, 9, 10, 11, 12, 13, 14, 15),
+    BLACK_QUEEN(true, 1, (chessBoardSlots, chessBoardSlot) -> new ArrayList<>(), 3),
+    BLACK_ROOK(true, 2, ChessPiece::hoverPawn, 0, 7),
+    WHITE_BISHOP(false, 2, (chessBoardSlots, chessBoardSlot) -> new ArrayList<>(), 58, 61),
+    WHITE_KING(false, 1, ChessPiece::hoverKing, 60),
+    WHITE_KNIGHT(false, 2, ChessPiece::hoverKnight, 57, 62),
+    WHITE_PAWN(false, 8, ChessPiece::hoverPawn, 48, 49, 50, 51, 52, 53, 54, 55),
+    WHITE_QUEEN(false, 1, (chessBoardSlots, chessBoardSlot) -> new ArrayList<>(), 59),
+    WHITE_ROOK(false, 2, (chessBoardSlots, chessBoardSlot) -> new ArrayList<>(), 56, 63);
 
-    private final String id;
-    private final int maxCount;
+    public final static Map<ChessPiece, ChessPieceItem> CHESS_PIECE_ITEMS = new HashMap<>();
+    private final static Map<Integer, ChessPiece> DEFAULT_LOCATIONS;
 
-    ChessPiece(String id, int maxCount) {
-        this.id = id;
-        this.maxCount = maxCount;
-    }
-
-    public static void registerAll(){
-        for (ChessPiece chessPiece: ChessPiece.values()) {
-            registerPiece("white", chessPiece);
-            registerPiece("black", chessPiece);
+    static {
+        DEFAULT_LOCATIONS = new HashMap<>();
+        for (ChessPiece value : values()) {
+            Arrays.stream(value.locations).forEach(loc -> DEFAULT_LOCATIONS.put(loc, value));
         }
     }
 
-    private static void registerPiece(String id, ChessPiece chessPiece) {
-        Registry.register(Registry.ITEM, GameBlocks.id.apply("%s_%s".formatted(id, chessPiece.id)),
-                new Item(new FabricItemSettings().group(GAME_BLOCKS).maxCount(chessPiece.maxCount)));
+    private final int maxCount;
+    private final boolean isBlack;
+    private final int[] locations;
+    private final BiFunction<List<ChessBoardSlot>, ChessBoardSlot, List<ChessBoardSlot>> hoverFunction;
+
+    ChessPiece(boolean isBlack, int maxCount, BiFunction<List<ChessBoardSlot>, ChessBoardSlot, List<ChessBoardSlot>> hoverFunction, int... locations) {
+        this.isBlack = isBlack;
+        this.maxCount = maxCount;
+        this.hoverFunction = hoverFunction;
+        this.locations = locations;
+    }
+
+    /**
+     * Returns the default piece for a given location.
+     *
+     * @param location A value between 0 and 63.
+     * @return a {@link Optional} with a ChessPiece whose location is the default position,
+     * or null if no ChessPiece has that default location.
+     * @throws IndexOutOfBoundsException if location is higher than 64 or negative.
+     */
+    public static Optional<ChessPiece> getDefaultPiece(int location) {
+        if (location < 0 || location >= 64) {
+            throw new IndexOutOfBoundsException(location);
+        }
+        return Optional.ofNullable(DEFAULT_LOCATIONS.get(location));
+    }
+
+    public static void registerAll() {
+        for (ChessPiece chessPiece : ChessPiece.values()) {
+            ChessPieceItem item = Registry.register(Registry.ITEM, GameBlocks.id.apply(chessPiece.name().toLowerCase(Locale.ROOT)),
+                    new ChessPieceItem(new FabricItemSettings().group(GAME_BLOCKS).maxCount(chessPiece.maxCount),
+                            chessPiece));
+            CHESS_PIECE_ITEMS.put(chessPiece, item);
+        }
+    }
+
+    private static List<ChessBoardSlot> hoverKnight(List<ChessBoardSlot> allSlots, ChessBoardSlot hSlot) {
+        return allSlots.stream()
+                .filter(s -> {
+                    int dX = Math.abs(s.getBoardX() - hSlot.getBoardX());
+                    int dY = Math.abs(s.getBoardY() - hSlot.getBoardY());
+                    return 0 < dX && dX <= 2 && 0 < dY && dY <= 2 && dX + dY == 3;
+                }).toList();
+    }
+
+    private static List<ChessBoardSlot> hoverPawn(List<ChessBoardSlot> allSlots, ChessBoardSlot hSlot) {
+        boolean startRow = (hSlot.isBlack() ? 6 : 1) == hSlot.getBoardY();
+        return allSlots.stream()
+                .filter(s -> {
+                    int x = s.getBoardX() - hSlot.getBoardX();
+                    int y = s.getBoardY() - hSlot.getBoardY();
+                    int dX = Math.abs(x);
+                    int dY = Math.abs(y);
+                    boolean canWalkThere = s.getType() == null && dX == 0 &&
+                            (y == (hSlot.isBlack() ? -1 : 1) || startRow && y == (hSlot.isBlack() ? -2 : 2));
+                    boolean canAttackTo = (s.getType() != null && s.isBlack() != hSlot.isBlack()
+                            && y == (hSlot.isBlack() ? -1 : 1) && dX == 1);
+                    return canWalkThere || canAttackTo;
+                }).toList();
+    }
+
+    private static List<ChessBoardSlot> hoverKing(List<ChessBoardSlot> allSlots, ChessBoardSlot hSlot) {
+        return allSlots.stream()
+                .filter(s -> {
+                    int dX = Math.abs(s.getBoardX() - hSlot.getBoardX());
+                    int dY = Math.abs(s.getBoardY() - hSlot.getBoardY());
+                    return (0 <= dX && dX < 2 && 0 <= dY && dY < 2);
+                }).toList();
+    }
+
+    public boolean isBlack() {
+        return isBlack;
+    }
+//@formatter:on
+
+    public static class ChessPieceItem extends Item {
+
+        private final ChessPiece type;
+
+        public ChessPieceItem(Settings settings, ChessPiece type) {
+            super(settings);
+            this.type = type;
+        }
+        public List<ChessBoardSlot> hoverIndicationFunction(List<ChessBoardSlot> slots, ChessBoardSlot hSlot) {
+            return this.type.hoverFunction.apply(slots, hSlot);
+        }
+
+        public ChessPiece getType() {
+            return type;
+        }
     }
 }

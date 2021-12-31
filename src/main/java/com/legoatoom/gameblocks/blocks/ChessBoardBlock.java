@@ -74,7 +74,7 @@ public class ChessBoardBlock
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        return getDefaultState().with(FACING, ctx.getPlayerFacing().getOpposite()).with(WATERLOGGED,
+        return getDefaultState().with(FACING, ctx.getPlayerFacing()).with(WATERLOGGED,
                 fluidState.getFluid().isIn(FluidTags.WATER));
     }
 
