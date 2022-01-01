@@ -16,60 +16,40 @@ package com.legoatoom.gameblocks.blocks.entity;
 
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
-import com.legoatoom.gameblocks.items.ChessPiece;
+import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
-import com.legoatoom.gameblocks.util.collection.DetailedDefaultedList;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+public class ChessBoardBlockEntity extends BlockEntity implements NamedScreenHandlerFactory {
 
-public class ChessBoardBlockEntity extends BlockEntity implements ImplementedInventory, NamedScreenHandlerFactory {
 
-    private final DefaultedList<ItemStack> items = DetailedDefaultedList.ofSizeAndFunction(8 * 8, ItemStack.EMPTY,
-            (Integer integer) -> {
-                Optional<ChessPiece> result = ChessPiece.getDefaultPiece(integer);
-                return result.map(chessPiece -> new ItemStack(ChessPiece.CHESS_PIECE_ITEMS.get(chessPiece))).orElse(ItemStack.EMPTY);
-            });
+
+    private final ChessBoardInventory chessBoardInventory = new ChessBoardInventory();
 
     public ChessBoardBlockEntity(BlockPos pos, BlockState state) {
         super(GameBlocks.CHESS_BOARD_BLOCK_ENTITY, pos, state);
     }
 
     @Override
-    public DefaultedList<ItemStack> getItems() {
-        return items;
-    }
-
-
-
-    @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-        items.clear();
-        Inventories.readNbt(nbt, items);
+        chessBoardInventory.readNbt(nbt);
     }
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        Inventories.writeNbt(nbt, items);
+        chessBoardInventory.writeNBt(nbt);
     }
 
     @Override
@@ -80,6 +60,6 @@ public class ChessBoardBlockEntity extends BlockEntity implements ImplementedInv
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return new ChessBoardScreenHandler(syncId, inv, this, this.getCachedState().get(ChessBoardBlock.FACING));
+        return new ChessBoardScreenHandler(syncId, inv, this.chessBoardInventory, this.getCachedState().get(ChessBoardBlock.FACING));
     }
 }

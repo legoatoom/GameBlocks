@@ -17,6 +17,8 @@ package com.legoatoom.gameblocks;
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
 import com.legoatoom.gameblocks.items.ChessPiece;
+import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
+import com.legoatoom.gameblocks.items.chess.PawnItem;
 import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
@@ -34,9 +36,11 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import java.util.ArrayList;
 import java.util.function.Function;
 
 public class GameBlocks implements ModInitializer {
+
 
     public static final String MOD_ID = "gameblocks";
     public static final Function<String, Identifier> id = (String path) -> new Identifier(MOD_ID, path);
@@ -47,6 +51,14 @@ public class GameBlocks implements ModInitializer {
 
     public static Block CHESS_BOARD_BLOCK;
     public static Item CHESS_BOARD_ITEM;
+
+    //Chess Pieces
+    public static final ArrayList<IChessPieceItem> CHESS_PIECES = new ArrayList<>();
+    public static Item BLACK_PAWN;
+    public static Item WHITE_PAWN;
+
+
+
     public static BlockEntityType<ChessBoardBlockEntity> CHESS_BOARD_BLOCK_ENTITY;
     public static ScreenHandlerType<ChessBoardScreenHandler> CHESS_BOARD_SCREEN_HANDLER;
 
@@ -54,7 +66,11 @@ public class GameBlocks implements ModInitializer {
         CHESS_BOARD_BLOCK = new ChessBoardBlock();
         CHESS_BOARD_ITEM = new BlockItem(CHESS_BOARD_BLOCK, new FabricItemSettings().group(GAME_BLOCKS));
         CHESS_BOARD_BLOCK_ENTITY = FabricBlockEntityTypeBuilder.create(ChessBoardBlockEntity::new, CHESS_BOARD_BLOCK).build();
+
         CHESS_BOARD_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(id.apply("chess_board"), ChessBoardScreenHandler::new);
+
+        BLACK_PAWN = new PawnItem(true);
+        WHITE_PAWN = new PawnItem(false);
     }
 
     @Override
@@ -65,8 +81,11 @@ public class GameBlocks implements ModInitializer {
     }
 
     private void registerItems() {
-        ChessPiece.registerAll();
-        Registry.register(Registry.ITEM, id.apply("chess_board"), CHESS_BOARD_ITEM);
+        // ChessPieces
+        Registry.register(Registry.ITEM, id.apply("black_pawn"), BLACK_PAWN);
+        Registry.register(Registry.ITEM, id.apply("white_pawn"), WHITE_PAWN);
+
+
     }
 
     private void registerBlocksEntities() {
@@ -75,5 +94,6 @@ public class GameBlocks implements ModInitializer {
 
     private void registerBlocks() {
         Registry.register(Registry.BLOCK, id.apply("chess_board"), CHESS_BOARD_BLOCK);
+        Registry.register(Registry.ITEM, id.apply("chess_board"), CHESS_BOARD_ITEM);
     }
 }

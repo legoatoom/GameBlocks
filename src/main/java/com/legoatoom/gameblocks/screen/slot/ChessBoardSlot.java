@@ -14,56 +14,117 @@
 
 package com.legoatoom.gameblocks.screen.slot;
 
-import com.legoatoom.gameblocks.items.ChessPiece;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
+import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
+import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
+import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class ChessBoardSlot extends Slot {
 
-    public int getBoardX() {
-        return boardX;
+
+    private final int xLoc, yLoc;
+
+    private ChessActionType currrentHoverAction;
+
+    public ChessBoardInventory getInventory() {
+        return (ChessBoardInventory) this.inventory;
     }
 
-    public int getBoardY() {
-        return boardY;
+    public int getBoardXLoc() {
+        return xLoc;
     }
 
-    private final int boardX, boardY;
-    public ChessBoardSlot(Inventory inventory, int index, int x, int y, int boardX, int boardY) {
-        super(inventory, index, x, y);
-        this.boardX = boardX;
-        this.boardY = boardY;
+    public int getBoardYLoc() {
+        return yLoc;
+    }
+
+    public ChessBoardSlot(ChessBoardInventory inventory, int boardXLoc, int boardYLoc, int screenXLoc, int screenYLoc) {
+        super(inventory, xyToIndex(boardXLoc, boardYLoc), screenXLoc, screenYLoc);
+        this.xLoc = boardXLoc;
+        this.yLoc = boardYLoc;
+        inventory.addSlot(this);
+    }
+
+    public static int xyToIndex(int x, int y) {
+        return y * ChessBoardInventory.BOARD_WIDTH + x;
+    }
+
+    public List<Pair<ChessBoardSlot, ChessActionType>> calculateLegalActions(){
+        if (hasStack()) {
+            IChessPieceItem current = getCurrentPiece();
+            Objects.requireNonNull(current);
+            return current.calculateLegalActions(this);
+        } else return new ArrayList<>();
+    }
+
+    public List<Pair<ChessBoardSlot, ChessActionType>> calculateLegalActions(@NotNull IChessPieceItem item){
+        return item.calculateLegalActions(this);
+    }
+
+    @Override
+    public int getMaxItemCount(ItemStack stack) {
+        return 1;
+    }
+
+    public IChessPieceItem getCurrentPiece() {
+        return hasStack() ? (IChessPieceItem) this.getStack().getItem() : null;
+    }
+
+    @Deprecated
+    @Override
+    public void setStack(ItemStack stack) {
+        super.setStack(stack);
     }
 
     @Override
     public int getMaxItemCount() {
-        return 1;
+        if (!hasStack()) return super.getMaxItemCount();
+        assert this.getCurrentPiece() != null;
+        return this.getCurrentPiece().getMaxCount();
     }
 
     @Nullable
-    public ChessPiece getType() {
-        // TODO: 12021-12-31 Remove the check and make this slot only allow chesspieces
-        Item item = this.getStack().getItem();
-        if (item instanceof ChessPiece.ChessPieceItem piece) {
-            return piece.getType();
-        } else {
+    public ChessBoardSlot up(boolean isBlack){
+        return isBlack ? down(false) : getSlotFromInventory(this.xLoc, this.yLoc - 1);
+    }
+
+    @Nullable
+    public ChessBoardSlot down(boolean isBlack){
+        return isBlack ? up(false) : getSlotFromInventory(this.xLoc, this.yLoc + 1);
+    }
+
+    @Nullable
+    public ChessBoardSlot left(boolean isBlack){
+        return isBlack ? right(false) : getSlotFromInventory(this.xLoc + 1, this.yLoc);
+    }
+
+    @Nullable
+    public ChessBoardSlot right(boolean isBlack){
+        return isBlack ? left(false) : getSlotFromInventory(this.xLoc - 1, this.yLoc);
+    }
+
+    @Nullable
+    private ChessBoardSlot getSlotFromInventory(int xLoc, int yLoc) {
+        try{
+            return getInventory().getSlot(xLoc, yLoc);
+        } catch (IndexOutOfBoundsException e){
             return null;
         }
     }
 
-    public ChessPiece.ChessPieceItem getItem(){
-        if (getStack().getItem() instanceof ChessPiece.ChessPieceItem chessPieceItem){
-            return chessPieceItem;
-        } else {
-            return null;
-        }
+    public ChessActionType getCurrrentHoverAction() {
+        return currrentHoverAction;
     }
 
-    public boolean isBlack(){
-        if (getType() == null) return false;
-        return getType().isBlack();
+    public void setCurrrentHoverAction(ChessActionType currrentHoverAction) {
+        this.currrentHoverAction = currrentHoverAction;
     }
 }

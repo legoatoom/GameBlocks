@@ -48,7 +48,6 @@ public abstract class CustomHighSlotHighLighter {
     )
     private void render(MatrixStack matrices, int x, int y, int z){
         if (this.focusedSlot instanceof ChessBoardSlot){
-
             RenderSystem.disableDepthTest();
             RenderSystem.colorMask(true, true, true, false);
             // Vanilla code uses gradient, therefor I also do.

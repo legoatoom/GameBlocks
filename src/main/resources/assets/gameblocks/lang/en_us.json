@@ -11,5 +11,17 @@
   "item.gameblocks.white_knight": "White Knight",
   "item.gameblocks.white_pawn": "White Pawn",
   "item.gameblocks.white_queen": "White Queen",
-  "item.gameblocks.white_rook": "White Rook"
+  "item.gameblocks.white_rook": "White Rook",
+
+
+  "game.chess.action.tooltip.title.capture": "Capture",
+  "game.chess.action.tooltip.detail.capture": "A action by a pawn or piece that removes from the board the opponent's pawn or piece.",
+  "game.chess.action.tooltip.title.castle": "Castling",
+  "game.chess.action.tooltip.detail.castle": "A move in which the king and a rook are moved at the same time. It moves the king from the center to a flank where it usually is safer, and it develops the rook. It is the only time two pieces are moved in a turn. Castling can be done on either the kingside (notated 0-0) or the queenside (0-0-0). Castling cannot be done in reply to a check, nor if the king were to cross or land on a square which is under attack by the opponent, nor if either the king or the rook involved has already moved.",
+  "game.chess.action.tooltip.title.en_passant": "En Passant",
+  "game.chess.action.tooltip.detail.en_passant": "The rule that allows a pawn that has just advanced two squares to be captured by an enemy pawn that is on the same rank and adjacent file. The pawn can be taken as if it had advanced only one square. Capturing en passant is possible only on the next move.",
+  "game.chess.action.tooltip.title.promotion": "Promotion",
+  "game.chess.action.tooltip.detail.promotion": "Advancing a pawn to the eighth rank, converting it to a queen, rook, bishop or knight. Promotion to a piece other than a queen is called underpromotion.",
+  "game.chess.action.tooltip.title.initial_move": "Initial Pawn Move",
+  "game.chess.action.tooltip.detail.initial_move": "Normally a pawn moves by advancing a single square, but the first time a pawn moves, it has the option of advancing two squares. Pawns may not use the initial two-square advance to jump over an occupied square, or to capture. Any piece immediately in front of a pawn, friend or foe, blocks its advance."
 }
