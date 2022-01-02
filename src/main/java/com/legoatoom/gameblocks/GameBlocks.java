@@ -67,7 +67,7 @@ public class GameBlocks implements ModInitializer {
         CHESS_BOARD_ITEM = new BlockItem(CHESS_BOARD_BLOCK, new FabricItemSettings().group(GAME_BLOCKS));
         CHESS_BOARD_BLOCK_ENTITY = FabricBlockEntityTypeBuilder.create(ChessBoardBlockEntity::new, CHESS_BOARD_BLOCK).build();
 
-        CHESS_BOARD_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(id.apply("chess_board"), ChessBoardScreenHandler::new);
+        CHESS_BOARD_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(id.apply("chess_board"), ChessBoardScreenHandler::new);
 
         BLACK_PAWN = new PawnItem(true);
         WHITE_PAWN = new PawnItem(false);

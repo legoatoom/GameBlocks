@@ -154,7 +154,7 @@ public class ChessBoardInventory implements Inventory {
     }
 
     public void addSlot(ChessBoardSlot chessBoardSlot) {
-        this.slots[ChessBoardSlot.xyToIndex(chessBoardSlot.getBoardXLoc(), chessBoardSlot.getBoardYLoc())] = chessBoardSlot;
+        this.slots[chessBoardSlot.getIndex()] = chessBoardSlot;
     }
 
     public ChessBoardSlot getSlot(int index){

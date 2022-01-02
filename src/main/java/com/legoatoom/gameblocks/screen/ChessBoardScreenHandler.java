@@ -20,8 +20,8 @@ import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
@@ -33,8 +33,17 @@ public class ChessBoardScreenHandler extends ScreenHandler {
     private final PlayerInventory playerInventory;
     private final Direction chessBoardDirection;
 
-    public ChessBoardScreenHandler(int syncId, PlayerInventory inv) {
-        this(syncId, inv, new ChessBoardInventory(), Direction.NORTH /* Default, no influence on client */);
+    public ChessBoardScreenHandler(int syncId, PlayerInventory inv, PacketByteBuf buf) {
+        super(GameBlocks.CHESS_BOARD_SCREEN_HANDLER, syncId);
+
+        this.inventory = new ChessBoardInventory();
+        this.playerInventory = inv;
+        this.chessBoardDirection = Direction.fromHorizontal(buf.readInt());
+
+
+        inventory.onOpen(playerInventory.player);
+
+        initializeSlots();
     }
 
     public ChessBoardScreenHandler(int syncId, PlayerInventory playerInventory, ChessBoardInventory inventory, Direction facing) {
@@ -57,7 +66,10 @@ public class ChessBoardScreenHandler extends ScreenHandler {
                 Pair<Integer, Integer> pair = rotationTransformer(x, y);
                 int boardX = pair.getLeft();
                 int boardY = pair.getRight();
-                this.addSlot(new ChessBoardSlot(inventory, boardX, boardY, 24 + x * 16, 17 + y * 16));
+                Slot slot = new ChessBoardSlot(inventory, boardX, boardY, 24 + x * 16, 17 + y * 16, x, y);
+
+                this.addSlot(slot);
+
             }
         }
         //The player inventory
@@ -75,6 +87,8 @@ public class ChessBoardScreenHandler extends ScreenHandler {
     @SuppressWarnings("SuspiciousNameCombination")
     private Pair<Integer, Integer> rotationTransformer(int x, int y) {
         Direction playerFacing = playerInventory.player.getHorizontalFacing();
+        System.out.println("playerFacing = " + playerFacing);
+        System.out.println("chessBoardDirection = " + chessBoardDirection);
         if (this.chessBoardDirection == playerFacing) {
             // default
             return new Pair<>(x, y);

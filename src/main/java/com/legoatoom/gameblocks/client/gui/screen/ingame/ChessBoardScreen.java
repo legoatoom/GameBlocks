@@ -30,6 +30,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
@@ -89,10 +90,12 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
                     }
                 }
                 RenderSystem.enableDepthTest();
+
             }
             drawChessGuide(matrices, actions);
         } else if (this.focusedSlot != null && this.focusedSlot instanceof ChessBoardSlot chessBoardSlot) {
             // When hovering a Piece
+            renderTooltip(matrices, new LiteralText(chessBoardSlot.toString()), chessBoardSlot.x + this.x + 12, chessBoardSlot.y + this.y);
             if (chessBoardSlot.hasStack()){
                 List<Pair<ChessBoardSlot, ChessActionType>> actions = chessBoardSlot.calculateLegalActions();
                 drawChessGuide(matrices, actions);
@@ -104,8 +107,8 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
     protected void onMouseClick(Slot slot, int slotId, int button, SlotActionType actionType) {
         super.onMouseClick(slot, slotId, button, actionType);
         if (slot instanceof  ChessBoardSlot slot1) {
-            ChessActionType type = slot1.getCurrrentHoverAction();
-            slot1.setCurrrentHoverAction(null);
+            ChessActionType type = slot1.getCurrentHoverAction();
+            slot1.setCurrentHoverAction(null);
             System.out.println("slot = " + slot + ", slotId = " + slotId + ", button = " + button + ", actionType = " + actionType + ", chessMoveType = " + type);
         }
     }
@@ -118,11 +121,13 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
                 RenderSystem.colorMask(true, true, true, false);
                 // Vanilla code uses gradient, therefor I also do.
                 int color = action.getRight().getColor();
-                HandledScreen.fillGradient(matrices, slot.x + 1 + this.x, slot.y + 1 + this.y, slot.x + 15 + this.x, slot.y + 15 + this.y, color, color, -1);
+                HandledScreen.fillGradient(matrices, slot.x + 1 + this.x, slot.y + 1 + this.y, slot.x + 15 + this.x, slot.y + 15 + this.y, color, color, getZOffset());
                 RenderSystem.colorMask(true, true, true, true);
             }
         }
     }
+
+
 
     @Override
     protected void init() {

@@ -18,19 +18,23 @@ import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
-public class ChessBoardBlockEntity extends BlockEntity implements NamedScreenHandlerFactory {
+public class ChessBoardBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory {
 
 
 
@@ -61,5 +65,17 @@ public class ChessBoardBlockEntity extends BlockEntity implements NamedScreenHan
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
         return new ChessBoardScreenHandler(syncId, inv, this.chessBoardInventory, this.getCachedState().get(ChessBoardBlock.FACING));
+    }
+
+    /**
+     * Writes additional server -&gt; client screen opening data to the buffer.
+     *
+     * @param player the player that is opening the screen
+     * @param buf    the packet buffer
+     */
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        Direction direction = this.getCachedState().get(ChessBoardBlock.FACING);
+        buf.writeInt(direction.getHorizontal());
     }
 }

@@ -45,7 +45,7 @@ public class PawnItem extends IChessPieceItem{
 
         if (up != null) {
             if (!up.hasStack()) {
-                up.setCurrrentHoverAction(ChessActionType.MOVE);
+                up.setCurrentHoverAction(ChessActionType.MOVE);
                 result.add(new Pair<>(up, ChessActionType.MOVE));
 
                 // First move can be 2 steps.
@@ -54,7 +54,7 @@ public class PawnItem extends IChessPieceItem{
                 if (isDefaultLocation(x, y)) {
                     ChessBoardSlot up2 = up.up(isBlack());
                     if (up2 != null && !up2.hasStack()) {
-                        up2.setCurrrentHoverAction(ChessActionType.INITIAL_MOVE);
+                        up2.setCurrentHoverAction(ChessActionType.INITIAL_MOVE);
                         result.add(new Pair<>(up2, ChessActionType.INITIAL_MOVE));
                     }
                 }
@@ -64,11 +64,11 @@ public class PawnItem extends IChessPieceItem{
             ChessBoardSlot upLeft = up.left(isBlack());
             ChessBoardSlot upRight = up.right(isBlack());
             if (upLeft != null && upLeft.hasStack() && upLeft.getCurrentPiece().isBlack() != this.isBlack()){
-                upLeft.setCurrrentHoverAction(ChessActionType.CAPTURE);
+                upLeft.setCurrentHoverAction(ChessActionType.CAPTURE);
                 result.add(new Pair<>(upLeft, ChessActionType.CAPTURE));
             }
             if (upRight != null && upRight.hasStack() && upRight.getCurrentPiece().isBlack() != this.isBlack()){
-                upRight.setCurrrentHoverAction(ChessActionType.CAPTURE);
+                upRight.setCurrentHoverAction(ChessActionType.CAPTURE);
                 result.add(new Pair<>(upRight, ChessActionType.CAPTURE));
             }
         }

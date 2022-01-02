@@ -31,8 +31,9 @@ public class ChessBoardSlot extends Slot {
 
 
     private final int xLoc, yLoc;
+    public final int clientX, clientY;
 
-    private ChessActionType currrentHoverAction;
+    private ChessActionType currentHoverAction;
 
     public ChessBoardInventory getInventory() {
         return (ChessBoardInventory) this.inventory;
@@ -46,11 +47,28 @@ public class ChessBoardSlot extends Slot {
         return yLoc;
     }
 
-    public ChessBoardSlot(ChessBoardInventory inventory, int boardXLoc, int boardYLoc, int screenXLoc, int screenYLoc) {
+    public ChessBoardSlot(ChessBoardInventory inventory, int boardXLoc, int boardYLoc, int screenXLoc, int screenYLoc, int clientX, int clientY) {
         super(inventory, xyToIndex(boardXLoc, boardYLoc), screenXLoc, screenYLoc);
         this.xLoc = boardXLoc;
         this.yLoc = boardYLoc;
+        this.clientX = clientX;
+        this.clientY = clientY;
         inventory.addSlot(this);
+        System.out.println("creating slot = " + this);
+    }
+
+
+    @Override
+    public String toString() {
+        return "ChessBoardSlot{" +
+                "xLoc=" + xLoc +
+                ", yLoc=" + yLoc +
+                ", clientX=" + clientX +
+                ", clientY=" + clientY +
+                ", index=" + getIndex() +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
     }
 
     public static int xyToIndex(int x, int y) {
@@ -120,11 +138,11 @@ public class ChessBoardSlot extends Slot {
         }
     }
 
-    public ChessActionType getCurrrentHoverAction() {
-        return currrentHoverAction;
+    public ChessActionType getCurrentHoverAction() {
+        return currentHoverAction;
     }
 
-    public void setCurrrentHoverAction(ChessActionType currrentHoverAction) {
-        this.currrentHoverAction = currrentHoverAction;
+    public void setCurrentHoverAction(ChessActionType currentHoverAction) {
+        this.currentHoverAction = currentHoverAction;
     }
 }
