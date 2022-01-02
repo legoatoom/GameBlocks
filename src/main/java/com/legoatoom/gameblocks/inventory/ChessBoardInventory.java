@@ -14,20 +14,17 @@
 
 package com.legoatoom.gameblocks.inventory;
 
-import com.google.common.collect.Lists;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessStorageSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.InventoryChangedListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.DefaultedList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ChessBoardInventory implements Inventory {
@@ -38,13 +35,15 @@ public class ChessBoardInventory implements Inventory {
     protected final DefaultedList<ItemStack> board;
     public List<ChessBoardSlot> movables;
     private final ChessBoardSlot[] slots;
+    private final ChessStorageSlot[] storageSlots;
 
 //    private CheckmateDetector checkmateDetector;
 
 
     public ChessBoardInventory() {
-        board = DefaultedList.ofSize(BOARD_SIZE, ItemStack.EMPTY);
+        board = DefaultedList.ofSize(BOARD_SIZE + 2 * 6, ItemStack.EMPTY);
         slots = new ChessBoardSlot[BOARD_SIZE];
+        storageSlots = new ChessStorageSlot[2 * 6];
     }
 
 
@@ -157,11 +156,27 @@ public class ChessBoardInventory implements Inventory {
         this.slots[chessBoardSlot.getIndex()] = chessBoardSlot;
     }
 
+    public void addStorageSlot(ChessStorageSlot chessStorageSlot) {
+        if (chessStorageSlot.getIndex() < 63) {
+            System.err.println("Slot has a id that is too low");
+            return;
+        }
+        this.storageSlots[chessStorageSlot.getIndex() - 63] = chessStorageSlot;
+    }
+
+    public ChessStorageSlot getStorageSlot(int index){
+        return this.storageSlots[index];
+    }
+
     public ChessBoardSlot getSlot(int index){
         return slots[index];
     }
 
     public ChessBoardSlot getSlot(int x, int y){
         return getSlot(ChessBoardSlot.xyToIndex(x, y));
+    }
+
+    public ChessBoardSlot[] getBoardSlots() {
+        return this.slots;
     }
 }

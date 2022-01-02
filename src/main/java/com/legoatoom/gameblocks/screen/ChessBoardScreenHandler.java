@@ -16,12 +16,16 @@ package com.legoatoom.gameblocks.screen;
 
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
+import com.legoatoom.gameblocks.items.chess.*;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessStorageSlot;
+import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
@@ -30,7 +34,7 @@ public class ChessBoardScreenHandler extends ScreenHandler {
 
     private static final int BOARD_WIDTH = 8;
     private final ChessBoardInventory inventory;
-    private final PlayerInventory playerInventory;
+    public final PlayerInventory playerInventory;
     private final Direction chessBoardDirection;
 
     public ChessBoardScreenHandler(int syncId, PlayerInventory inv, PacketByteBuf buf) {
@@ -39,6 +43,7 @@ public class ChessBoardScreenHandler extends ScreenHandler {
         this.inventory = new ChessBoardInventory();
         this.playerInventory = inv;
         this.chessBoardDirection = Direction.fromHorizontal(buf.readInt());
+
 
 
         inventory.onOpen(playerInventory.player);
@@ -54,10 +59,26 @@ public class ChessBoardScreenHandler extends ScreenHandler {
         this.chessBoardDirection = facing;
 
         inventory.onOpen(playerInventory.player);
+        this.addListener(new ScreenHandlerListener() {
+            @Override
+            public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
+                if (stack.hasNbt()){
+                    assert stack.getNbt() != null;
+                    ChessActionType type = ChessActionType.fromId(stack.getNbt().getInt(ChessActionType.ACTION_NBT_KEY));
+                }
+
+            }
+
+            @Override
+            public void onPropertyUpdate(ScreenHandler handler, int property, int value) {
+
+            }
+        });
 
         initializeSlots();
     }
 
+    @SuppressWarnings("PointlessArithmeticExpression")
     private void initializeSlots() {
         int y, x;
         // 0 - 8  + 0 - 64
@@ -67,11 +88,25 @@ public class ChessBoardScreenHandler extends ScreenHandler {
                 int boardX = pair.getLeft();
                 int boardY = pair.getRight();
                 Slot slot = new ChessBoardSlot(inventory, boardX, boardY, 24 + x * 16, 17 + y * 16, x, y);
-
                 this.addSlot(slot);
-
             }
         }
+
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 0 * 2 + 64, 159 + 0 * 16, 33 + 0 * 16, PawnItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 1 * 2 + 64, 159 + 0 * 16, 33 + 1 * 16, RookItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 2 * 2 + 64, 159 + 0 * 16, 33 + 2 * 16, KnightItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 3 * 2 + 64, 159 + 0 * 16, 33 + 3 * 16, BishopItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 4 * 2 + 64, 159 + 0 * 16, 33 + 4 * 16, QueenItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 5 * 2 + 64, 159 + 0 * 16, 33 + 5 * 16, KingItem.class, false));
+
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 0 * 2 + 64, 159 + 1 * 16, 33 + 0 * 16, PawnItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 1 * 2 + 64, 159 + 1 * 16, 33 + 1 * 16, RookItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 2 * 2 + 64, 159 + 1 * 16, 33 + 2 * 16, KnightItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 3 * 2 + 64, 159 + 1 * 16, 33 + 3 * 16, BishopItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 4 * 2 + 64, 159 + 1 * 16, 33 + 4 * 16, QueenItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 5 * 2 + 64, 159 + 1 * 16, 33 + 5 * 16, KingItem.class, true));
+
+
         //The player inventory
         for (y = 0; y < 3; ++y) {
             for (x = 0; x < 9; ++x) {
@@ -87,8 +122,6 @@ public class ChessBoardScreenHandler extends ScreenHandler {
     @SuppressWarnings("SuspiciousNameCombination")
     private Pair<Integer, Integer> rotationTransformer(int x, int y) {
         Direction playerFacing = playerInventory.player.getHorizontalFacing();
-        System.out.println("playerFacing = " + playerFacing);
-        System.out.println("chessBoardDirection = " + chessBoardDirection);
         if (this.chessBoardDirection == playerFacing) {
             // default
             return new Pair<>(x, y);

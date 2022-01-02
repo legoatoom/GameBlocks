@@ -15,30 +15,58 @@
 package com.legoatoom.gameblocks.util.chess;
 
 import com.google.common.collect.Lists;
+import com.legoatoom.gameblocks.GameBlocks;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public enum ChessActionType {
-    CAPTURE(0x80cc0000), CASTLE(0x803d85c6), EN_PASSANT(0x803d85c6), MOVE(0x803d85c6), PROMOTION(0x803d85c6), INITIAL_MOVE(0x80f1c232);
+    CAPTURE(0, 0x80cc0000),
+    CASTLE(1, 0x803d85c6),
+    EN_PASSANT(2, 0x806aa84f),
+    INITIAL_MOVE(3, 0x80f1c232),
+    MOVE(4, 0x803d85c6),
+    PROMOTION(5, 0x803d85c6),
+    PROMOTION_CAPTURE(6, 0x803d85c6);
 
     private final int color;
 
-    ChessActionType(int color) {
+    public final static Identifier SYNC_TYPE_PACKET_ID = GameBlocks.id("sync_type_packet");
+    public final static String ACTION_NBT_KEY = GameBlocks.id("action_type").toString();
+    private final int id;
+
+    ChessActionType(int id, int color) {
+        this.id = id;
         this.color = color;
     }
 
-    public List<Text> getInfo(TextRenderer renderer){
+    public int getId() {
+        return id;
+    }
+
+    public static ChessActionType fromId(int id){
+        for (ChessActionType value : ChessActionType.values()) {
+            if (value.id == id){
+                return value;
+            }
+        }
+        return null;
+    }
+
+    public List<Text> getInfo(TextRenderer renderer) {
         ArrayList<Text> list = Lists.newArrayListWithExpectedSize(2);
         if (this == MOVE) return list;
-        String name = this.name().toLowerCase(Locale.ROOT);
-        Text title = new TranslatableText("game.chess.action.tooltip.title.%s".formatted(name)).setStyle(Style.EMPTY.withColor(this.color));
+        Text title = new TranslatableText("game.chess.action.tooltip.title.%s".formatted(toString())).setStyle(Style.EMPTY.withColor(this.color));
         var detail = renderer.getTextHandler().wrapLines(
-                new TranslatableText("game.chess.action.tooltip.detail.%s".formatted(name)),
+                new TranslatableText("game.chess.action.tooltip.detail.%s".formatted(toString())),
                 150, Style.EMPTY);
         list.add(title);
         for (StringVisitable stringVisitable : detail) {
@@ -47,7 +75,19 @@ public enum ChessActionType {
         return list;
     }
 
+    @Override
+    public String toString() {
+        return this.name().toLowerCase(Locale.ROOT);
+    }
+
     public int getColor() {
         return this.color;
+    }
+
+    public void sendNbtUpdate(int slotId) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(slotId);
+        buf.writeInt(this.getId());
+        ClientPlayNetworking.send(SYNC_TYPE_PACKET_ID, buf);
     }
 }

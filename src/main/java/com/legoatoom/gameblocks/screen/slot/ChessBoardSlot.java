@@ -16,12 +16,15 @@ package com.legoatoom.gameblocks.screen.slot;
 
 import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
+import com.legoatoom.gameblocks.items.chess.PawnItem;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +57,6 @@ public class ChessBoardSlot extends Slot {
         this.clientX = clientX;
         this.clientY = clientY;
         inventory.addSlot(this);
-        System.out.println("creating slot = " + this);
     }
 
 
@@ -75,15 +77,16 @@ public class ChessBoardSlot extends Slot {
         return y * ChessBoardInventory.BOARD_WIDTH + x;
     }
 
-    public List<Pair<ChessBoardSlot, ChessActionType>> calculateLegalActions(){
+    public List<ChessBoardSlot> calculateLegalActions(){
         if (hasStack()) {
             IChessPieceItem current = getCurrentPiece();
             Objects.requireNonNull(current);
+            current.cleanHoverActions(this.getInventory().getBoardSlots());
             return current.calculateLegalActions(this);
         } else return new ArrayList<>();
     }
 
-    public List<Pair<ChessBoardSlot, ChessActionType>> calculateLegalActions(@NotNull IChessPieceItem item){
+    public List<ChessBoardSlot> calculateLegalActions(@NotNull IChessPieceItem item){
         return item.calculateLegalActions(this);
     }
 
@@ -95,6 +98,44 @@ public class ChessBoardSlot extends Slot {
     public IChessPieceItem getCurrentPiece() {
         return hasStack() ? (IChessPieceItem) this.getStack().getItem() : null;
     }
+
+
+    public void capturePiece() {
+        ItemStack stack = getStack();
+        IChessPieceItem chessPieceItem = (IChessPieceItem) stack.getItem();
+        if (chessPieceItem != null){
+            int slotId = getSlotIdFromType(chessPieceItem.isBlack(), chessPieceItem.getType());
+            getInventory().setStack(getIndex(), ItemStack.EMPTY);
+            int i = getInventory().getStack(slotId).getCount();
+            stack.setCount(i + 1);
+            getInventory().setStack(slotId, stack);
+        }
+    }
+
+    public void capturePiece(ScreenHandler handler, ItemStack itemStack){
+        IChessPieceItem chessPieceItem = (IChessPieceItem) itemStack.getItem();
+        if (chessPieceItem != null){
+            int slotId = getSlotIdFromType(chessPieceItem.isBlack(), chessPieceItem.getType());
+            handler.setCursorStack(ItemStack.EMPTY);
+            int i = getInventory().getStack(slotId).getCount();
+            itemStack.setCount(i + 1);
+            getInventory().setStack(slotId, itemStack);
+        }
+    }
+
+    @SuppressWarnings("PointlessArithmeticExpression")
+    private int getSlotIdFromType(boolean isBlack, IChessPieceItem.ChessPieceType type){
+        return switch (type){
+            case PAWN -> 0 + (isBlack ? 1 : 0) + 64;
+            case ROOK -> 2 + (isBlack ? 1 : 0) + 64;
+            case KNIGHT -> 4 + (isBlack ? 1 : 0) + 64;
+            case BISHOP -> 6 + (isBlack ? 1 : 0) + 64;
+            case QUEEN -> 8 + (isBlack ? 1 : 0) + 64;
+            case KING -> 10 + (isBlack ? 1 : 0) + 64;
+        };
+    }
+
+
 
     @Deprecated
     @Override
@@ -138,6 +179,7 @@ public class ChessBoardSlot extends Slot {
         }
     }
 
+
     public ChessActionType getCurrentHoverAction() {
         return currentHoverAction;
     }
@@ -145,4 +187,6 @@ public class ChessBoardSlot extends Slot {
     public void setCurrentHoverAction(ChessActionType currentHoverAction) {
         this.currentHoverAction = currentHoverAction;
     }
+
+
 }

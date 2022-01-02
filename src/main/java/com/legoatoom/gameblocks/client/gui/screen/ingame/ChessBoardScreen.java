@@ -25,28 +25,24 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
 
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements ScreenHandlerListener {
-    private static final Identifier TEXTURE = GameBlocks.id.apply("textures/gui/chess_board_fancy.png");
+public class ChessBoardScreen extends HandledScreen<ScreenHandler> {
+    private static final Identifier TEXTURE = GameBlocks.id("textures/gui/chess_board_fancy.png");
 
     public ChessBoardScreen(ScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
         backgroundWidth = 204;
         backgroundHeight = 252;
         this.playerInventoryTitleY = this.backgroundHeight - 94;
-        handler.addListener(this);
+
     }
 
     @Override
@@ -78,12 +74,12 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
                 && handler.getCursorStack().getItem() instanceof IChessPieceItem chessPieceItem
                 && lastClickedSlot != null && lastClickedSlot instanceof ChessBoardSlot chessBoardSlot) {
             //When holding a Piece
-            List<Pair<ChessBoardSlot, ChessActionType>> actions = chessBoardSlot.calculateLegalActions(chessPieceItem);
+            List<ChessBoardSlot> actions = chessBoardSlot.calculateLegalActions(chessPieceItem);
             if (this.focusedSlot != null){
                 RenderSystem.disableDepthTest();
-                for (Pair<ChessBoardSlot, ChessActionType> action : actions) {
-                    if (action.getLeft() == this.focusedSlot){
-                        List<Text> info = action.getRight().getInfo(this.textRenderer);
+                for (ChessBoardSlot action : actions) {
+                    if (action == this.focusedSlot){
+                        List<Text> info = action.getCurrentHoverAction().getInfo(this.textRenderer);
                         if (!info.isEmpty()) {
                             renderTooltip(matrices, info, this.focusedSlot.x + this.x + 12, this.focusedSlot.y + this.y);
                         }
@@ -95,9 +91,8 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
             drawChessGuide(matrices, actions);
         } else if (this.focusedSlot != null && this.focusedSlot instanceof ChessBoardSlot chessBoardSlot) {
             // When hovering a Piece
-            renderTooltip(matrices, new LiteralText(chessBoardSlot.toString()), chessBoardSlot.x + this.x + 12, chessBoardSlot.y + this.y);
             if (chessBoardSlot.hasStack()){
-                List<Pair<ChessBoardSlot, ChessActionType>> actions = chessBoardSlot.calculateLegalActions();
+                List<ChessBoardSlot> actions = chessBoardSlot.calculateLegalActions();
                 drawChessGuide(matrices, actions);
             }
         }
@@ -106,22 +101,20 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
     @Override
     protected void onMouseClick(Slot slot, int slotId, int button, SlotActionType actionType) {
         super.onMouseClick(slot, slotId, button, actionType);
-        if (slot instanceof  ChessBoardSlot slot1) {
-            ChessActionType type = slot1.getCurrentHoverAction();
-            slot1.setCurrentHoverAction(null);
-            System.out.println("slot = " + slot + ", slotId = " + slotId + ", button = " + button + ", actionType = " + actionType + ", chessMoveType = " + type);
+        if (slot instanceof ChessBoardSlot chessBoardSlot && chessBoardSlot.getCurrentHoverAction() != null) {
+            ChessActionType action = chessBoardSlot.getCurrentHoverAction();
+            action.sendNbtUpdate(slotId);
         }
     }
 
-    private void drawChessGuide(MatrixStack matrices, List<Pair<ChessBoardSlot, ChessActionType>> legalAction) {
-
+    private void drawChessGuide(MatrixStack matrices, List<ChessBoardSlot> legalAction) {
         if (!legalAction.isEmpty()){
-            for (Pair<ChessBoardSlot, ChessActionType> action : legalAction) {
-                ChessBoardSlot slot = action.getLeft();
+            for (ChessBoardSlot action : legalAction) {
                 RenderSystem.colorMask(true, true, true, false);
+
+                int color = action.getCurrentHoverAction().getColor();
                 // Vanilla code uses gradient, therefor I also do.
-                int color = action.getRight().getColor();
-                HandledScreen.fillGradient(matrices, slot.x + 1 + this.x, slot.y + 1 + this.y, slot.x + 15 + this.x, slot.y + 15 + this.y, color, color, getZOffset());
+                HandledScreen.fillGradient(matrices, action.x + 1 + this.x, action.y + 1 + this.y, action.x + 15 + this.x, action.y + 15 + this.y, color, color, getZOffset());
                 RenderSystem.colorMask(true, true, true, true);
             }
         }
@@ -134,16 +127,5 @@ public class ChessBoardScreen extends HandledScreen<ScreenHandler> implements Sc
         super.init();
         // Center the title
         titleX = (176 - textRenderer.getWidth(title)) / 2;
-    }
-
-
-    @Override
-    public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
-
-    }
-
-    @Override
-    public void onPropertyUpdate(ScreenHandler handler, int property, int value) {
-
     }
 }

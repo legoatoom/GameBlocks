@@ -14,11 +14,13 @@
 
 package com.legoatoom.gameblocks.items.chess;
 
+import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.item.Item;
-import net.minecraft.util.Pair;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -28,16 +30,41 @@ import static com.legoatoom.gameblocks.GameBlocks.GAME_BLOCKS;
 public abstract class IChessPieceItem extends Item {
     private final boolean isBlack;
 
-    public IChessPieceItem(boolean isBlack, int maxCount) {
+    public ChessPieceType getType() {
+        return type;
+    }
+
+    private final ChessPieceType type;
+
+
+    public IChessPieceItem(boolean isBlack, int maxCount, ChessPieceType type) {
         super(new FabricItemSettings().group(GAME_BLOCKS).maxCount(maxCount));
+        GameBlocks.CHESS_PIECES.add(this);
         this.isBlack = isBlack;
+        this.type = type;
     }
 
     public abstract boolean isDefaultLocation(int x, int y);
 
-    public abstract ArrayList<Pair<ChessBoardSlot, ChessActionType>> calculateLegalActions(@NotNull ChessBoardSlot slot);
+    @NotNull
+    public abstract ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot);
+
+    public void cleanHoverActions(ChessBoardSlot[] slots){
+        for (ChessBoardSlot slot : slots) {
+            slot.setCurrentHoverAction(null);
+        }
+    }
 
     public boolean isBlack(){
         return isBlack;
+    }
+    public void handleAction(ScreenHandler handler, ChessBoardSlot slot, ItemStack cursorStack, ChessActionType actionType){
+        if (actionType == ChessActionType.CAPTURE){
+            slot.capturePiece(handler, cursorStack);
+        }
+    }
+
+    public enum ChessPieceType{
+        PAWN, KING, KNIGHT, ROOK, QUEEN, BISHOP;
     }
 }

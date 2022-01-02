@@ -17,36 +17,33 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
-import net.minecraft.util.Pair;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.ScreenHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 public class PawnItem extends IChessPieceItem{
     public PawnItem(boolean isBlack) {
-        super(isBlack, 8);
-        GameBlocks.CHESS_PIECES.add(this);
+        super(isBlack, 8, ChessPieceType.PAWN);
     }
 
 
     @Override
     public boolean isDefaultLocation(int x, int y) {
-        if (isBlack()){
-            return y == 1;
-        } else {
-            return y == 6;
-        }
+        return isBlack() ? y == 1 : y == 6;
     }
 
     @Override
-    public ArrayList<Pair<ChessBoardSlot, ChessActionType>> calculateLegalActions(@NotNull ChessBoardSlot slot) {
-        ArrayList<Pair<ChessBoardSlot, ChessActionType>> result = new ArrayList<>();
+    public @NotNull ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot) {
+        ArrayList<ChessBoardSlot> result = new ArrayList<>();
         ChessBoardSlot up = slot.up(isBlack());
 
         if (up != null) {
             if (!up.hasStack()) {
                 up.setCurrentHoverAction(ChessActionType.MOVE);
-                result.add(new Pair<>(up, ChessActionType.MOVE));
+                result.add(up);
 
                 // First move can be 2 steps.
                 int x = slot.getBoardXLoc();
@@ -55,23 +52,71 @@ public class PawnItem extends IChessPieceItem{
                     ChessBoardSlot up2 = up.up(isBlack());
                     if (up2 != null && !up2.hasStack()) {
                         up2.setCurrentHoverAction(ChessActionType.INITIAL_MOVE);
-                        result.add(new Pair<>(up2, ChessActionType.INITIAL_MOVE));
+                        result.add(up2);
                     }
                 }
             }
 
             // Capture
             ChessBoardSlot upLeft = up.left(isBlack());
+            testCapture(upLeft, result);
             ChessBoardSlot upRight = up.right(isBlack());
-            if (upLeft != null && upLeft.hasStack() && upLeft.getCurrentPiece().isBlack() != this.isBlack()){
-                upLeft.setCurrentHoverAction(ChessActionType.CAPTURE);
-                result.add(new Pair<>(upLeft, ChessActionType.CAPTURE));
-            }
-            if (upRight != null && upRight.hasStack() && upRight.getCurrentPiece().isBlack() != this.isBlack()){
-                upRight.setCurrentHoverAction(ChessActionType.CAPTURE);
-                result.add(new Pair<>(upRight, ChessActionType.CAPTURE));
+            testCapture(upRight, result);
+        }
+
+        //En Passant
+        ChessBoardSlot left = slot.left(isBlack());
+        testEnPassant(result, left);
+        ChessBoardSlot right = slot.right(isBlack());
+        testEnPassant(result, right);
+
+        return result;
+    }
+
+    private void testCapture(ChessBoardSlot upRight, ArrayList<ChessBoardSlot> result) {
+        if (upRight != null && upRight.hasStack() && upRight.getCurrentPiece().isBlack() != this.isBlack()){
+            upRight.setCurrentHoverAction(ChessActionType.CAPTURE);
+            result.add(upRight);
+        }
+    }
+
+    private void testEnPassant(ArrayList<ChessBoardSlot> result, ChessBoardSlot slot) {
+        if (slot != null && slot.hasStack() && slot.getCurrentPiece().isBlack() != this.isBlack() && slot.getStack().hasNbt()){
+            NbtCompound compound = slot.getStack().getNbt();
+            assert compound != null;
+            if (compound.contains("gameblocks:mayEnPassant")){
+                ChessBoardSlot up = slot.up(isBlack());
+                assert up != null;
+                up.setCurrentHoverAction(ChessActionType.EN_PASSANT);
+                result.add(up);
             }
         }
-        return result;
+    }
+
+    @Override
+    public void handleAction(ScreenHandler handler, ChessBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
+        super.handleAction(handler, slot, cursorStack,actionType);
+        if (actionType == ChessActionType.EN_PASSANT){
+            slot.down(isBlack()).capturePiece();
+        }
+        for (ItemStack itemStack : slot.getInventory().getBoard()) {
+            if (itemStack.getItem() instanceof PawnItem item && item.isBlack() == this.isBlack()){
+                continue;
+            }
+            if (itemStack.equals(cursorStack)){
+                continue;
+            }
+            if (itemStack.hasNbt()) {
+                NbtCompound compound = itemStack.getOrCreateNbt();
+                if (compound.contains("gameblocks:mayEnPassant")) {
+                    compound.remove("gameblocks:mayEnPassant");
+                }
+            }
+        }
+        ItemStack slotStack = slot.getStack();
+        NbtCompound nbtCompound = slotStack.getOrCreateNbt();
+        if (actionType == ChessActionType.INITIAL_MOVE){
+            nbtCompound.putBoolean("gameblocks:mayEnPassant", true);
+        }
     }
 }

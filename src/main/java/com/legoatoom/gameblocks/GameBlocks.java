@@ -16,13 +16,14 @@ package com.legoatoom.gameblocks;
 
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
-import com.legoatoom.gameblocks.items.ChessPiece;
-import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
-import com.legoatoom.gameblocks.items.chess.PawnItem;
+import com.legoatoom.gameblocks.items.chess.*;
 import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
+import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
@@ -37,15 +38,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
-import java.util.function.Function;
 
-public class GameBlocks implements ModInitializer {
+public final class GameBlocks implements ModInitializer {
 
 
     public static final String MOD_ID = "gameblocks";
-    public static final Function<String, Identifier> id = (String path) -> new Identifier(MOD_ID, path);
 
-    public static final ItemGroup GAME_BLOCKS = FabricItemGroupBuilder.build(id.apply("game_blocks"),
+    public static final ItemGroup GAME_BLOCKS = FabricItemGroupBuilder.build(id("game_blocks"),
             () -> new ItemStack(Blocks.BARRIER));
 
 
@@ -56,6 +55,16 @@ public class GameBlocks implements ModInitializer {
     public static final ArrayList<IChessPieceItem> CHESS_PIECES = new ArrayList<>();
     public static Item BLACK_PAWN;
     public static Item WHITE_PAWN;
+    public static Item WHITE_ROOK;
+    public static Item BLACK_ROOK;
+    public static Item WHITE_KING;
+    public static Item BLACK_KING;
+    public static Item WHITE_QUEEN;
+    public static Item BLACK_QUEEN;
+    public static Item WHITE_BISHOP;
+    public static Item BLACK_BISHOP;
+    public static Item WHITE_KNIGHT;
+    public static Item BLACK_KNIGHT;
 
 
 
@@ -67,10 +76,25 @@ public class GameBlocks implements ModInitializer {
         CHESS_BOARD_ITEM = new BlockItem(CHESS_BOARD_BLOCK, new FabricItemSettings().group(GAME_BLOCKS));
         CHESS_BOARD_BLOCK_ENTITY = FabricBlockEntityTypeBuilder.create(ChessBoardBlockEntity::new, CHESS_BOARD_BLOCK).build();
 
-        CHESS_BOARD_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(id.apply("chess_board"), ChessBoardScreenHandler::new);
+        CHESS_BOARD_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(id("chess_board"), ChessBoardScreenHandler::new);
 
         BLACK_PAWN = new PawnItem(true);
         WHITE_PAWN = new PawnItem(false);
+        BLACK_ROOK = new RookItem(true);
+        WHITE_ROOK = new RookItem(false);
+        BLACK_KING = new KingItem(true);
+        WHITE_KING = new KingItem(false);
+        BLACK_QUEEN = new QueenItem(true);
+        WHITE_QUEEN = new QueenItem(false);
+        BLACK_BISHOP = new BishopItem(true);
+        WHITE_BISHOP = new BishopItem(false);
+        BLACK_KNIGHT = new KnightItem(true);
+        WHITE_KNIGHT = new KnightItem(false);
+
+    }
+
+    public static Identifier id(String path) {
+        return new Identifier(MOD_ID, path);
     }
 
     @Override
@@ -78,22 +102,49 @@ public class GameBlocks implements ModInitializer {
         registerBlocks();
         registerBlocksEntities();
         registerItems();
+        registerGlobalReceivers();
+    }
+
+    private void registerGlobalReceivers() {
+
+        // see ChessActionType#sendNbtUpdate(int)
+        ServerPlayNetworking.registerGlobalReceiver(ChessActionType.SYNC_TYPE_PACKET_ID, (server, player, handler, buf, responseSender) -> {
+            int slotId = buf.readInt();
+            int actionId = buf.readInt();
+            server.execute(() -> {
+                ChessBoardSlot slot = (ChessBoardSlot) player.currentScreenHandler.getSlot(slotId);
+                ItemStack slotStack = slot.getStack();
+                ItemStack cursorStack = player.currentScreenHandler.getCursorStack();
+                if (!(slotStack.getItem() instanceof IChessPieceItem chessPieceItem)) return;
+                chessPieceItem.handleAction(player.currentScreenHandler, slot, cursorStack, ChessActionType.fromId(actionId));
+            });
+        });
     }
 
     private void registerItems() {
         // ChessPieces
-        Registry.register(Registry.ITEM, id.apply("black_pawn"), BLACK_PAWN);
-        Registry.register(Registry.ITEM, id.apply("white_pawn"), WHITE_PAWN);
+        Registry.register(Registry.ITEM, id("white_pawn"),WHITE_PAWN);
+        Registry.register(Registry.ITEM, id("black_pawn"),BLACK_PAWN);
+        Registry.register(Registry.ITEM, id("white_rook"),WHITE_ROOK);
+        Registry.register(Registry.ITEM, id("black_rook"),BLACK_ROOK);
+        Registry.register(Registry.ITEM, id("white_king"),WHITE_KING);
+        Registry.register(Registry.ITEM, id("black_king"),BLACK_KING);
+        Registry.register(Registry.ITEM, id("white_queen"),WHITE_QUEEN);
+        Registry.register(Registry.ITEM, id("black_queen"),BLACK_QUEEN);
+        Registry.register(Registry.ITEM, id("white_bishop"),WHITE_BISHOP);
+        Registry.register(Registry.ITEM, id("black_bishop"),BLACK_BISHOP);
+        Registry.register(Registry.ITEM, id("white_knight"),WHITE_KNIGHT);
+        Registry.register(Registry.ITEM, id("black_knight"),BLACK_KNIGHT);
 
 
     }
 
     private void registerBlocksEntities() {
-        Registry.register(Registry.BLOCK_ENTITY_TYPE, id.apply("chess_board_entity"), CHESS_BOARD_BLOCK_ENTITY);
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, id("chess_board_entity"), CHESS_BOARD_BLOCK_ENTITY);
     }
 
     private void registerBlocks() {
-        Registry.register(Registry.BLOCK, id.apply("chess_board"), CHESS_BOARD_BLOCK);
-        Registry.register(Registry.ITEM, id.apply("chess_board"), CHESS_BOARD_ITEM);
+        Registry.register(Registry.BLOCK, id("chess_board"), CHESS_BOARD_BLOCK);
+        Registry.register(Registry.ITEM, id("chess_board"), CHESS_BOARD_ITEM);
     }
 }
