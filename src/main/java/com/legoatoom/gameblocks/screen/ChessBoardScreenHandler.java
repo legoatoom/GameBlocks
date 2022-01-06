@@ -15,7 +15,9 @@
 package com.legoatoom.gameblocks.screen;
 
 import com.legoatoom.gameblocks.GameBlocks;
+import com.legoatoom.gameblocks.inventory.ClientChessBoardInventory;
 import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.items.chess.*;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.legoatoom.gameblocks.screen.slot.ChessStorageSlot;
@@ -24,49 +26,89 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChessBoardScreenHandler extends ScreenHandler {
 
     private static final int BOARD_WIDTH = 8;
-    private final ChessBoardInventory inventory;
+    public final ChessBoardInventory inventory;
     public final PlayerInventory playerInventory;
     private final Direction chessBoardDirection;
+    public final ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate;
 
     public ChessBoardScreenHandler(int syncId, PlayerInventory inv, PacketByteBuf buf) {
         super(GameBlocks.CHESS_BOARD_SCREEN_HANDLER, syncId);
-
-        this.inventory = new ChessBoardInventory();
+        //CLIENT
+        this.inventory = new ClientChessBoardInventory();
         this.playerInventory = inv;
         this.chessBoardDirection = Direction.fromHorizontal(buf.readInt());
-
+        this.slotHintPropertyDelegate = new ArrayList<>();
+        for (int i = 0; i < 64; i++) {
+            this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(64));
+        }
+        for (ArrayPropertyDelegate pd : this.slotHintPropertyDelegate) {
+            this.addProperties(pd);
+        }
 
 
         inventory.onOpen(playerInventory.player);
 
         initializeSlots();
+
     }
 
-    public ChessBoardScreenHandler(int syncId, PlayerInventory playerInventory, ChessBoardInventory inventory, Direction facing) {
+    public ChessBoardScreenHandler(int syncId, PlayerInventory playerInventory, ServerChessBoardInventory inventory, Direction facing) {
         super(GameBlocks.CHESS_BOARD_SCREEN_HANDLER, syncId);
-
+        //SERVER
         this.inventory = inventory;
         this.playerInventory = playerInventory;
         this.chessBoardDirection = facing;
-
+        this.slotHintPropertyDelegate = inventory.slotHintPropertyDelegate;
         inventory.onOpen(playerInventory.player);
+        for (ArrayPropertyDelegate pd : this.slotHintPropertyDelegate) {
+            this.addProperties(pd);
+        }
         this.addListener(new ScreenHandlerListener() {
+
+            private int originId = -1;
+
             @Override
             public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
-                if (stack.hasNbt()){
-                    assert stack.getNbt() != null;
-                    ChessActionType type = ChessActionType.fromId(stack.getNbt().getInt(ChessActionType.ACTION_NBT_KEY));
+                Slot slot = handler.getSlot(slotId);
+                if (slotId > 63) {
+                    return;
                 }
+                if (!handler.getCursorStack().isEmpty() && stack.isEmpty()) {
+                    originId = slotId;
+                    return;
+                }
+                if (slot instanceof ChessBoardSlot s){
+                    if (!s.getInventory().isClient()){
+                        ItemStack slotStack = slot.getStack();
+                        if (slotStack.getItem() instanceof IChessPieceItem chessPieceItem) {
+                            if (handler instanceof ChessBoardScreenHandler c && originId != -1){
+                                ChessActionType type = c.getActionTypeFromSlot(originId, slotId);
 
+                                if (!type.shouldIgnore()) {
+                                    chessPieceItem.handleAction(handler, s, getCursorStack(), type);
+                                }
+                            }
+                            originId = -1;
+
+                        }
+                        ((ServerChessBoardInventory) s.getInventory()).updateHints();
+
+                    }
+                }
+                originId = slotId;
             }
 
             @Override
@@ -74,24 +116,25 @@ public class ChessBoardScreenHandler extends ScreenHandler {
 
             }
         });
-
         initializeSlots();
+        this.sendContentUpdates();
     }
+
 
     @SuppressWarnings("PointlessArithmeticExpression")
     private void initializeSlots() {
         int y, x;
-        // 0 - 8  + 0 - 64
         for (y = 0; y < BOARD_WIDTH; y++) {
             for (x = 0; x < BOARD_WIDTH; x++) {
                 Pair<Integer, Integer> pair = rotationTransformer(x, y);
                 int boardX = pair.getLeft();
                 int boardY = pair.getRight();
-                Slot slot = new ChessBoardSlot(inventory, boardX, boardY, 24 + x * 16, 17 + y * 16, x, y);
+                Slot slot = new ChessBoardSlot(inventory, boardX, boardY, 24 + x * 16, 17 + y * 16);
                 this.addSlot(slot);
             }
         }
 
+        // Chess Pieces Storage
         this.addSlot(new ChessStorageSlot(inventory, 0 + 0 * 2 + 64, 159 + 0 * 16, 33 + 0 * 16, PawnItem.class, false));
         this.addSlot(new ChessStorageSlot(inventory, 0 + 1 * 2 + 64, 159 + 0 * 16, 33 + 1 * 16, RookItem.class, false));
         this.addSlot(new ChessStorageSlot(inventory, 0 + 2 * 2 + 64, 159 + 0 * 16, 33 + 2 * 16, KnightItem.class, false));
@@ -138,30 +181,23 @@ public class ChessBoardScreenHandler extends ScreenHandler {
         return new Pair<>(y, 7 - x);
     }
 
+    public ChessActionType getActionTypeFromSlot(int origin, int slotId){
+        return ChessActionType.fromId(this.slotHintPropertyDelegate.get(origin).get(slotId));
+    }
+
     @Override
     public ItemStack transferSlot(PlayerEntity player, int invSlot) {
         ItemStack newStack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(invSlot);
-        //noinspection ConstantConditions
-        if (slot != null && slot.hasStack()) {
-            ItemStack originalStack = slot.getStack();
-            newStack = originalStack.copy();
-            if (invSlot < this.inventory.size()) {
-                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
-                return ItemStack.EMPTY;
-            }
-
-            if (originalStack.isEmpty()) {
-                slot.setStack(ItemStack.EMPTY);
-            } else {
-                slot.markDirty();
-            }
-        }
 
         return newStack;
+    }
+
+    @Override
+    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+        if (slot instanceof ChessBoardSlot || slot instanceof ChessStorageSlot){
+            return slot.canInsert(stack);
+        }
+        return stack.isEmpty() || !(stack.getItem().asItem() instanceof IChessPieceItem);
     }
 
     @Override
@@ -173,5 +209,20 @@ public class ChessBoardScreenHandler extends ScreenHandler {
     public void close(PlayerEntity player) {
         super.close(player);
         this.inventory.onClose(player);
+    }
+
+    public List<ChessBoardSlot> getCurrentSlotActions(int origin) {
+
+        ArrayList<ChessBoardSlot> result = new ArrayList<>();
+
+        for (Slot slot : this.slots) {
+            if (slot instanceof ChessBoardSlot s){
+                ChessActionType type = ChessActionType.fromId(this.slotHintPropertyDelegate.get(origin).get(slot.getIndex()));
+                if (!type.shouldIgnore()){
+                    result.add(s);
+                }
+            }
+        }
+        return result;
     }
 }

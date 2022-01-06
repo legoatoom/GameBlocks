@@ -17,8 +17,6 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-
 public class QueenItem extends IChessPieceItem{
     public QueenItem(boolean isBlack) {
         super(isBlack, 1, ChessPieceType.QUEEN);
@@ -26,15 +24,12 @@ public class QueenItem extends IChessPieceItem{
 
     @Override
     public boolean isDefaultLocation(int x, int y) {
-        if (isBlack()) {
-            return x == 3 && y == 0;
-        } else {
-            return x == 3 && y == 7;
-        }
+        return x == 3 && y == (isBlack() ? 0 : 7);
     }
 
     @Override
-    public @NotNull ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot) {
-        return new ArrayList<>();
+    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
+        checkDiagonals(slot);
+        checkHorizontals(slot);
     }
 }

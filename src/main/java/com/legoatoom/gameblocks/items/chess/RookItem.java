@@ -14,10 +14,13 @@
 
 package com.legoatoom.gameblocks.items.chess;
 
+import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.ScreenHandler;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 public class RookItem extends IChessPieceItem{
 
@@ -27,16 +30,22 @@ public class RookItem extends IChessPieceItem{
 
     @Override
     public boolean isDefaultLocation(int x, int y) {
-        if (isBlack()){
-            return (x == 0 || x == 7) && y == 0;
-        } else {
-            return (x == 0 || x == 7) && y == 7;
-        }
+        return (x == 0 || x == 7) && y == (isBlack() ? 0 : 7);
     }
 
     @Override
-    public @NotNull ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot) {
-        // TODO: 12022-01-02 Implement
-        return new ArrayList<>();
+    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
+        this.checkHorizontals(slot);
     }
+
+    @Override
+    public void handleAction(ScreenHandler handler, ChessBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
+        super.handleAction(handler, slot, cursorStack, actionType);
+        NbtCompound nbtCompound = slot.getStack().getOrCreateSubNbt(GameBlocks.MOD_ID);
+        if (!nbtCompound.contains("hasMoved")){
+            nbtCompound.putBoolean("hasMoved", true);
+        }
+    }
+
+
 }

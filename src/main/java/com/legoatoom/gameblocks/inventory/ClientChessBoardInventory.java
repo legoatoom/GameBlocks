@@ -12,24 +12,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.items.chess;
+package com.legoatoom.gameblocks.inventory;
 
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
-import org.jetbrains.annotations.NotNull;
+public class ClientChessBoardInventory extends ChessBoardInventory {
 
-public class BishopItem extends IChessPieceItem  {
-
-    public BishopItem(boolean isBlack) {
-        super(isBlack, 2, ChessPieceType.BISHOP);
+    /**
+     * The reason for this class' existence is a mystery
+     */
+    public ClientChessBoardInventory() {
+        super(true);
     }
 
     @Override
-    public boolean isDefaultLocation(int x, int y) {
-        return (x == 2 || x == 5) && y == (isBlack() ? 0 : 7);
-    }
-
-    @Override
-    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
-        checkDiagonals(slot);
+    public void markDirty() {
     }
 }

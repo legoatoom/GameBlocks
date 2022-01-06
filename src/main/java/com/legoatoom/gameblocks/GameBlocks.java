@@ -16,10 +16,9 @@ package com.legoatoom.gameblocks;
 
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
+import com.legoatoom.gameblocks.client.gui.PawnPromotionWidget;
 import com.legoatoom.gameblocks.items.chess.*;
 import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
-import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -33,6 +32,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -102,24 +102,19 @@ public final class GameBlocks implements ModInitializer {
         registerBlocks();
         registerBlocksEntities();
         registerItems();
-        registerGlobalReceivers();
+        registerNetworking();
     }
 
-    private void registerGlobalReceivers() {
-
-        // see ChessActionType#sendNbtUpdate(int)
-        ServerPlayNetworking.registerGlobalReceiver(ChessActionType.SYNC_TYPE_PACKET_ID, (server, player, handler, buf, responseSender) -> {
-            int slotId = buf.readInt();
-            int actionId = buf.readInt();
-            server.execute(() -> {
-                ChessBoardSlot slot = (ChessBoardSlot) player.currentScreenHandler.getSlot(slotId);
-                ItemStack slotStack = slot.getStack();
-                ItemStack cursorStack = player.currentScreenHandler.getCursorStack();
-                if (!(slotStack.getItem() instanceof IChessPieceItem chessPieceItem)) return;
-                chessPieceItem.handleAction(player.currentScreenHandler, slot, cursorStack, ChessActionType.fromId(actionId));
-            });
+    private void registerNetworking() {
+        ServerPlayNetworking.registerGlobalReceiver(PawnPromotionWidget.PawnPromotionChooseButtonWidget.PAWN_PROMOTION_C2S_UPDATE_KEY,
+                (server, player, handler, buf, responseSender) -> {
+            ItemStack stack = player.currentScreenHandler.getCursorStack();
+            String id = buf.readString();
+            NbtCompound nbt = stack.getOrCreateSubNbt(MOD_ID);
+            nbt.putString("promotion", id);
         });
     }
+
 
     private void registerItems() {
         // ChessPieces

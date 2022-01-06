@@ -17,7 +17,6 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 
 public class KnightItem extends IChessPieceItem {
     public KnightItem(boolean isBlack) {
@@ -26,15 +25,29 @@ public class KnightItem extends IChessPieceItem {
 
     @Override
     public boolean isDefaultLocation(int x, int y) {
-        if (isBlack()){
-            return (x == 1 || x == 6) && y == 0;
-        } else {
-            return (x == 1 || x == 6) && y == 7;
-        }
+        return (x == 1 || x == 6) && y == (isBlack() ? 0 : 7);
     }
 
     @Override
-    public @NotNull ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot) {
-        return new ArrayList<>();
+    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
+        int origin = slot.getIndex();
+        slot.up(isBlack(), 2).ifPresent(chessBoardSlot -> {
+            chessBoardSlot.left(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+            chessBoardSlot.right(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+        });
+        slot.down(isBlack(), 2).ifPresent(chessBoardSlot -> {
+            chessBoardSlot.left(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+            chessBoardSlot.right(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+        });
+
+        slot.left(isBlack(), 2).ifPresent(chessBoardSlot -> {
+            chessBoardSlot.down(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+            chessBoardSlot.up(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+        });
+        slot.right(isBlack(), 2).ifPresent(chessBoardSlot -> {
+            chessBoardSlot.down(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+            chessBoardSlot.up(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));
+        });
+
     }
 }

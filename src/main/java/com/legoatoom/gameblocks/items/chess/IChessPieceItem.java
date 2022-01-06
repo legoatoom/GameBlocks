@@ -18,12 +18,22 @@ import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.legoatoom.gameblocks.GameBlocks.GAME_BLOCKS;
 
@@ -46,25 +56,180 @@ public abstract class IChessPieceItem extends Item {
 
     public abstract boolean isDefaultLocation(int x, int y);
 
-    @NotNull
-    public abstract ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot);
+    public abstract void calculateLegalActions(@NotNull ChessBoardSlot slot);
 
-    public void cleanHoverActions(ChessBoardSlot[] slots){
+    public static void cleanHoverActions(ChessBoardSlot[] slots){
         for (ChessBoardSlot slot : slots) {
-            slot.setCurrentHoverAction(null);
+            for (ChessBoardSlot slot2 : slots) {
+                slot.setHoverHint(slot2.getIndex(), ChessActionType.NONE);
+            }
         }
     }
 
     public boolean isBlack(){
         return isBlack;
     }
+
     public void handleAction(ScreenHandler handler, ChessBoardSlot slot, ItemStack cursorStack, ChessActionType actionType){
         if (actionType == ChessActionType.CAPTURE){
-            slot.capturePiece(handler, cursorStack);
+            if (isPromoted(cursorStack)){
+                slot.capturePiece(handler, new ItemStack(isBlack() ? GameBlocks.WHITE_PAWN : GameBlocks.BLACK_PAWN));
+            } else {
+                slot.capturePiece(handler, cursorStack);
+            }
         }
+    }
+
+
+
+    protected void checkDiagonals(@NotNull ChessBoardSlot slot) {
+        int origin = slot.getIndex();
+        AtomicBoolean b = new AtomicBoolean(false);
+
+        ChessBoardSlot current = slot;
+        while (true) {
+            var x = current.upLeft(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+        current = slot;
+        while (true) {
+            var x = current.upRight(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+        current = slot;
+        while (true) {
+            var x = current.downLeft(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+        current = slot;
+        while (true) {
+            var x = current.downRight(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+
+
+    }
+
+    protected void checkHorizontals(@NotNull ChessBoardSlot slot) {
+        int origin = slot.getIndex();
+        ChessBoardSlot current = slot;
+        while (true) {
+            var x = current.up(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+        current = slot;
+        while (true) {
+            var x = current.down(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+        current = slot;
+        while (true) {
+            var x = current.left(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+        current = slot;
+        while (true) {
+            var x = current.right(isBlack);
+            if (x.isPresent()) {
+                if (!moveOrCaptureCheck(x.get(), origin)) {
+                    break;
+                } else {
+                    current = x.get();
+                    continue;
+                }
+            }
+            break;
+        }
+    }
+
+    protected boolean moveOrCaptureCheck(@NotNull ChessBoardSlot current, int origin) {
+        Optional<IChessPieceItem> item = current.getItem();
+        if (item.isPresent()){
+            if (item.get().isBlack() != this.isBlack()){
+                current.setHoverHint(origin, ChessActionType.CAPTURE);
+            }
+            return false;
+        }
+        current.setHoverHint(origin, ChessActionType.MOVE);
+        return true;
     }
 
     public enum ChessPieceType{
         PAWN, KING, KNIGHT, ROOK, QUEEN, BISHOP;
+    }
+
+    protected boolean isPromoted(ItemStack stack){
+        if (stack.hasNbt()){
+            NbtCompound nbtCompound = stack.getNbt();
+            if (nbtCompound != null && nbtCompound.contains(GameBlocks.MOD_ID)) {
+                NbtCompound nbtCompound1 = nbtCompound.getCompound(GameBlocks.MOD_ID);
+                return nbtCompound1.contains("promoted");
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+        if (isPromoted(stack)){
+            tooltip.add(new TranslatableText("game.chess.action.tooltip.promotion").fillStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+        }
     }
 }

@@ -15,33 +15,53 @@
 package com.legoatoom.gameblocks.util.chess;
 
 import com.google.common.collect.Lists;
-import com.legoatoom.gameblocks.GameBlocks;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum ChessActionType {
-    CAPTURE(0, 0x80cc0000),
-    CASTLE(1, 0x803d85c6),
-    EN_PASSANT(2, 0x806aa84f),
-    INITIAL_MOVE(3, 0x80f1c232),
-    MOVE(4, 0x803d85c6),
-    PROMOTION(5, 0x803d85c6),
-    PROMOTION_CAPTURE(6, 0x803d85c6);
+    CAPTURE(1, 0x80cc0000),
+    CASTLE(2, 0x8045818e),
+    EN_PASSANT(3, 0x806aa84f),
+    INITIAL_MOVE(4, 0x80f1c232),
+    MOVE(5, 0x803d85c6),
+    NONE,
+    /**
+     * Used to check if a location is under attack.
+     */
+    PAWN_POTENTIAL(8),
+    PROMOTION(6, 0x80a64d79),
+    PROMOTION_CAPTURE(7, 0x80B9273D) {
+        @Override
+        public List<Text> getInfo(TextRenderer renderer) {
+            return Stream.of(CAPTURE.getInfo(renderer), PROMOTION.getInfo(renderer))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+        }
+    };
 
     private final int color;
-
-    public final static Identifier SYNC_TYPE_PACKET_ID = GameBlocks.id("sync_type_packet");
-    public final static String ACTION_NBT_KEY = GameBlocks.id("action_type").toString();
     private final int id;
+
+    public boolean shouldIgnore(){
+        return this == NONE || this == PAWN_POTENTIAL;
+    }
+
+    ChessActionType() {
+        this(-1,-1);
+    }
+
+
+    ChessActionType(int id) {
+        this(id, -1);
+    }
 
     ChessActionType(int id, int color) {
         this.id = id;
@@ -52,13 +72,13 @@ public enum ChessActionType {
         return id;
     }
 
-    public static ChessActionType fromId(int id){
+    public static ChessActionType fromId(int id) {
         for (ChessActionType value : ChessActionType.values()) {
-            if (value.id == id){
+            if (value.id == id) {
                 return value;
             }
         }
-        return null;
+        return NONE;
     }
 
     public List<Text> getInfo(TextRenderer renderer) {
@@ -82,12 +102,5 @@ public enum ChessActionType {
 
     public int getColor() {
         return this.color;
-    }
-
-    public void sendNbtUpdate(int slotId) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(slotId);
-        buf.writeInt(this.getId());
-        ClientPlayNetworking.send(SYNC_TYPE_PACKET_ID, buf);
     }
 }

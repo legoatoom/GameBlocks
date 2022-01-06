@@ -21,7 +21,8 @@
   "game.chess.action.tooltip.title.en_passant": "En Passant",
   "game.chess.action.tooltip.detail.en_passant": "The rule that allows a pawn that has just advanced two squares to be captured by an enemy pawn that is on the same rank and adjacent file. The pawn can be taken as if it had advanced only one square. Capturing en passant is possible only on the next move.",
   "game.chess.action.tooltip.title.promotion": "Promotion",
-  "game.chess.action.tooltip.detail.promotion": "Advancing a pawn to the eighth rank, converting it to a queen, rook, bishop or knight. Promotion to a piece other than a queen is called underpromotion.",
+  "game.chess.action.tooltip.detail.promotion": "Advancing a pawn to the eighth rank, converting it to a queen, rook, bishop or knight.",
   "game.chess.action.tooltip.title.initial_move": "Initial Pawn Move",
-  "game.chess.action.tooltip.detail.initial_move": "Normally a pawn moves by advancing a single square, but the first time a pawn moves, it has the option of advancing two squares. Pawns may not use the initial two-square advance to jump over an occupied square, or to capture. Any piece immediately in front of a pawn, friend or foe, blocks its advance."
+  "game.chess.action.tooltip.detail.initial_move": "Normally a pawn moves by advancing a single square, but the first time a pawn moves, it has the option of advancing two squares. Pawns may not use the initial two-square advance to jump over an occupied square, or to capture. Any piece immediately in front of a pawn, friend or foe, blocks its advance.",
+  "game.chess.action.tooltip.promotion": "Promoted Pawn"
 }

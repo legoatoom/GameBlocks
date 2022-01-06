@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks.mixin.client.gui.screen.ingame;
 
+import com.legoatoom.gameblocks.client.gui.screen.ingame.ChessBoardScreen;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.legoatoom.gameblocks.screen.slot.ChessStorageSlot;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -21,6 +22,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
 @Mixin(HandledScreen.class)
-public abstract class CustomHighSlotHighLighter {
+public abstract class CustomHighSlotHighLighter<T extends ScreenHandler> {
 
 
     @Shadow protected int x;
@@ -44,6 +46,12 @@ public abstract class CustomHighSlotHighLighter {
     )
     private void render(MatrixStack matrices, int x, int y, int z){
         if (this.focusedSlot instanceof ChessBoardSlot){
+            //noinspection unchecked
+            if ((HandledScreen<T>) ((Object) this) instanceof ChessBoardScreen a){
+                if (a.isSelectingPromotion()){
+                    return;
+                }
+            }
             RenderSystem.disableDepthTest();
             RenderSystem.colorMask(true, true, true, false);
             // Vanilla code uses gradient, therefor I also do.

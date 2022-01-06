@@ -17,14 +17,16 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.Optional;
 
-public class PawnItem extends IChessPieceItem{
+public class PawnItem extends IChessPieceItem {
     public PawnItem(boolean isBlack) {
         super(isBlack, 8, ChessPieceType.PAWN);
     }
@@ -32,91 +34,96 @@ public class PawnItem extends IChessPieceItem{
 
     @Override
     public boolean isDefaultLocation(int x, int y) {
-        return isBlack() ? y == 1 : y == 6;
+        return isBlack() && y == 1 || !isBlack() && y == 6;
     }
 
     @Override
-    public @NotNull ArrayList<ChessBoardSlot> calculateLegalActions(@NotNull ChessBoardSlot slot) {
-        ArrayList<ChessBoardSlot> result = new ArrayList<>();
-        ChessBoardSlot up = slot.up(isBlack());
-
-        if (up != null) {
-            if (!up.hasStack()) {
-                up.setCurrentHoverAction(ChessActionType.MOVE);
-                result.add(up);
-
+    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
+        Optional<ChessBoardSlot> up = slot.up(isBlack());
+        //Moving
+        up.ifPresent(chessBoardSlot -> {
+            if (!chessBoardSlot.hasStack()) {
+                chessBoardSlot.setHoverHint(slot.getIndex(), isPromotion(chessBoardSlot) ? ChessActionType.PROMOTION : ChessActionType.MOVE);
                 // First move can be 2 steps.
-                int x = slot.getBoardXLoc();
-                int y = slot.getBoardYLoc();
-                if (isDefaultLocation(x, y)) {
-                    ChessBoardSlot up2 = up.up(isBlack());
-                    if (up2 != null && !up2.hasStack()) {
-                        up2.setCurrentHoverAction(ChessActionType.INITIAL_MOVE);
-                        result.add(up2);
-                    }
+                if (isDefaultLocation(slot.getBoardXLoc(), slot.getBoardYLoc())) {
+                    Optional<ChessBoardSlot> up2 = slot.up(isBlack(), 2);
+                    up2.ifPresent(chessBoardSlot1 -> {
+                        if (!chessBoardSlot1.hasStack()) {
+                            chessBoardSlot1.setHoverHint(slot.getIndex(), ChessActionType.INITIAL_MOVE);
+                        }
+                    });
                 }
             }
+        });
+        // Capture
+        slot.upLeft(isBlack()).ifPresent(chessBoardSlot -> testCapture(chessBoardSlot, slot.getIndex()));
+        slot.upRight(isBlack()).ifPresent(chessBoardSlot -> testCapture(chessBoardSlot, slot.getIndex()));
 
-            // Capture
-            ChessBoardSlot upLeft = up.left(isBlack());
-            testCapture(upLeft, result);
-            ChessBoardSlot upRight = up.right(isBlack());
-            testCapture(upRight, result);
-        }
-
-        //En Passant
-        ChessBoardSlot left = slot.left(isBlack());
-        testEnPassant(result, left);
-        ChessBoardSlot right = slot.right(isBlack());
-        testEnPassant(result, right);
-
-        return result;
-    }
-
-    private void testCapture(ChessBoardSlot upRight, ArrayList<ChessBoardSlot> result) {
-        if (upRight != null && upRight.hasStack() && upRight.getCurrentPiece().isBlack() != this.isBlack()){
-            upRight.setCurrentHoverAction(ChessActionType.CAPTURE);
-            result.add(upRight);
-        }
-    }
-
-    private void testEnPassant(ArrayList<ChessBoardSlot> result, ChessBoardSlot slot) {
-        if (slot != null && slot.hasStack() && slot.getCurrentPiece().isBlack() != this.isBlack() && slot.getStack().hasNbt()){
-            NbtCompound compound = slot.getStack().getNbt();
-            assert compound != null;
-            if (compound.contains("gameblocks:mayEnPassant")){
-                ChessBoardSlot up = slot.up(isBlack());
-                assert up != null;
-                up.setCurrentHoverAction(ChessActionType.EN_PASSANT);
-                result.add(up);
-            }
-        }
+        // En Passant
+        slot.left(isBlack()).ifPresent(chessBoardSlot -> testEnPassant(chessBoardSlot, slot.getIndex()));
+        slot.right(isBlack()).ifPresent(chessBoardSlot -> testEnPassant(chessBoardSlot, slot.getIndex()));
     }
 
     @Override
     public void handleAction(ScreenHandler handler, ChessBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
-        super.handleAction(handler, slot, cursorStack,actionType);
-        if (actionType == ChessActionType.EN_PASSANT){
-            slot.down(isBlack()).capturePiece();
+        if (actionType == ChessActionType.CAPTURE || actionType == ChessActionType.PROMOTION_CAPTURE) {
+            slot.capturePiece(handler, cursorStack);
         }
-        for (ItemStack itemStack : slot.getInventory().getBoard()) {
-            if (itemStack.getItem() instanceof PawnItem item && item.isBlack() == this.isBlack()){
+
+        if (actionType == ChessActionType.EN_PASSANT) {
+            slot.down(isBlack()).ifPresent(ChessBoardSlot::capturePiece);
+        }
+
+        for (int i = 0; i < slot.getInventory().size(); i++) {
+            ItemStack itemStack = slot.getInventory().getStack(i);
+            if (itemStack.getItem() instanceof PawnItem item && item.isBlack() == this.isBlack()) {
                 continue;
             }
-            if (itemStack.equals(cursorStack)){
+            if (itemStack.equals(cursorStack)) {
                 continue;
             }
             if (itemStack.hasNbt()) {
-                NbtCompound compound = itemStack.getOrCreateNbt();
-                if (compound.contains("gameblocks:mayEnPassant")) {
-                    compound.remove("gameblocks:mayEnPassant");
+                NbtCompound compound = itemStack.getOrCreateSubNbt(GameBlocks.MOD_ID);
+                if (compound.contains("mayEnPassant")) {
+                    compound.remove("mayEnPassant");
                 }
             }
         }
         ItemStack slotStack = slot.getStack();
-        NbtCompound nbtCompound = slotStack.getOrCreateNbt();
-        if (actionType == ChessActionType.INITIAL_MOVE){
-            nbtCompound.putBoolean("gameblocks:mayEnPassant", true);
+        NbtCompound nbtCompound = slotStack.getOrCreateSubNbt(GameBlocks.MOD_ID);
+        if (actionType == ChessActionType.INITIAL_MOVE) {
+            nbtCompound.putBoolean("mayEnPassant", true);
         }
+
+        if (actionType == ChessActionType.PROMOTION || actionType == ChessActionType.PROMOTION_CAPTURE) {
+            Item item = Registry.ITEM.get(GameBlocks.id(nbtCompound.getString("promotion")));
+            if (item instanceof IChessPieceItem item1) {
+                ItemStack newStack = new ItemStack(item1);
+                NbtCompound nbtCompound1 = newStack.getOrCreateSubNbt(GameBlocks.MOD_ID);
+                nbtCompound1.putBoolean("promoted", true);
+                slot.setStack(newStack);
+            }
+        }
+    }
+
+    private void testCapture(@NotNull ChessBoardSlot current, int origin) {
+        current.getItem().ifPresentOrElse(chessPieceItem -> {
+            if (chessPieceItem.isBlack() != this.isBlack()) {
+                current.setHoverHint(origin, isPromotion(current) ? ChessActionType.PROMOTION : ChessActionType.CAPTURE);
+            }
+        }, () -> current.setHoverHint(origin, ChessActionType.PAWN_POTENTIAL));
+    }
+
+    private boolean isPromotion(@NotNull ChessBoardSlot current) {
+        return current.getBoardYLoc() == 0 || current.getBoardYLoc() == 7;
+    }
+
+    private void testEnPassant(@NotNull ChessBoardSlot current, int origin) {
+        current.getItem().ifPresent(chessPieceItem -> {
+            NbtCompound compound = current.getStack().getSubNbt(GameBlocks.MOD_ID);
+            if (compound != null && compound.contains("mayEnPassant")) {
+                current.up(isBlack()).ifPresent(chessBoardSlot -> chessBoardSlot.setHoverHint(origin, ChessActionType.EN_PASSANT));
+            }
+        });
     }
 }

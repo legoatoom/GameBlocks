@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks.screen.slot;
 
+import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -40,5 +41,11 @@ public class ChessStorageSlot extends Slot {
             return super.canInsert(stack);
         }
         return false;
+    }
+
+    @Override
+    public ItemStack insertStack(ItemStack stack, int count) {
+        stack.removeSubNbt(GameBlocks.MOD_ID);
+        return super.insertStack(stack, count);
     }
 }
