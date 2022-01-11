@@ -72,10 +72,6 @@ public class ServerChessBoardInventory extends ChessBoardInventory{
         }
     }
 
-
-
-
-
     public void addSlot(ChessBoardSlot chessBoardSlot) {
         this.slots[chessBoardSlot.getIndex()] = chessBoardSlot;
     }
@@ -88,6 +84,9 @@ public class ServerChessBoardInventory extends ChessBoardInventory{
         return getSlot(ChessBoardSlot.xyToIndex(x, y));
     }
 
+    /**
+     * Very important, it makes sure that the inventory is stored.
+     */
     @Override
     public void markDirty() {
         if (entity.getWorld() != null) {

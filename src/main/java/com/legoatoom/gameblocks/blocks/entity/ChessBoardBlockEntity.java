@@ -39,8 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public class ChessBoardBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory,
-        Inventory /* Entities must implement Inventory for the game to store its contents*/ {
+public class ChessBoardBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory {
 
     protected ServerChessBoardInventory board = new ServerChessBoardInventory(this);
 
@@ -71,6 +70,7 @@ public class ChessBoardBlockEntity extends BlockEntity implements ExtendedScreen
         buf.writeInt(direction.getHorizontal());
     }
 
+
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
@@ -83,117 +83,117 @@ public class ChessBoardBlockEntity extends BlockEntity implements ExtendedScreen
     }
 
 
-    @Override
-    public void onOpen(PlayerEntity player) {
-        board.onOpen(player);
-    }
-
-    @Override
-    public void onClose(PlayerEntity player) {
-        board.onClose(player);
-    }
-
-    /**
-     * Returns whether the given stack is a valid for the indicated slot position.
-     *
-     * @param slot
-     * @param stack
-     */
-    @Override
-    public boolean isValid(int slot, ItemStack stack) {
-        return board.isValid(slot, stack);
-    }
-
-    /**
-     * Returns the number of times the specified item occurs in this inventory across all stored stacks.
-     *
-     * @param item
-     */
-    @Override
-    public int count(Item item) {
-        return board.count(item);
-    }
-
-    /**
-     * Determines whether this inventory contains any of the given candidate items.
-     *
-     * @param items
-     */
-    @Override
-    public boolean containsAny(Set<Item> items) {
-        return board.containsAny(items);
-    }
-
-    @Override
-    public int size() {
-        return board.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return board.isEmpty();
-    }
-
-    /**
-     * Fetches the stack currently stored at the given slot. If the slot is empty,
-     * or is outside the bounds of this inventory, returns see {@link ItemStack#EMPTY}.
-     *
-     * @param slot
-     */
-    @Override
-    public ItemStack getStack(int slot) {
-        return board.getStack(slot);
-    }
-
-    /**
-     * Removes a specific number of items from the given slot.
-     *
-     * @param slot
-     * @param amount
-     * @return the removed items as a stack
-     */
-    @Override
-    public ItemStack removeStack(int slot, int amount) {
-        return board.removeStack(slot, amount);
-    }
-
-    /**
-     * Removes the stack currently stored at the indicated slot.
-     *
-     * @param slot
-     * @return the stack previously stored at the indicated slot.
-     */
-    @Override
-    public ItemStack removeStack(int slot) {
-        return board.removeStack(slot);
-    }
-
-    @Override
-    public void setStack(int slot, ItemStack stack) {
-        board.setStack(slot, stack);
-    }
-
-    /**
-     * Returns the maximum number of items a stack can contain when placed inside this inventory.
-     * No slots may have more than this number of items. It is effectively the
-     * stacking limit for this inventory's slots.
-     *
-     * @return the max {@link ItemStack#getCount() count} of item stacks in this inventory
-     */
-    @Override
-    public int getMaxCountPerStack() {
-        return board.getMaxCountPerStack();
-    }
-
-    @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return board.canPlayerUse(player);
-    }
-
-    @Override
-    public void clear() {
-        board.clear();
-    }
+//    @Override
+//    public void onOpen(PlayerEntity player) {
+//        board.onOpen(player);
+//    }
+//
+//    @Override
+//    public void onClose(PlayerEntity player) {
+//        board.onClose(player);
+//    }
+//
+//    /**
+//     * Returns whether the given stack is a valid for the indicated slot position.
+//     *
+//     * @param slot
+//     * @param stack
+//     */
+//    @Override
+//    public boolean isValid(int slot, ItemStack stack) {
+//        return board.isValid(slot, stack);
+//    }
+//
+//    /**
+//     * Returns the number of times the specified item occurs in this inventory across all stored stacks.
+//     *
+//     * @param item
+//     */
+//    @Override
+//    public int count(Item item) {
+//        return board.count(item);
+//    }
+//
+//    /**
+//     * Determines whether this inventory contains any of the given candidate items.
+//     *
+//     * @param items
+//     */
+//    @Override
+//    public boolean containsAny(Set<Item> items) {
+//        return board.containsAny(items);
+//    }
+//
+//    @Override
+//    public int size() {
+//        return board.size();
+//    }
+//
+//    @Override
+//    public boolean isEmpty() {
+//        return board.isEmpty();
+//    }
+//
+//    /**
+//     * Fetches the stack currently stored at the given slot. If the slot is empty,
+//     * or is outside the bounds of this inventory, returns see {@link ItemStack#EMPTY}.
+//     *
+//     * @param slot
+//     */
+//    @Override
+//    public ItemStack getStack(int slot) {
+//        return board.getStack(slot);
+//    }
+//
+//    /**
+//     * Removes a specific number of items from the given slot.
+//     *
+//     * @param slot
+//     * @param amount
+//     * @return the removed items as a stack
+//     */
+//    @Override
+//    public ItemStack removeStack(int slot, int amount) {
+//        return board.removeStack(slot, amount);
+//    }
+//
+//    /**
+//     * Removes the stack currently stored at the indicated slot.
+//     *
+//     * @param slot
+//     * @return the stack previously stored at the indicated slot.
+//     */
+//    @Override
+//    public ItemStack removeStack(int slot) {
+//        return board.removeStack(slot);
+//    }
+//
+//    @Override
+//    public void setStack(int slot, ItemStack stack) {
+//
+//    }
+//
+//    /**
+//     * Returns the maximum number of items a stack can contain when placed inside this inventory.
+//     * No slots may have more than this number of items. It is effectively the
+//     * stacking limit for this inventory's slots.
+//     *
+//     * @return the max {@link ItemStack#getCount() count} of item stacks in this inventory
+//     */
+//    @Override
+//    public int getMaxCountPerStack() {
+//        return board.getMaxCountPerStack();
+//    }
+//
+//    @Override
+//    public boolean canPlayerUse(PlayerEntity player) {
+//        return board.canPlayerUse(player);
+//    }
+//
+//    @Override
+//    public void clear() {
+//        board.clear();
+//    }
 
 
 }

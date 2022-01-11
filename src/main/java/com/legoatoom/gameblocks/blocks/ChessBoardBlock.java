@@ -45,8 +45,7 @@ public class ChessBoardBlock
 
     public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
-    protected static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0d, 0d, 1d, 16d, 3d, 15d);
-    protected static final VoxelShape EAST_SHAPE = Block.createCuboidShape(1d, 0d, 0d, 15d, 3d, 16d);
+    protected static final VoxelShape SHAPE = Block.createCuboidShape(0.0625, 0, 0.0625, 0.9375, 0.1875, 0.9375d);
 
     public ChessBoardBlock() {
         super(FabricBlockSettings.of(Material.WOOD).strength(2.f).resistance(2.f).sounds(BlockSoundGroup.WOOD));
@@ -80,18 +79,13 @@ public class ChessBoardBlock
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        Direction facing = state.get(FACING);
-        return switch (facing) {
-            case EAST, WEST -> EAST_SHAPE;
-            default -> NORTH_SHAPE;
-        };
+        return SHAPE;
     }
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
             NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-
             if (screenHandlerFactory != null){
                 player.openHandledScreen(screenHandlerFactory);
             }

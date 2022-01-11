@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class KingItem extends IChessPieceItem {
@@ -96,20 +97,36 @@ public class KingItem extends IChessPieceItem {
 
     }
 
+    @Override
+    protected boolean moveOrCaptureCheck(@NotNull ChessBoardSlot current, int origin) {
+        Optional<IChessPieceItem> item = current.getItem();
+        if (item.isPresent()){
+            if (item.get().isBlack() != this.isBlack()){
+                current.setHoverHint(origin, ChessActionType.CAPTURE);
+            }
+            return false;
+        }
+        if (slotUnderAttack(current)) return false;
+        current.setHoverHint(origin, ChessActionType.MOVE);
+        return true;
+    }
+
+    /**
+     * Is not perfect, as moving the king will allow other pieces to move to spaces that we cannot expect to know.
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean slotUnderAttack(@NotNull ChessBoardSlot slot){
         ChessBoardInventory x = slot.getInventory();
         if (x.isClient()) return false;
         ServerChessBoardInventory serverInv = (ServerChessBoardInventory) x;
         ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = serverInv.slotHintPropertyDelegate;
-        AtomicBoolean b = new AtomicBoolean(false);
         for (int i = 0; i < slotHintPropertyDelegate.size(); i++) {
             //Check if the slot exists
-            int finalI = i;
-            serverInv.getSlot(i).getItem().ifPresent(chessPieceItem -> {
+            if (serverInv.getSlot(i).getItem().isPresent()){
+                var chessPieceItem = serverInv.getSlot(i).getItem().get();
                 //Check if it is a chessItem (Should always be) and it is of the other team.
                 if (this.isBlack() != chessPieceItem.isBlack()){
-                    ArrayPropertyDelegate arrayPropertyDelegate = slotHintPropertyDelegate.get(finalI);
+                    ArrayPropertyDelegate arrayPropertyDelegate = slotHintPropertyDelegate.get(i);
                     int actionId = arrayPropertyDelegate.get(slot.getIndex());
                     // These action types can result into an attack.
                     List<Integer> checks;
@@ -121,11 +138,10 @@ public class KingItem extends IChessPieceItem {
                         checks = Arrays.asList(ChessActionType.CAPTURE.getId(), ChessActionType.MOVE.getId());
                     }
                     if (checks.contains(actionId)) {
-                        b.set(true);
+                        return true;
                     }
                 }
-            });
-            if (b.get()) break;
+            }
         }
         return false;
     }

@@ -1,23 +1,23 @@
 {
 	"credit": "Made by legoatoom with Blockbench",
 	"textures": {
-		"0": "gameblocks:block/chess_board_top",
-		"1": "gameblocks:block/chess_board_side",
-		"2": "gameblocks:block/chess_board_bottom",
-		"particle": "gameblocks:block/chess_board_bottom"
+		"0": "gameblocks:block/checkers_board_top",
+		"1": "gameblocks:block/checkers_board_side",
+		"2": "gameblocks:block/checkers_board_bottom",
+		"particle": "gameblocks:block/checkers_board_bottom"
 	},
 	"elements": [
 		{
 			"name": "board",
-			"from": [1, 0, 1],
-			"to": [15, 3, 15],
+			"from": [0, 0, 0],
+			"to": [16, 3, 16],
 			"faces": {
-				"north": {"uv": [0, 0, 14, 3], "texture": "#1"},
-				"east": {"uv": [0, 0, 14, 3], "texture": "#1"},
-				"south": {"uv": [0, 0, 14, 3], "texture": "#1"},
-				"west": {"uv": [0, 3, 14, 6], "texture": "#1"},
-				"up": {"uv": [1, 1, 15, 15], "texture": "#0"},
-				"down": {"uv": [1, 1, 15, 15], "texture": "#2"}
+				"north": {"uv": [0, 0, 16, 3], "texture": "#1"},
+				"east": {"uv": [0, 0, 16, 3], "texture": "#1"},
+				"south": {"uv": [0, 0, 16, 3], "texture": "#1"},
+				"west": {"uv": [0, 3, 16, 6], "texture": "#1"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#2"}
 			}
 		}
 	],

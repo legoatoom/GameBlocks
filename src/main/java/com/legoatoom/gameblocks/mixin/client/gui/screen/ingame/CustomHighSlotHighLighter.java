@@ -45,7 +45,7 @@ public abstract class CustomHighSlotHighLighter<T extends ScreenHandler> {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlotHighlight(Lnet/minecraft/client/util/math/MatrixStack;III)V")
     )
     private void render(MatrixStack matrices, int x, int y, int z){
-        if (this.focusedSlot instanceof ChessBoardSlot){
+        if (this.focusedSlot instanceof ChessBoardSlot || this.focusedSlot instanceof ChessStorageSlot){
             //noinspection unchecked
             if ((HandledScreen<T>) ((Object) this) instanceof ChessBoardScreen a){
                 if (a.isSelectingPromotion()){

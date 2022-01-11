@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SD",
+    "DS"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:dark_oak_pressure_plate"
+    },
+    "S": {
+      "item": "minecraft:spruce_oak_pressure_plate"
+    }
+  },
+  "result": {
+    "item": "gameblocks:chess_board",
+    "count": 1
+  }
+}
