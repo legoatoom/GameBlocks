@@ -1,0 +1,28 @@
+{
+  "block.gameblocks.chess_board" : "Schaak Bord",
+  "item.gameblocks.black_bishop" : "Zwarte Loper",
+  "item.gameblocks.black_king" : "Zwarte Koning",
+  "item.gameblocks.black_knight": "Zwarte Paard",
+  "item.gameblocks.black_pawn": "Zwarte Pion",
+  "item.gameblocks.black_queen": "Zwarte Dame",
+  "item.gameblocks.black_rook": "Zwarte Toren",
+  "item.gameblocks.white_bishop": "Witte Loper",
+  "item.gameblocks.white_king": "Witte Koning",
+  "item.gameblocks.white_knight": "Witte Paard",
+  "item.gameblocks.white_pawn": "Witte Pion",
+  "item.gameblocks.white_queen": "Witte Dame",
+  "item.gameblocks.white_rook": "Witte Toren",
+
+
+  "game.chess.action.tooltip.title.capture": "Slaan",
+  "game.chess.action.tooltip.detail.capture": "Een actie van een pion of stuk dat een andere pion of stuk verwijderd van de tegenparty.",
+  "game.chess.action.tooltip.title.castle": "Castling",
+  "game.chess.action.tooltip.detail.castle": "Een actie waarbij de koning en de toren worden verplaats in een beurt. De enige actie in het spel waarbij twee stukken worden verplaatst. Kastelen kan gedaan worden links en recht. Het mag niet gedaan worden als reactie op schaak, of als de locatie waar de koning endigt is onder aanval, of als de toren of koning al bewogen hebben.",
+  "game.chess.action.tooltip.title.en_passant": "En Passant",
+  "game.chess.action.tooltip.detail.en_passant": "Een regel die ervoor zorgt dat een pion, die net twee stappen had gezet en lande naast de pion van de tegenpartij, geslagen kan worden. De pion word dan geslagen alsof het maar een stap had gezet. En passant slaat is alleen mogelijk de volgende beurt",
+  "game.chess.action.tooltip.title.promotion": "Promotie",
+  "game.chess.action.tooltip.detail.promotion": "Een promotie vind plaats als een pion de laatste rij heeft bereikt. Het kan dan veranderen in een dame, toren, loper, of paard.",
+  "game.chess.action.tooltip.title.initial_move": "Eerste Loper Beweging",
+  "game.chess.action.tooltip.detail.initial_move": "Een pion loopt normaal een stap, maar mag bij de eerste stap twee vooruit. Dit mag niet over een andere pion of stuk, en ook niet om te slaan.",
+  "game.chess.tooltip.promotion": "Gepromoveerde Pion"
+}

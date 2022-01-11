@@ -55,6 +55,10 @@ public class PawnItem extends IChessPieceItem {
                 }
             }
         });
+
+
+
+
         // Capture
         slot.upLeft(isBlack()).ifPresent(chessBoardSlot -> testCapture(chessBoardSlot, slot.getIndex()));
         slot.upRight(isBlack()).ifPresent(chessBoardSlot -> testCapture(chessBoardSlot, slot.getIndex()));
@@ -109,7 +113,7 @@ public class PawnItem extends IChessPieceItem {
     private void testCapture(@NotNull ChessBoardSlot current, int origin) {
         current.getItem().ifPresentOrElse(chessPieceItem -> {
             if (chessPieceItem.isBlack() != this.isBlack()) {
-                current.setHoverHint(origin, isPromotion(current) ? ChessActionType.PROMOTION : ChessActionType.CAPTURE);
+                current.setHoverHint(origin, isPromotion(current) ? ChessActionType.PROMOTION_CAPTURE : ChessActionType.CAPTURE);
             }
         }, () -> current.setHoverHint(origin, ChessActionType.PAWN_POTENTIAL));
     }
@@ -121,8 +125,10 @@ public class PawnItem extends IChessPieceItem {
     private void testEnPassant(@NotNull ChessBoardSlot current, int origin) {
         current.getItem().ifPresent(chessPieceItem -> {
             NbtCompound compound = current.getStack().getSubNbt(GameBlocks.MOD_ID);
-            if (compound != null && compound.contains("mayEnPassant")) {
-                current.up(isBlack()).ifPresent(chessBoardSlot -> chessBoardSlot.setHoverHint(origin, ChessActionType.EN_PASSANT));
+            if (compound != null && compound.contains("mayEnPassant") && chessPieceItem.isBlack() != this.isBlack()) {
+                current.up(isBlack()).ifPresent(chessBoardSlot -> {
+                    chessBoardSlot.setHoverHint(origin, ChessActionType.EN_PASSANT);
+                });
             }
         });
     }

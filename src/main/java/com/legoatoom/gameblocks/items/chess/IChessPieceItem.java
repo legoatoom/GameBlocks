@@ -229,7 +229,7 @@ public abstract class IChessPieceItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
         if (isPromoted(stack)){
-            tooltip.add(new TranslatableText("game.chess.action.tooltip.promotion").fillStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+            tooltip.add(new TranslatableText("game.chess.tooltip.promotion").fillStyle(Style.EMPTY.withColor(Formatting.GRAY)));
         }
     }
 }

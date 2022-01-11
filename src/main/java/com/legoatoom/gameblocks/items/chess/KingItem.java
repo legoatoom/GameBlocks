@@ -99,7 +99,7 @@ public class KingItem extends IChessPieceItem {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean slotUnderAttack(@NotNull ChessBoardSlot slot){
         ChessBoardInventory x = slot.getInventory();
-        if (!x.isClient()) return false;
+        if (x.isClient()) return false;
         ServerChessBoardInventory serverInv = (ServerChessBoardInventory) x;
         ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = serverInv.slotHintPropertyDelegate;
         AtomicBoolean b = new AtomicBoolean(false);

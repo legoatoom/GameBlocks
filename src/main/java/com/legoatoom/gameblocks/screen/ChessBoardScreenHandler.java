@@ -39,6 +39,7 @@ import java.util.List;
 public class ChessBoardScreenHandler extends ScreenHandler {
 
     private static final int BOARD_WIDTH = 8;
+    private static final int BOARD_SIZE = 64;
     public final ChessBoardInventory inventory;
     public final PlayerInventory playerInventory;
     private final Direction chessBoardDirection;
@@ -51,8 +52,8 @@ public class ChessBoardScreenHandler extends ScreenHandler {
         this.playerInventory = inv;
         this.chessBoardDirection = Direction.fromHorizontal(buf.readInt());
         this.slotHintPropertyDelegate = new ArrayList<>();
-        for (int i = 0; i < 64; i++) {
-            this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(64));
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(BOARD_SIZE));
         }
         for (ArrayPropertyDelegate pd : this.slotHintPropertyDelegate) {
             this.addProperties(pd);
@@ -83,30 +84,35 @@ public class ChessBoardScreenHandler extends ScreenHandler {
             @Override
             public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
                 Slot slot = handler.getSlot(slotId);
-                if (slotId > 63) {
-                    return;
-                }
-                if (!handler.getCursorStack().isEmpty() && stack.isEmpty()) {
-                    originId = slotId;
-                    return;
-                }
+                if (((ChessBoardScreenHandler) handler).inventory.isClient()) return;
                 if (slot instanceof ChessBoardSlot s){
+                    int x = s.getBoardXLoc();
+                    int y = s.getBoardYLoc();
+                    int newSlotId = ChessBoardSlot.xyToIndex(x, y);
+                    if (slotId > BOARD_SIZE - 1) {
+                        originId = -1;
+                        return;
+                    }
+                    if (!handler.getCursorStack().isEmpty() && stack.isEmpty()) {
+                        originId = newSlotId;
+                        return;
+                    }
                     if (!s.getInventory().isClient()){
                         ItemStack slotStack = slot.getStack();
                         if (slotStack.getItem() instanceof IChessPieceItem chessPieceItem) {
                             if (handler instanceof ChessBoardScreenHandler c && originId != -1){
-                                ChessActionType type = c.getActionTypeFromSlot(originId, slotId);
-
+                                ChessActionType type = c.getActionTypeFromSlot(originId, newSlotId);
                                 if (!type.shouldIgnore()) {
                                     chessPieceItem.handleAction(handler, s, getCursorStack(), type);
                                 }
+
                             }
-                            originId = -1;
-
+                            ((ServerChessBoardInventory) s.getInventory()).updateHints();
                         }
-                        ((ServerChessBoardInventory) s.getInventory()).updateHints();
-
                     }
+                } else {
+                    originId = -1;
+                    return;
                 }
                 originId = slotId;
             }
@@ -135,19 +141,19 @@ public class ChessBoardScreenHandler extends ScreenHandler {
         }
 
         // Chess Pieces Storage
-        this.addSlot(new ChessStorageSlot(inventory, 0 + 0 * 2 + 64, 159 + 0 * 16, 33 + 0 * 16, PawnItem.class, false));
-        this.addSlot(new ChessStorageSlot(inventory, 0 + 1 * 2 + 64, 159 + 0 * 16, 33 + 1 * 16, RookItem.class, false));
-        this.addSlot(new ChessStorageSlot(inventory, 0 + 2 * 2 + 64, 159 + 0 * 16, 33 + 2 * 16, KnightItem.class, false));
-        this.addSlot(new ChessStorageSlot(inventory, 0 + 3 * 2 + 64, 159 + 0 * 16, 33 + 3 * 16, BishopItem.class, false));
-        this.addSlot(new ChessStorageSlot(inventory, 0 + 4 * 2 + 64, 159 + 0 * 16, 33 + 4 * 16, QueenItem.class, false));
-        this.addSlot(new ChessStorageSlot(inventory, 0 + 5 * 2 + 64, 159 + 0 * 16, 33 + 5 * 16, KingItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 0 * 2 + BOARD_SIZE, 159 + 0 * 16, 33 + 0 * 16, PawnItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 1 * 2 + BOARD_SIZE, 159 + 0 * 16, 33 + 1 * 16, RookItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 2 * 2 + BOARD_SIZE, 159 + 0 * 16, 33 + 2 * 16, KnightItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 3 * 2 + BOARD_SIZE, 159 + 0 * 16, 33 + 3 * 16, BishopItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 4 * 2 + BOARD_SIZE, 159 + 0 * 16, 33 + 4 * 16, QueenItem.class, false));
+        this.addSlot(new ChessStorageSlot(inventory, 0 + 5 * 2 + BOARD_SIZE, 159 + 0 * 16, 33 + 5 * 16, KingItem.class, false));
 
-        this.addSlot(new ChessStorageSlot(inventory, 1 + 0 * 2 + 64, 159 + 1 * 16, 33 + 0 * 16, PawnItem.class, true));
-        this.addSlot(new ChessStorageSlot(inventory, 1 + 1 * 2 + 64, 159 + 1 * 16, 33 + 1 * 16, RookItem.class, true));
-        this.addSlot(new ChessStorageSlot(inventory, 1 + 2 * 2 + 64, 159 + 1 * 16, 33 + 2 * 16, KnightItem.class, true));
-        this.addSlot(new ChessStorageSlot(inventory, 1 + 3 * 2 + 64, 159 + 1 * 16, 33 + 3 * 16, BishopItem.class, true));
-        this.addSlot(new ChessStorageSlot(inventory, 1 + 4 * 2 + 64, 159 + 1 * 16, 33 + 4 * 16, QueenItem.class, true));
-        this.addSlot(new ChessStorageSlot(inventory, 1 + 5 * 2 + 64, 159 + 1 * 16, 33 + 5 * 16, KingItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 0 * 2 + BOARD_SIZE, 159 + 1 * 16, 33 + 0 * 16, PawnItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 1 * 2 + BOARD_SIZE, 159 + 1 * 16, 33 + 1 * 16, RookItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 2 * 2 + BOARD_SIZE, 159 + 1 * 16, 33 + 2 * 16, KnightItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 3 * 2 + BOARD_SIZE, 159 + 1 * 16, 33 + 3 * 16, BishopItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 4 * 2 + BOARD_SIZE, 159 + 1 * 16, 33 + 4 * 16, QueenItem.class, true));
+        this.addSlot(new ChessStorageSlot(inventory, 1 + 5 * 2 + BOARD_SIZE, 159 + 1 * 16, 33 + 5 * 16, KingItem.class, true));
 
 
         //The player inventory
@@ -163,7 +169,7 @@ public class ChessBoardScreenHandler extends ScreenHandler {
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
-    private Pair<Integer, Integer> rotationTransformer(int x, int y) {
+    public Pair<Integer, Integer> rotationTransformer(int x, int y) {
         Direction playerFacing = playerInventory.player.getHorizontalFacing();
         if (this.chessBoardDirection == playerFacing) {
             // default

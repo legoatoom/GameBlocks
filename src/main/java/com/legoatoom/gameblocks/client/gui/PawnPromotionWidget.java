@@ -19,6 +19,7 @@ import com.legoatoom.gameblocks.client.gui.screen.ingame.ChessBoardScreen;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
 import com.legoatoom.gameblocks.items.chess.KingItem;
 import com.legoatoom.gameblocks.items.chess.PawnItem;
+import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -51,7 +52,7 @@ public class PawnPromotionWidget extends DrawableHelper implements Drawable, Ele
     private final int x,y;
     private final List<TexturedButtonWidget> options = new ArrayList<>();
 
-    public PawnPromotionWidget(ChessBoardScreen chessBoardScreen, int x, int y, MinecraftClient client, boolean isBlack, Slot slot, int button, SlotActionType actionType) {
+    public PawnPromotionWidget(ChessBoardScreen chessBoardScreen, int x, int y, MinecraftClient client, boolean isBlack, ChessBoardSlot slot, int button, SlotActionType actionType) {
         this.x = x;
         this.y = y;
         this.client = client;
@@ -67,7 +68,7 @@ public class PawnPromotionWidget extends DrawableHelper implements Drawable, Ele
                 ClientPlayNetworking.send(PawnPromotionChooseButtonWidget.PAWN_PROMOTION_C2S_UPDATE_KEY, buf);
 
                 if (PawnPromotionWidget.this.client.interactionManager != null) {
-                    PawnPromotionWidget.this.client.interactionManager.clickSlot(chessBoardScreen.getScreenHandler().syncId, slot.getIndex(), button, actionType, PawnPromotionWidget.this.client.player);
+                    PawnPromotionWidget.this.client.interactionManager.clickSlot(chessBoardScreen.getScreenHandler().syncId, slot.id, button, actionType, PawnPromotionWidget.this.client.player);
                 }
                 chessBoardScreen.setPromotionSelectionOff(PawnPromotionWidget.this);
             };

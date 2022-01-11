@@ -137,18 +137,20 @@ public class ChessBoardScreen extends HandledScreen<ChessBoardScreenHandler> {
     protected void onMouseClick(Slot slot, int slotId, int button, SlotActionType actionType) {
         // Special Case for Promotion of Pawn
         if (isSelectingPromotion) return;
-        if (checkPromotion(slot, slotId, button, actionType)){
+        if (checkPromotion(slot, button, actionType)){
             super.onMouseClick(slot, slotId, button, actionType);
         }
     }
 
-    private boolean checkPromotion(Slot slot, int slotId, int button, SlotActionType actionType) {
-        if (lastClickedSlotPre != null && slot instanceof ChessBoardSlot && !handler.getCursorStack().isEmpty()){
+    private boolean checkPromotion(Slot slot, int button, SlotActionType actionType) {
+        if (lastClickedSlotPre != null && slot instanceof ChessBoardSlot s && !handler.getCursorStack().isEmpty() && lastClickedSlotPre instanceof ChessBoardSlot s2){
+            int newPreSlotId = ChessBoardSlot.xyToIndex(s2.getBoardXLoc(), s2.getBoardYLoc());
+            int newSlotId = ChessBoardSlot.xyToIndex(s.getBoardXLoc(), s.getBoardYLoc());
             boolean isBlack = ((IChessPieceItem) handler.getCursorStack().getItem()).isBlack();
-            ChessActionType type = this.handler.getActionTypeFromSlot(lastClickedSlotPre.getIndex(), slotId);
+            ChessActionType type = this.handler.getActionTypeFromSlot(newPreSlotId, newSlotId);
             if (type == ChessActionType.PROMOTION || type == ChessActionType.PROMOTION_CAPTURE){
                 this.isSelectingPromotion = true;
-                this.addDrawableChild(new PawnPromotionWidget(this, slot.x + this.x, slot.y+ this.y, this.client, isBlack, slot, button, actionType));
+                this.addDrawableChild(new PawnPromotionWidget(this, slot.x + this.x, slot.y+ this.y, this.client, isBlack, s, button, actionType));
                 return false;
             }
         }
@@ -157,8 +159,6 @@ public class ChessBoardScreen extends HandledScreen<ChessBoardScreenHandler> {
 
 
     private void drawChessGuide(MatrixStack matrices, List<ChessBoardSlot> legalAction, Slot focusPoint) {
-        // TODO: 12022-01-04 Remake the whole highlighting moves so it requests syncs a lists with the server.
-        //  It is well designed that the rules of chess are client sided.
         if (!legalAction.isEmpty()){
             for (ChessBoardSlot action : legalAction) {
                 RenderSystem.colorMask(true, true, true, false);
@@ -177,7 +177,6 @@ public class ChessBoardScreen extends HandledScreen<ChessBoardScreenHandler> {
     protected void init() {
         super.init();
         // Center the title
-        this.handler.onContentChanged(this.handler.inventory);
         titleX = (176 - textRenderer.getWidth(title)) / 2;
     }
 
