@@ -15,11 +15,11 @@
 package com.legoatoom.gameblocks.client.gui;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.client.gui.screen.ingame.ChessBoardScreen;
+import com.legoatoom.gameblocks.client.screen.ChessBoardScreen;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
 import com.legoatoom.gameblocks.items.chess.KingItem;
 import com.legoatoom.gameblocks.items.chess.PawnItem;
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,7 +37,6 @@ import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -45,20 +44,23 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.legoatoom.gameblocks.registry.ChessRegistry.CHESS_PIECES;
+
 @Environment(EnvType.CLIENT)
 public class PawnPromotionWidget extends DrawableHelper implements Drawable, Element, Selectable {
     public static final Identifier TEXTURE = GameBlocks.id("textures/gui/pawn_promotion_widget.png");
     private final MinecraftClient client;
-    private final int x,y;
+    private final int x, y;
     private final List<TexturedButtonWidget> options = new ArrayList<>();
 
-    public PawnPromotionWidget(ChessBoardScreen chessBoardScreen, int x, int y, MinecraftClient client, boolean isBlack, ChessBoardSlot slot, int button, SlotActionType actionType) {
+    public PawnPromotionWidget(ChessBoardScreen chessBoardScreen, int x, int y, MinecraftClient client, boolean isBlack, ChessGridBoardSlot slot, int button, SlotActionType actionType) {
         this.x = x;
         this.y = y;
         this.client = client;
         int i = 0;
-        for (IChessPieceItem chessPiece : GameBlocks.CHESS_PIECES) {
-            if (chessPiece instanceof PawnItem || chessPiece.isBlack() != isBlack || chessPiece instanceof KingItem) continue;
+        for (IChessPieceItem chessPiece : CHESS_PIECES) {
+            if (chessPiece instanceof PawnItem || chessPiece.isBlack() != isBlack || chessPiece instanceof KingItem)
+                continue;
             Identifier id = GameBlocks.id("textures/item/%s.png".formatted(chessPiece.toString()));
 
 
@@ -91,7 +93,7 @@ public class PawnPromotionWidget extends DrawableHelper implements Drawable, Ele
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for (TexturedButtonWidget option : options) {
-            if (option.mouseClicked(mouseX, mouseY, button)){
+            if (option.mouseClicked(mouseX, mouseY, button)) {
                 return true;
             }
         }

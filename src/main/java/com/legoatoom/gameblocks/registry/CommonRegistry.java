@@ -12,18 +12,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.inventory;
+package com.legoatoom.gameblocks.registry;
 
-public class ClientChessBoardInventory extends ChessBoardInventory {
+import com.legoatoom.gameblocks.GameBlocks;
+import com.legoatoom.gameblocks.items.PiecesPackageItem;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.item.Item;
+import net.minecraft.util.registry.Registry;
 
-    /**
-     * The reason for this class' existence is a mystery
-     */
-    public ClientChessBoardInventory() {
-        super(true);
-    }
+public class CommonRegistry {
 
-    @Override
-    public void markDirty() {
+    public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
+
+    public static void register(){
+        Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
     }
 }

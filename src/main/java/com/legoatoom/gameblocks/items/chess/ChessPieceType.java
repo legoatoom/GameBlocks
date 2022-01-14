@@ -12,27 +12,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.inventory;
+package com.legoatoom.gameblocks.items.chess;
 
-public class ChessBoardInventory extends AbstractBoardInventory {
-    public ChessBoardInventory(boolean isClient) {
-        super(isClient, 8, 12);
-    }
-
-    @Override
-    public void markDirty() {
-    }
-
-    @Override
-    public void resetBoard() {
-    }
-
-    @Override
-    public void fillWithDefaultPieces() {
-    }
-
-    @Override
-    public boolean canDropPackage() {
-        return false;
-    }
+public enum ChessPieceType {
+    PAWN, KING, KNIGHT, ROOK, QUEEN, BISHOP
 }

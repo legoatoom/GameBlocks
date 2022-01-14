@@ -14,52 +14,36 @@
 
 package com.legoatoom.gameblocks.inventory;
 
-import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.google.common.collect.Lists;
+import com.legoatoom.gameblocks.items.chess.*;
+import com.legoatoom.gameblocks.registry.ChessRegistry;
+import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class ServerChessBoardInventory extends ChessBoardInventory{
+import static com.legoatoom.gameblocks.registry.ChessRegistry.*;
+
+public class ServerChessBoardInventory extends ChessBoardInventory {
 
 
     public final ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = new ArrayList<>();
+    final ChessGridBoardSlot[] slots;
     private final BlockEntity entity;
-    final ChessBoardSlot[] slots;
 
 
-    public ServerChessBoardInventory(BlockEntity entity){
+    public ServerChessBoardInventory(BlockEntity entity) {
         super(false);
         for (int i = 0; i < BOARD_SIZE; i++) {
             this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(BOARD_SIZE));
         }
-        slots = new ChessBoardSlot[BOARD_SIZE];
+        slots = new ChessGridBoardSlot[BOARD_SIZE];
         this.entity = entity;
-
     }
-
-    @Override
-    public void onOpen(PlayerEntity player) {
-        if (isEmpty()) initializePieces();
-    }
-
-    private void initializePieces() {
-        for (int x = 0; x < BOARD_WIDTH; x++) {
-            for (int y = 0; y < BOARD_WIDTH; y++) {
-                for (IChessPieceItem chessPiece : GameBlocks.CHESS_PIECES) {
-                    if (chessPiece.isDefaultLocation(x, y)){
-                        setStack(ChessBoardSlot.xyToIndex(x,y), new ItemStack(chessPiece));
-                    }
-                }
-            }
-        }
-    }
-
-
 
     public ArrayPropertyDelegate getSlotHintPropertyDelegate(int origin) {
         return slotHintPropertyDelegate.get(origin);
@@ -67,21 +51,21 @@ public class ServerChessBoardInventory extends ChessBoardInventory{
 
     public void updateHints() {
         IChessPieceItem.cleanHoverActions(this.slots);
-        for (ChessBoardSlot slot : this.slots) {
+        for (ChessGridBoardSlot slot : this.slots) {
             slot.calculateHints();
         }
     }
 
-    public void addSlot(ChessBoardSlot chessBoardSlot) {
-        this.slots[chessBoardSlot.getIndex()] = chessBoardSlot;
+    public void addSlot(ChessGridBoardSlot chessGridBoardSlot) {
+        this.slots[chessGridBoardSlot.getIndex()] = chessGridBoardSlot;
     }
 
-    public ChessBoardSlot getSlot(int index){
+    public ChessGridBoardSlot getSlot(int index) {
         return slots[index];
     }
 
-    public ChessBoardSlot getSlot(int x, int y){
-        return getSlot(ChessBoardSlot.xyToIndex(x, y));
+    public ChessGridBoardSlot getSlot(int x, int y) {
+        return getSlot(y * BOARD_WIDTH + x);
     }
 
     /**
@@ -94,5 +78,69 @@ public class ServerChessBoardInventory extends ChessBoardInventory{
         }
     }
 
+    public void resetBoard() {
+        ArrayList<IChessPieceItem> availableItems = Lists.newArrayList();
+        for (ItemStack stack : getItems()) {
+            if (stack.isEmpty()) continue;
+            for (int i = 0; i < stack.getCount(); i++) {
+                if (stack.getItem() instanceof IChessPieceItem item){
+                    availableItems.add(item);
+                }
+            }
+        }
+        this.clear();
+        label:
+        for (IChessPieceItem chessPiece : availableItems) {
+            for (int x = 0; x < BOARD_WIDTH; x++) {
+                for (int y = 0; y < BOARD_WIDTH; y++) {
+                    if (chessPiece.isDefaultLocation(x, y) && !getSlot(x,y).hasStack()) {
+                        setStack(y * BOARD_WIDTH + x, new ItemStack(chessPiece));
+                        continue label;
+                    }
+                }
+            }
+        }
 
+    }
+
+    @SuppressWarnings("PointlessArithmeticExpression")
+    @Override
+    public void fillWithDefaultPieces() {
+        this.setStack(0 + 0 * 2 + BOARD_SIZE, new ItemStack(WHITE_PAWN,WHITE_PAWN.getMaxCount()));
+        this.setStack(0 + 1 * 2 + BOARD_SIZE, new ItemStack(WHITE_ROOK,WHITE_ROOK.getMaxCount()));
+        this.setStack(0 + 2 * 2 + BOARD_SIZE, new ItemStack(WHITE_KNIGHT,WHITE_KNIGHT.getMaxCount()));
+        this.setStack(0 + 3 * 2 + BOARD_SIZE, new ItemStack(WHITE_BISHOP,WHITE_BISHOP.getMaxCount()));
+        this.setStack(0 + 4 * 2 + BOARD_SIZE, new ItemStack(WHITE_QUEEN,WHITE_QUEEN.getMaxCount()));
+        this.setStack(0 + 5 * 2 + BOARD_SIZE, new ItemStack(WHITE_KING,WHITE_KING.getMaxCount()));
+
+        this.setStack(1 + 0 * 2 + BOARD_SIZE, new ItemStack(BLACK_PAWN,BLACK_PAWN.getMaxCount()));
+        this.setStack(1 + 1 * 2 + BOARD_SIZE, new ItemStack(BLACK_ROOK,BLACK_ROOK.getMaxCount()));
+        this.setStack(1 + 2 * 2 + BOARD_SIZE, new ItemStack(BLACK_KNIGHT,BLACK_KNIGHT.getMaxCount()));
+        this.setStack(1 + 3 * 2 + BOARD_SIZE, new ItemStack(BLACK_BISHOP,BLACK_BISHOP.getMaxCount()));
+        this.setStack(1 + 4 * 2 + BOARD_SIZE, new ItemStack(BLACK_QUEEN,BLACK_QUEEN.getMaxCount()));
+        this.setStack(1 + 5 * 2 + BOARD_SIZE, new ItemStack(BLACK_KING,BLACK_KING.getMaxCount()));
+    }
+
+    @Override
+    public boolean canDropPackage() {
+        int pawns = WHITE_PAWN.getMaxCount() + BLACK_PAWN.getMaxCount();
+        int rooks = WHITE_ROOK.getMaxCount() + BLACK_ROOK.getMaxCount();
+        int knights = WHITE_KNIGHT.getMaxCount() + BLACK_KNIGHT.getMaxCount();
+        int bishops = WHITE_BISHOP.getMaxCount() + BLACK_BISHOP.getMaxCount();
+        int queen = WHITE_QUEEN.getMaxCount() + BLACK_QUEEN.getMaxCount();
+        int kings = WHITE_KING.getMaxCount() + BLACK_KING.getMaxCount();
+        for (ItemStack stack : getItems()) {
+            if (stack.getItem() instanceof IChessPieceItem item){
+                switch (item.getType()){
+                    case ROOK -> rooks -= stack.getCount();
+                    case PAWN -> pawns -= stack.getCount();
+                    case KNIGHT -> knights -= stack.getCount();
+                    case BISHOP -> bishops -= stack.getCount();
+                    case QUEEN -> queen -= stack.getCount();
+                    case KING -> kings -= stack.getCount();
+                }
+            }
+        }
+        return Arrays.stream(new int[]{pawns, rooks, knights, bishops, queen, kings}).allMatch(value -> value == 0);
+    }
 }

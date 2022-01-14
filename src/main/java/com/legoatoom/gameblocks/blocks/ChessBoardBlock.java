@@ -15,41 +15,21 @@
 package com.legoatoom.gameblocks.blocks;
 
 import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("deprecation")
-public class ChessBoardBlock
-        extends BlockWithEntity
-        implements Waterloggable {
+public class ChessBoardBlock extends AbstractBoardBlock {
 
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
-    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
-    protected static final VoxelShape SHAPE = Block.createCuboidShape(0.0625, 0, 0.0625, 0.9375, 0.1875, 0.9375d);
+    protected static final VoxelShape SHAPE = Block.createCuboidShape(1, 0, 1, 15, 3, 15);
 
-    public ChessBoardBlock() {
-        super(FabricBlockSettings.of(Material.WOOD).strength(2.f).resistance(2.f).sounds(BlockSoundGroup.WOOD));
-        setDefaultState(getStateManager().getDefaultState().with(FACING, Direction.NORTH).with(WATERLOGGED, false));
+    public ChessBoardBlock(Settings settings) {
+        super(settings);
     }
 
     @Nullable
@@ -59,42 +39,7 @@ public class ChessBoardBlock
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
-    }
-
-    @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
-        builder.add(FACING, WATERLOGGED);
-    }
-
-    @Nullable
-    @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        return getDefaultState().with(FACING, ctx.getPlayerFacing()).with(WATERLOGGED,
-                fluidState.getFluid().isIn(FluidTags.WATER));
-    }
-
-    @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return SHAPE;
-    }
-
-    @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) {
-            NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-            if (screenHandlerFactory != null){
-                player.openHandledScreen(screenHandlerFactory);
-            }
-        }
-        return ActionResult.SUCCESS;
-    }
-
-    @Override
-    public boolean hasSidedTransparency(BlockState state) {
-        return true;
     }
 }

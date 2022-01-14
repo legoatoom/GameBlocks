@@ -18,14 +18,13 @@ import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
 
-public class ChessStorageSlot extends Slot {
+public class ChessStorageBoardSlot extends AbstractBoardSlot {
 
     public final Class<? extends IChessPieceItem> storeType;
     private final boolean isBlack;
 
-    public ChessStorageSlot(Inventory inventory, int index, int x, int y, Class<? extends IChessPieceItem> storeType, boolean isBlack) {
+    public ChessStorageBoardSlot(Inventory inventory, int index, int x, int y, Class<? extends IChessPieceItem> storeType, boolean isBlack) {
         super(inventory, index, x, y);
         this.storeType = storeType;
         this.isBlack = isBlack;
@@ -33,19 +32,20 @@ public class ChessStorageSlot extends Slot {
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        if (!stack.isEmpty() && this.storeType.isInstance(stack.getItem())) {
-            IChessPieceItem item = (IChessPieceItem) stack.getItem().asItem();
-            if (this.isBlack != item.isBlack()){
-                return false;
-            }
-            return super.canInsert(stack);
-        }
-        return false;
+        if (stack.isEmpty() || !this.storeType.isInstance(stack.getItem())) return false;
+
+        IChessPieceItem item = (IChessPieceItem) stack.getItem().asItem();
+        return this.isBlack == item.isBlack() && super.canInsert(stack);
     }
 
     @Override
     public ItemStack insertStack(ItemStack stack, int count) {
-        stack.removeSubNbt(GameBlocks.MOD_ID);
+        stack.removeSubNbt(GameBlocks.MOD_ID); // Clear NBT_DATA when storing
         return super.insertStack(stack, count);
+    }
+
+    @Override
+    public int getSlotHighLighterSize() {
+        return 14;
     }
 }

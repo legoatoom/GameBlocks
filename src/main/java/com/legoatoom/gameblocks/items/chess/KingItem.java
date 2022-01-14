@@ -17,7 +17,7 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class KingItem extends IChessPieceItem {
 
@@ -38,14 +37,13 @@ public class KingItem extends IChessPieceItem {
     }
 
 
-
     @Override
     public boolean isDefaultLocation(int x, int y) {
         return x == 4 && y == (isBlack() ? 0 : 7);
     }
 
     @Override
-    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
+    public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
 
         int origin = slot.getIndex();
         slot.up(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));
@@ -82,7 +80,7 @@ public class KingItem extends IChessPieceItem {
                     chessBoardSlot1.right(false).ifPresent(chessBoardSlot2 -> {
 
                         if (chessBoardSlot2.hasStack()) return;
-                        chessBoardSlot2.right(false).ifPresent(chessBoardSlot3 ->{
+                        chessBoardSlot2.right(false).ifPresent(chessBoardSlot3 -> {
                             // Rook
                             chessBoardSlot3.getItem().ifPresent(chessPieceItem -> {
                                 if (chessPieceItem.getType() == ChessPieceType.ROOK && checkNotMoved(chessBoardSlot3.getStack()) && !slotUnderAttack(chessBoardSlot1)) {
@@ -98,10 +96,44 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    protected boolean moveOrCaptureCheck(@NotNull ChessBoardSlot current, int origin) {
+    public void handleAction(ScreenHandler handler, ChessGridBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
+        super.handleAction(handler, slot, cursorStack, actionType);
+        NbtCompound nbtCompound = slot.getStack().getOrCreateSubNbt(GameBlocks.MOD_ID);
+        if (!nbtCompound.contains("hasMoved")) {
+            nbtCompound.putBoolean("hasMoved", true);
+        }
+
+        // black and white king are on the same location so isBlack is not necessary here, and castling is only horizontal
+        if (actionType == ChessActionType.CASTLE) {
+            if (slot.getBoardXLoc() == 6) {
+                slot.left(false).ifPresent(leftSlot -> {
+                    var stack = leftSlot.getStack();
+                    if (checkNotMoved(stack) || ((IChessPieceItem) stack.getItem()).getType() == ChessPieceType.ROOK) {
+                        slot.right(false).ifPresent(rightSlot -> {
+                            rightSlot.setStack(stack);
+                            leftSlot.setStack(ItemStack.EMPTY);
+                        });
+                    }
+                });
+            } else if (slot.getBoardXLoc() == 2) {
+                slot.right(false, 2).ifPresent(rightSlot -> {
+                    var stack = rightSlot.getStack();
+                    if (checkNotMoved(stack) || ((IChessPieceItem) stack.getItem()).getType() == ChessPieceType.ROOK) {
+                        slot.left(false).ifPresent(leftSlot -> {
+                            leftSlot.setStack(stack);
+                            rightSlot.setStack(ItemStack.EMPTY);
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    protected boolean moveOrCaptureCheck(@NotNull ChessGridBoardSlot current, int origin) {
         Optional<IChessPieceItem> item = current.getItem();
-        if (item.isPresent()){
-            if (item.get().isBlack() != this.isBlack()){
+        if (item.isPresent()) {
+            if (item.get().isBlack() != this.isBlack()) {
                 current.setHoverHint(origin, ChessActionType.CAPTURE);
             }
             return false;
@@ -115,22 +147,22 @@ public class KingItem extends IChessPieceItem {
      * Is not perfect, as moving the king will allow other pieces to move to spaces that we cannot expect to know.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean slotUnderAttack(@NotNull ChessBoardSlot slot){
+    private boolean slotUnderAttack(@NotNull ChessGridBoardSlot slot) {
         ChessBoardInventory x = slot.getInventory();
         if (x.isClient()) return false;
         ServerChessBoardInventory serverInv = (ServerChessBoardInventory) x;
         ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = serverInv.slotHintPropertyDelegate;
         for (int i = 0; i < slotHintPropertyDelegate.size(); i++) {
             //Check if the slot exists
-            if (serverInv.getSlot(i).getItem().isPresent()){
+            if (serverInv.getSlot(i).getItem().isPresent()) {
                 var chessPieceItem = serverInv.getSlot(i).getItem().get();
                 //Check if it is a chessItem (Should always be) and it is of the other team.
-                if (this.isBlack() != chessPieceItem.isBlack()){
+                if (this.isBlack() != chessPieceItem.isBlack()) {
                     ArrayPropertyDelegate arrayPropertyDelegate = slotHintPropertyDelegate.get(i);
                     int actionId = arrayPropertyDelegate.get(slot.getIndex());
                     // These action types can result into an attack.
                     List<Integer> checks;
-                    if (chessPieceItem.getType() == ChessPieceType.PAWN){
+                    if (chessPieceItem.getType() == ChessPieceType.PAWN) {
                         //Pawn Moves do not capture
                         checks = Arrays.asList(ChessActionType.CAPTURE.getId(), ChessActionType.PROMOTION_CAPTURE.getId(),
                                 ChessActionType.EN_PASSANT.getId(), ChessActionType.PAWN_POTENTIAL.getId());
@@ -150,40 +182,6 @@ public class KingItem extends IChessPieceItem {
         NbtCompound nbtCompound = stack.getSubNbt(GameBlocks.MOD_ID);
         if (nbtCompound == null) return true;
         return !nbtCompound.contains("hasMoved");
-    }
-
-    @Override
-    public void handleAction(ScreenHandler handler, ChessBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
-        super.handleAction(handler, slot, cursorStack, actionType);
-        NbtCompound nbtCompound = slot.getStack().getOrCreateSubNbt(GameBlocks.MOD_ID);
-        if (!nbtCompound.contains("hasMoved")) {
-            nbtCompound.putBoolean("hasMoved", true);
-        }
-
-        // black and white king are on the same location so isBlack is not necessary here, and castling is only horizontal
-        if (actionType == ChessActionType.CASTLE){
-            if (slot.getBoardXLoc() == 6){
-                slot.left(false).ifPresent(leftSlot -> {
-                    var stack = leftSlot.getStack();
-                    if (checkNotMoved(stack) || ((IChessPieceItem) stack.getItem()).getType() == ChessPieceType.ROOK){
-                        slot.right(false).ifPresent(rightSlot -> {
-                            rightSlot.setStack(stack);
-                            leftSlot.setStack(ItemStack.EMPTY);
-                        });
-                    }
-                });
-            } else if (slot.getBoardXLoc() == 2) {
-                slot.right(false, 2).ifPresent(rightSlot -> {
-                    var stack = rightSlot.getStack();
-                    if (checkNotMoved(stack) || ((IChessPieceItem) stack.getItem()).getType() == ChessPieceType.ROOK){
-                        slot.left(false).ifPresent(leftSlot -> {
-                            leftSlot.setStack(stack);
-                            rightSlot.setStack(ItemStack.EMPTY);
-                        });
-                    }
-                });
-            }
-        }
     }
 
 

@@ -14,9 +14,8 @@
 
 package com.legoatoom.gameblocks.mixin.client.gui.screen.ingame;
 
-import com.legoatoom.gameblocks.client.gui.screen.ingame.ChessBoardScreen;
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
-import com.legoatoom.gameblocks.screen.slot.ChessStorageSlot;
+import com.legoatoom.gameblocks.client.screen.ChessBoardScreen;
+import com.legoatoom.gameblocks.screen.slot.AbstractBoardSlot;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,25 +36,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class CustomHighSlotHighLighter<T extends ScreenHandler> {
 
 
-    @Shadow protected int x;
-    @Shadow protected int y;
-    @Shadow @Nullable protected Slot focusedSlot;
+    @Shadow
+    protected int x;
+    @Shadow
+    protected int y;
+    @Shadow
+    @Nullable
+    protected Slot focusedSlot;
 
     @Redirect(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlotHighlight(Lnet/minecraft/client/util/math/MatrixStack;III)V")
     )
-    private void render(MatrixStack matrices, int x, int y, int z){
-        if (this.focusedSlot instanceof ChessBoardSlot || this.focusedSlot instanceof ChessStorageSlot){
+    private void render(MatrixStack matrices, int x, int y, int z) {
+        if (this.focusedSlot instanceof AbstractBoardSlot s) {
             //noinspection unchecked
-            if ((HandledScreen<T>) ((Object) this) instanceof ChessBoardScreen a){
-                if (a.isSelectingPromotion()){
+            if ((HandledScreen<T>) ((Object) this) instanceof ChessBoardScreen a) {
+                if (a.isSelectingPromotion()) {
                     return;
                 }
             }
             RenderSystem.disableDepthTest();
             RenderSystem.colorMask(true, true, true, false);
             // Vanilla code uses gradient, therefor I also do.
-            HandledScreen.fillGradient(matrices, x + 1, y + 1, x + 15, y + 15, -2130706433, -2130706433, z);
+            int slotSize = s.getSlotHighLighterSize();
+            int offset = (16 - slotSize) / 2;
+            HandledScreen.fillGradient(matrices, x + offset, y + offset, x + offset + slotSize, y + offset + slotSize, -2130706433, -2130706433, z);
             RenderSystem.colorMask(true, true, true, true);
             RenderSystem.enableDepthTest();
         } else {
@@ -64,18 +69,19 @@ public abstract class CustomHighSlotHighLighter<T extends ScreenHandler> {
     }
 
     @Inject(method = "isPointOverSlot", at = @At("HEAD"), cancellable = true)
-    private void isOverChessBoardSlot(Slot slot, double pointX, double pointY, CallbackInfoReturnable<Boolean> cir){
-        if (slot instanceof ChessBoardSlot || slot instanceof ChessStorageSlot){
-            cir.setReturnValue(this.isWithinBounds(slot.x + 1, slot.y + 1, pointX, pointY));
+    private void isOverChessBoardSlot(Slot slot, double pointX, double pointY, CallbackInfoReturnable<Boolean> cir) {
+        if (slot instanceof AbstractBoardSlot s) {
+            cir.setReturnValue(this.isWithinBounds(slot.x, slot.y, pointX, pointY, s.getSlotHighLighterSize()));
         }
     }
 
-    protected boolean isWithinBounds(int x, int y, double pointX, double pointY) {
-        int i = this.x;
-        int j = this.y;
-        return (pointX -= i) >= (double)(x - 1)
-                && pointX < (double)(x + 13 + 1)
-                && (pointY -= j) >= (double)(y - 1)
-                && pointY < (double)(y + 13 + 1);
+    protected boolean isWithinBounds(int x, int y, double mouseX, double mouseY, int slotSize) {
+        int screenX = this.x;
+        int screenY = this.y;
+        int offset = (16 - slotSize) / 2;
+        mouseX -= screenX;
+        mouseY -= screenY;
+        return mouseX >= (double) (x - 1 + offset) && mouseX < (double) (x + offset + slotSize + 1)
+                && mouseY >= (double) (y - 1 + offset) && mouseY < (double) (y + offset + slotSize + 1);
     }
 }

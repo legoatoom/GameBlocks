@@ -15,7 +15,8 @@
 package com.legoatoom.gameblocks.client;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.client.gui.screen.ingame.ChessBoardScreen;
+import com.legoatoom.gameblocks.client.screen.ChessBoardScreen;
+import com.legoatoom.gameblocks.registry.ChessRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,6 +26,6 @@ import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 public class GameblocksClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ScreenRegistry.register(GameBlocks.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
+        ScreenRegistry.register(ChessRegistry.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
     }
 }

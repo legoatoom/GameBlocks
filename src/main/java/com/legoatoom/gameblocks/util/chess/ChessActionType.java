@@ -33,9 +33,6 @@ public enum ChessActionType {
     INITIAL_MOVE(4, 0x80f1c232),
     MOVE(5, 0x803d85c6),
     NONE,
-    /**
-     * Used to check if a location is under attack.
-     */
     PAWN_POTENTIAL(8),
     PROMOTION(6, 0x80a64d79),
     PROMOTION_CAPTURE(7, 0x80B9273D) {
@@ -50,26 +47,18 @@ public enum ChessActionType {
     private final int color;
     private final int id;
 
-    public boolean shouldIgnore(){
-        return this == NONE || this == PAWN_POTENTIAL;
-    }
-
     ChessActionType() {
-        this(-1,-1);
+        this(-1, -1);
     }
-
 
     ChessActionType(int id) {
         this(id, -1);
     }
 
+
     ChessActionType(int id, int color) {
         this.id = id;
         this.color = color;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public static ChessActionType fromId(int id) {
@@ -79,6 +68,15 @@ public enum ChessActionType {
             }
         }
         return NONE;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean shouldIgnore() {
+        return this == NONE || this == PAWN_POTENTIAL;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public List<Text> getInfo(TextRenderer renderer) {

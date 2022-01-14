@@ -14,10 +14,10 @@
 
 package com.legoatoom.gameblocks.items.chess;
 
-import com.legoatoom.gameblocks.screen.slot.ChessBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import org.jetbrains.annotations.NotNull;
 
-public class BishopItem extends IChessPieceItem  {
+public class BishopItem extends IChessPieceItem {
 
     public BishopItem(boolean isBlack) {
         super(isBlack, 2, ChessPieceType.BISHOP);
@@ -29,7 +29,7 @@ public class BishopItem extends IChessPieceItem  {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull ChessBoardSlot slot) {
+    public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
         checkDiagonals(slot);
     }
 }

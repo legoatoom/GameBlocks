@@ -12,27 +12,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.inventory;
+package com.legoatoom.gameblocks.screen.slot;
 
-public class ChessBoardInventory extends AbstractBoardInventory {
-    public ChessBoardInventory(boolean isClient) {
-        super(isClient, 8, 12);
+import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.slot.Slot;
+
+public abstract class AbstractBoardSlot extends Slot {
+    public AbstractBoardSlot(Inventory inventory, int index, int x, int y) {
+        super(inventory, index, x, y);
     }
 
-    @Override
-    public void markDirty() {
-    }
-
-    @Override
-    public void resetBoard() {
-    }
-
-    @Override
-    public void fillWithDefaultPieces() {
-    }
-
-    @Override
-    public boolean canDropPackage() {
-        return false;
-    }
+    public abstract int getSlotHighLighterSize();
 }
