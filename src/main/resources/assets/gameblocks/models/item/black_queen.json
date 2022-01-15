@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "gameblocks:item/black_queen"
+    "layer0": "gameblocks:item/chess/black_queen"
   }
 }

@@ -15,9 +15,9 @@
 package com.legoatoom.gameblocks.client.screen;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.client.gui.PawnPromotionWidget;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
-import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
+import com.legoatoom.gameblocks.items.chess.PawnItem;
+import com.legoatoom.gameblocks.screen.chess.ChessBoardScreenHandler;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -99,7 +99,7 @@ public class ChessBoardScreen extends HandledScreen<ChessBoardScreenHandler> {
             ChessActionType type = this.handler.getActionTypeFromSlot(newPreSlotId, newSlotId);
             if (type == ChessActionType.PROMOTION || type == ChessActionType.PROMOTION_CAPTURE) {
                 this.isSelectingPromotion = true;
-                this.addDrawableChild(new PawnPromotionWidget(this, slot.x + this.x, slot.y + this.y, this.client, isBlack, s, button, actionType));
+                this.addDrawableChild(new PawnItem.PawnPromotionWidget(this, slot.x + this.x, slot.y + this.y, this.client, isBlack, s, button, actionType));
                 return false;
             }
         }
@@ -170,7 +170,7 @@ public class ChessBoardScreen extends HandledScreen<ChessBoardScreenHandler> {
         }
     }
 
-    public void setPromotionSelectionOff(PawnPromotionWidget pawnPromotionWidget) {
+    public void setPromotionSelectionOff(PawnItem.PawnPromotionWidget pawnPromotionWidget) {
         isSelectingPromotion = false;
         this.remove(pawnPromotionWidget);
     }

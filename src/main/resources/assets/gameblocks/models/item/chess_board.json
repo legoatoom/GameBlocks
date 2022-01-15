@@ -1,3 +1,3 @@
 {
-  "parent": "gameblocks:block/chess_board"
+  "parent": "gameblocks:block/chess/chess_board"
 }

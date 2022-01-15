@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "gameblocks:item/white_knight"
+    "layer0": "gameblocks:item/chess/white_knight"
   }
 }

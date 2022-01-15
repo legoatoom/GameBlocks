@@ -12,16 +12,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.inventory;
+package com.legoatoom.gameblocks.inventory.chess;
 
 import com.google.common.collect.Lists;
 import com.legoatoom.gameblocks.items.chess.*;
-import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
-import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 import java.util.Arrays;

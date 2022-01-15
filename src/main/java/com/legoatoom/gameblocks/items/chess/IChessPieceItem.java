@@ -15,6 +15,7 @@
 package com.legoatoom.gameblocks.items.chess;
 
 import com.legoatoom.gameblocks.GameBlocks;
+import com.legoatoom.gameblocks.items.IPieceItem;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
@@ -42,7 +43,7 @@ import static com.legoatoom.gameblocks.GameBlocks.*;
 import static com.legoatoom.gameblocks.registry.ChessRegistry.BLACK_PAWN;
 import static com.legoatoom.gameblocks.registry.ChessRegistry.WHITE_PAWN;
 
-public abstract class IChessPieceItem extends Item {
+public abstract class IChessPieceItem extends Item implements IPieceItem {
     private final boolean isBlack;
     private final ChessPieceType type;
 

@@ -15,9 +15,9 @@
 package com.legoatoom.gameblocks.blocks.entity;
 
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
-import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
-import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
+import com.legoatoom.gameblocks.screen.chess.ChessBoardScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;

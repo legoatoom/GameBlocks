@@ -15,8 +15,8 @@
 package com.legoatoom.gameblocks.items.chess;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
-import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import net.minecraft.item.ItemStack;
@@ -44,7 +44,6 @@ public class KingItem extends IChessPieceItem {
 
     @Override
     public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
-
         int origin = slot.getIndex();
         slot.up(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));
         slot.upRight(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));

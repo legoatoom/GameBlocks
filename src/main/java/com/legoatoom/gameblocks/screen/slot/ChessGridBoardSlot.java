@@ -14,8 +14,8 @@
 
 package com.legoatoom.gameblocks.screen.slot;
 
-import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
-import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.items.chess.ChessPieceType;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
