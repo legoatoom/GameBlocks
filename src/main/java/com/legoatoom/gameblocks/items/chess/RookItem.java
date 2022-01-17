@@ -17,6 +17,7 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;

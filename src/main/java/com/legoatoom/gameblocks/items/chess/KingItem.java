@@ -19,6 +19,7 @@ import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ArrayPropertyDelegate;

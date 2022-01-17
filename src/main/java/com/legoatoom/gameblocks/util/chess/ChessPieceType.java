@@ -12,7 +12,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.items.chess;
+package com.legoatoom.gameblocks.util.chess;
 
 public enum ChessPieceType {
     PAWN, KING, KNIGHT, ROOK, QUEEN, BISHOP

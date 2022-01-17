@@ -15,6 +15,7 @@
 package com.legoatoom.gameblocks.items.chess;
 
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import org.jetbrains.annotations.NotNull;
 
 

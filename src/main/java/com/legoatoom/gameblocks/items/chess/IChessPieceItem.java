@@ -18,6 +18,7 @@ import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
