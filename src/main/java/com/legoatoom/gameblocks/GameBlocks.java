@@ -14,38 +14,15 @@
 
 package com.legoatoom.gameblocks;
 
-import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
-import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
-import com.legoatoom.gameblocks.client.gui.PawnPromotionWidget;
-import com.legoatoom.gameblocks.items.chess.*;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.registry.CommonRegistry;
-import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.Material;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import static com.legoatoom.gameblocks.registry.ChessRegistry.BLACK_PAWN;
 

@@ -16,11 +16,9 @@ package com.legoatoom.gameblocks.registry;
 
 import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
-import com.legoatoom.gameblocks.client.gui.PawnPromotionWidget;
 import com.legoatoom.gameblocks.items.chess.*;
-import com.legoatoom.gameblocks.screen.ChessBoardScreenHandler;
+import com.legoatoom.gameblocks.screen.chess.ChessBoardScreenHandler;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -28,19 +26,11 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 
@@ -92,8 +82,8 @@ public class ChessRegistry {
 
     private static void registerNetworking() {
         ServerPlayNetworking.registerGlobalReceiver(
-                PawnPromotionWidget.PawnPromotionChooseButtonWidget.PAWN_PROMOTION_C2S_UPDATE_KEY,
-                ChessRegistry::receivePromotionRequest);
+                PawnItem.PawnPromotionWidget.PawnPromotionChooseButtonWidget.PAWN_PROMOTION_C2S_UPDATE_KEY,
+                PawnItem::receivePromotionRequest);
     }
 
     private static void registerBoard() {
@@ -119,10 +109,4 @@ public class ChessRegistry {
         Registry.register(Registry.ITEM, id("black_knight"), BLACK_KNIGHT);
     }
 
-    private static void receivePromotionRequest(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        ItemStack stack = player.currentScreenHandler.getCursorStack();
-        String id = buf.readString();
-        NbtCompound nbt = stack.getOrCreateSubNbt(MOD_ID);
-        nbt.putString("promotion", id);
-    }
 }

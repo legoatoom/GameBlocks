@@ -12,27 +12,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.inventory;
+package com.legoatoom.gameblocks.items;
 
-public class ChessBoardInventory extends AbstractBoardInventory {
-    public ChessBoardInventory(boolean isClient) {
-        super(isClient, 8, 12);
-    }
+import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
+import org.jetbrains.annotations.NotNull;
 
-    @Override
-    public void markDirty() {
-    }
+public interface IPieceItem {
 
-    @Override
-    public void resetBoard() {
-    }
+    boolean isDefaultLocation(int x, int y);
 
-    @Override
-    public void fillWithDefaultPieces() {
-    }
+    void calculateLegalActions(@NotNull ChessGridBoardSlot slot);
 
-    @Override
-    public boolean canDropPackage() {
-        return false;
-    }
+    void handleAction(ScreenHandler handler, ChessGridBoardSlot slot, ItemStack cursorStack, ChessActionType actionType);
 }

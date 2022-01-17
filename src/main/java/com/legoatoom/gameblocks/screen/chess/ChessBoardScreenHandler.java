@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 legoatoom
+ * Copyright (C) 2022 legoatoom
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -12,10 +12,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.screen;
+package com.legoatoom.gameblocks.screen.chess;
 
-import com.legoatoom.gameblocks.inventory.ChessBoardInventory;
-import com.legoatoom.gameblocks.inventory.ServerChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.AbstractBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ChessBoardInventory;
+import com.legoatoom.gameblocks.inventory.chess.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.items.chess.*;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
@@ -39,7 +40,7 @@ public class ChessBoardScreenHandler extends ScreenHandler {
 
     private static final int BOARD_WIDTH = 8;
     private static final int BOARD_SIZE = 64;
-    public final ChessBoardInventory inventory;
+    public final AbstractBoardInventory inventory;
     public final PlayerInventory playerInventory;
     public final ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate;
     private final Direction chessBoardDirection;
@@ -130,7 +131,7 @@ public class ChessBoardScreenHandler extends ScreenHandler {
                 Pair<Integer, Integer> pair = rotationTransformer(x, y);
                 int boardX = pair.getLeft();
                 int boardY = pair.getRight();
-                Slot slot = new ChessGridBoardSlot(inventory, boardX, boardY, 24 + x * 16, 17 + y * 16);
+                Slot slot = new ChessGridBoardSlot((ChessBoardInventory) inventory, boardX, boardY, 24 + x * 16, 17 + y * 16);
                 this.addSlot(slot);
             }
         }
