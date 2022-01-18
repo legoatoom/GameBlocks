@@ -69,7 +69,7 @@ public abstract class AbstractBoardBlockEntity extends BlockEntity implements Ex
     public abstract AbstractBoardInventory getBoard();
 
 
-    public boolean canDropPackage(){
+    public boolean canDropPackage() {
         return getBoard().canDropPackage();
     }
 }

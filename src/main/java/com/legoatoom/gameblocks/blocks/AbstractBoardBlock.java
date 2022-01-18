@@ -23,7 +23,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -73,6 +72,47 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
         builder.add(FACING, WATERLOGGED);
     }
 
+    private boolean extractPackageInto(ItemStack stack, World world, BlockPos pos, boolean isCreative) {
+        BlockEntity entity = world.getBlockEntity(pos);
+        if (entity instanceof AbstractBoardBlockEntity boardEntity) {
+            var board = boardEntity.getBoard();
+            if (board.isEmpty()) {
+                if (!world.isClient()) {
+                    board.fillWithDefaultPieces();
+                    if (!isCreative) {
+                        stack.decrement(1);
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+    //This method will drop all items onto the ground when the block is broken
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (state.getBlock() != newState.getBlock()) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof AbstractBoardBlockEntity b) {
+                if (b.canDropPackage()) {
+                    ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(CommonRegistry.PIECES_PACKAGE_ITEM));
+                } else {
+                    ItemScatterer.spawn(world, pos, b.getBoard());
+                }
+
+                // update comparators
+                world.updateComparators(pos, this);
+            }
+            super.onStateReplaced(state, world, pos, newState, moved);
+        }
+    }
+
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
@@ -84,10 +124,10 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
                 }
                 return ActionResult.PASS;
             } else {
-                if (player.isSneaking()){
+                if (player.isSneaking()) {
                     // Reset Board
                     BlockEntity entity = world.getBlockEntity(pos);
-                    if (entity instanceof AbstractBoardBlockEntity e){
+                    if (entity instanceof AbstractBoardBlockEntity e) {
                         var board = e.getBoard();
                         player.playSound(SoundEvents.ITEM_BOOK_PUT, SoundCategory.PLAYERS, 0.8f, 0.8f + world.getRandom().nextFloat() * 0.4f);
                         board.resetBoard();
@@ -105,23 +145,6 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
         return ActionResult.SUCCESS;
     }
 
-    private boolean extractPackageInto(ItemStack stack, World world, BlockPos pos, boolean isCreative) {
-        BlockEntity entity = world.getBlockEntity(pos);
-        if (entity instanceof AbstractBoardBlockEntity boardEntity) {
-            var board = boardEntity.getBoard();
-            if (board.isEmpty()){
-                if (!world.isClient()) {
-                    board.fillWithDefaultPieces();
-                    if (!isCreative){
-                        stack.decrement(1);
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean hasSidedTransparency(BlockState state) {
         return true;
@@ -129,28 +152,4 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
 
     @Override
     public abstract VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context);
-
-    @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
-    }
-
-    //This method will drop all items onto the ground when the block is broken
-    @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof AbstractBoardBlockEntity b) {
-                if (b.canDropPackage()){
-                    ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(CommonRegistry.PIECES_PACKAGE_ITEM));
-                } else {
-                    ItemScatterer.spawn(world, pos, b.getBoard());
-                }
-
-                // update comparators
-                world.updateComparators(pos,this);
-            }
-            super.onStateReplaced(state, world, pos, newState, moved);
-        }
-    }
 }

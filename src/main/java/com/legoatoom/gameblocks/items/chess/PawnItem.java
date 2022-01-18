@@ -15,7 +15,8 @@
 package com.legoatoom.gameblocks.items.chess;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.util.chess.ActionType;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.minecraft.item.Item;
@@ -39,18 +40,18 @@ public class PawnItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
-        Optional<ChessGridBoardSlot> up = slot.up(isBlack());
+    public void calculateLegalActions(@NotNull GridSlot slot) {
+        Optional<GridSlot> up = slot.up(isBlack());
         //Moving
         up.ifPresent(chessBoardSlot -> {
             if (!chessBoardSlot.hasStack()) {
-                chessBoardSlot.setHoverHint(slot.getIndex(), isPromotion(chessBoardSlot) ? ChessActionType.PROMOTION : ChessActionType.MOVE);
+                chessBoardSlot.setHoverHintForOriginIndex(slot.getIndex(), isPromotion(chessBoardSlot) ? ChessActionType.PROMOTION : ChessActionType.MOVE);
                 // First move can be 2 steps.
                 if (isDefaultLocation(slot.getBoardXLoc(), slot.getBoardYLoc())) {
-                    Optional<ChessGridBoardSlot> up2 = slot.up(isBlack(), 2);
+                    Optional<GridSlot> up2 = slot.up(isBlack(), 2);
                     up2.ifPresent(chessBoardSlot1 -> {
                         if (!chessBoardSlot1.hasStack()) {
-                            chessBoardSlot1.setHoverHint(slot.getIndex(), ChessActionType.INITIAL_MOVE);
+                            chessBoardSlot1.setHoverHintForOriginIndex(slot.getIndex(), ChessActionType.INITIAL_MOVE);
                         }
                     });
                 }
@@ -68,13 +69,13 @@ public class PawnItem extends IChessPieceItem {
     }
 
     @Override
-    public void handleAction(ScreenHandler handler, ChessGridBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
+    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
         if (actionType == ChessActionType.CAPTURE || actionType == ChessActionType.PROMOTION_CAPTURE) {
             slot.capturePiece(handler, cursorStack);
         }
 
         if (actionType == ChessActionType.EN_PASSANT) {
-            slot.down(isBlack()).ifPresent(ChessGridBoardSlot::capturePiece);
+            slot.down(isBlack()).ifPresent(GridSlot::capturePiece);
         }
 
         for (int i = 0; i < slot.getInventory().size(); i++) {
@@ -109,23 +110,23 @@ public class PawnItem extends IChessPieceItem {
         }
     }
 
-    private void testCapture(@NotNull ChessGridBoardSlot current, int origin) {
+    private void testCapture(@NotNull GridSlot current, int origin) {
         current.getItem().ifPresentOrElse(chessPieceItem -> {
             if (chessPieceItem.isBlack() != this.isBlack()) {
-                current.setHoverHint(origin, isPromotion(current) ? ChessActionType.PROMOTION_CAPTURE : ChessActionType.CAPTURE);
+                current.setHoverHintForOriginIndex(origin, isPromotion(current) ? ChessActionType.PROMOTION_CAPTURE : ChessActionType.CAPTURE);
             }
-        }, () -> current.setHoverHint(origin, ChessActionType.PAWN_POTENTIAL));
+        }, () -> current.setHoverHintForOriginIndex(origin, ChessActionType.PAWN_POTENTIAL));
     }
 
-    private boolean isPromotion(@NotNull ChessGridBoardSlot current) {
+    private boolean isPromotion(@NotNull GridSlot current) {
         return current.getBoardYLoc() == 0 || current.getBoardYLoc() == 7;
     }
 
-    private void testEnPassant(@NotNull ChessGridBoardSlot current, int origin) {
+    private void testEnPassant(@NotNull GridSlot current, int origin) {
         current.getItem().ifPresent(chessPieceItem -> {
             NbtCompound compound = current.getStack().getSubNbt(GameBlocks.MOD_ID);
             if (compound != null && compound.contains("mayEnPassant") && chessPieceItem.isBlack() != this.isBlack()) {
-                current.up(isBlack()).ifPresent(chessBoardSlot -> chessBoardSlot.setHoverHint(origin, ChessActionType.EN_PASSANT));
+                current.up(isBlack()).ifPresent(chessBoardSlot -> chessBoardSlot.setHoverHintForOriginIndex(origin, ChessActionType.EN_PASSANT));
             }
         });
     }

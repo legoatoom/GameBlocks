@@ -14,7 +14,6 @@
 
 package com.legoatoom.gameblocks.client;
 
-import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.client.screen.ChessBoardScreen;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import net.fabricmc.api.ClientModInitializer;

@@ -17,7 +17,9 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.items.IPieceItem;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
-import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessGridSlot;
+import com.legoatoom.gameblocks.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.util.chess.ActionType;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -40,7 +42,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-import static com.legoatoom.gameblocks.GameBlocks.*;
+import static com.legoatoom.gameblocks.GameBlocks.GAME_BLOCKS;
+import static com.legoatoom.gameblocks.GameBlocks.MOD_ID;
 import static com.legoatoom.gameblocks.registry.ChessRegistry.BLACK_PAWN;
 import static com.legoatoom.gameblocks.registry.ChessRegistry.WHITE_PAWN;
 
@@ -55,10 +58,10 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         this.type = type;
     }
 
-    public static void cleanHoverActions(ChessGridBoardSlot @NotNull [] slots) {
-        for (ChessGridBoardSlot slot : slots) {
-            for (ChessGridBoardSlot slot2 : slots) {
-                slot.setHoverHint(slot2.getIndex(), ChessActionType.NONE);
+    public static void cleanHoverActions(ChessGridSlot @NotNull [] slots) {
+        for (ChessGridSlot slot : slots) {
+            for (ChessGridSlot slot2 : slots) {
+                slot.setHoverHintForOriginIndex(slot2.getIndex(), ChessActionType.NONE);
             }
         }
     }
@@ -67,9 +70,25 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         return type;
     }
 
+    @Override
     public abstract boolean isDefaultLocation(int x, int y);
 
-    public abstract void calculateLegalActions(@NotNull ChessGridBoardSlot slot);
+    @Override
+    public abstract void calculateLegalActions(@NotNull GridSlot slot);
+
+    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
+        if (actionType == ChessActionType.CAPTURE) {
+            if (isPromoted(cursorStack)) {
+                slot.capturePiece(handler, new ItemStack(isBlack() ? WHITE_PAWN : BLACK_PAWN));
+            } else {
+                slot.capturePiece(handler, cursorStack);
+            }
+        }
+    }
+
+    public boolean isBlack() {
+        return isBlack;
+    }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
@@ -98,23 +117,9 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
     }
 
-    public boolean isBlack() {
-        return isBlack;
-    }
-
-    public void handleAction(ScreenHandler handler, ChessGridBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
-        if (actionType == ChessActionType.CAPTURE) {
-            if (isPromoted(cursorStack)) {
-                slot.capturePiece(handler, new ItemStack(isBlack() ? WHITE_PAWN : BLACK_PAWN));
-            } else {
-                slot.capturePiece(handler, cursorStack);
-            }
-        }
-    }
-
-    protected void checkDiagonals(@NotNull ChessGridBoardSlot slot) {
+    protected void checkDiagonals(@NotNull GridSlot slot) {
         int origin = slot.getIndex();
-        ChessGridBoardSlot current = slot;
+        GridSlot current = slot;
         while (true) {
             var x = current.upLeft(isBlack);
             if (x.isPresent()) {
@@ -168,11 +173,11 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
     }
 
-    protected void checkHorizontals(@NotNull ChessGridBoardSlot slot) {
+    protected void checkHorizontals(@NotNull GridSlot slot) {
         int origin = slot.getIndex();
-        ChessGridBoardSlot current = slot;
+        GridSlot current = slot;
         while (true) {
-            Optional<ChessGridBoardSlot> x = current.up(isBlack);
+            Optional<GridSlot> x = current.up(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -185,7 +190,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
         current = slot;
         while (true) {
-            Optional<ChessGridBoardSlot> x = current.down(isBlack);
+            Optional<GridSlot> x = current.down(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -198,7 +203,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
         current = slot;
         while (true) {
-            Optional<ChessGridBoardSlot> x = current.left(isBlack);
+            Optional<GridSlot> x = current.left(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -211,7 +216,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
         current = slot;
         while (true) {
-            Optional<ChessGridBoardSlot> x = current.right(isBlack);
+            Optional<GridSlot> x = current.right(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -224,16 +229,19 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
     }
 
-    protected boolean moveOrCaptureCheck(@NotNull ChessGridBoardSlot current, int origin) {
-        Optional<IChessPieceItem> item = current.getItem();
-        if (item.isPresent()) {
-            if (item.get().isBlack() != this.isBlack()) {
-                current.setHoverHint(origin, ChessActionType.CAPTURE);
+    protected boolean moveOrCaptureCheck(@NotNull GridSlot current, int origin) {
+        if (current instanceof ChessGridSlot chessGridSlot) {
+            Optional<IChessPieceItem> item = chessGridSlot.getItem();
+            if (item.isPresent()) {
+                if (item.get().isBlack() != this.isBlack()) {
+                    chessGridSlot.setHoverHintForOriginIndex(origin, ChessActionType.CAPTURE);
+                }
+                return false;
             }
-            return false;
+            chessGridSlot.setHoverHintForOriginIndex(origin, ChessActionType.MOVE);
+            return true;
         }
-        current.setHoverHint(origin, ChessActionType.MOVE);
-        return true;
+        return false;
     }
 
     protected boolean isPromoted(ItemStack stack) {

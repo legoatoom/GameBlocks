@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks.mixin.client.gui.screen.ingame;
 
+import com.legoatoom.gameblocks.client.screen.AbstractBoardScreen;
 import com.legoatoom.gameblocks.client.screen.ChessBoardScreen;
 import com.legoatoom.gameblocks.screen.slot.AbstractBoardSlot;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -49,6 +50,7 @@ public abstract class CustomHighSlotHighLighter<T extends ScreenHandler> {
     )
     private void render(MatrixStack matrices, int x, int y, int z) {
         if (this.focusedSlot instanceof AbstractBoardSlot s) {
+            // Mixins are weird and they some reason allow me to do this.
             //noinspection unchecked
             if ((HandledScreen<T>) ((Object) this) instanceof ChessBoardScreen a) {
                 if (a.isSelectingPromotion()) {

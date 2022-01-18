@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks.screen.slot;
 
+import com.legoatoom.gameblocks.inventory.AbstractBoardInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;
 
@@ -23,4 +24,6 @@ public abstract class AbstractBoardSlot extends Slot {
     }
 
     public abstract int getSlotHighLighterSize();
+
+    public abstract AbstractBoardInventory getInventory();
 }

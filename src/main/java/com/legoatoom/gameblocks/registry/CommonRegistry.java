@@ -24,7 +24,7 @@ public class CommonRegistry {
 
     public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
 
-    public static void register(){
+    public static void register() {
         Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
     }
 }

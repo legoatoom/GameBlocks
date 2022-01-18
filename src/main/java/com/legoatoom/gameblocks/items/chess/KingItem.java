@@ -17,7 +17,9 @@ package com.legoatoom.gameblocks.items.chess;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.inventory.chess.ChessBoardInventory;
 import com.legoatoom.gameblocks.inventory.chess.ServerChessBoardInventory;
-import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.ChessGridSlot;
+import com.legoatoom.gameblocks.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.util.chess.ActionType;
 import com.legoatoom.gameblocks.util.chess.ChessActionType;
 import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.minecraft.item.ItemStack;
@@ -44,7 +46,7 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
+    public void calculateLegalActions(@NotNull GridSlot slot) {
         int origin = slot.getIndex();
         slot.up(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));
         slot.upRight(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));
@@ -64,9 +66,11 @@ public class KingItem extends IChessPieceItem {
                     if (chessBoardSlot1.hasStack()) return;
                     chessBoardSlot1.left(false).ifPresent(chessBoardSlot2 -> {
                         // Rook
-                        chessBoardSlot2.getItem().ifPresent(chessPieceItem -> {
-                            if (chessPieceItem.getType() == ChessPieceType.ROOK && checkNotMoved(chessBoardSlot2.getStack()) && !slotUnderAttack(chessBoardSlot1)) {
-                                chessBoardSlot1.setHoverHint(origin, ChessActionType.CASTLE);
+                        chessBoardSlot2.getItem().ifPresent(pieceItem -> {
+                            if (pieceItem instanceof IChessPieceItem chessPieceItem) {
+                                if (chessPieceItem.getType() == ChessPieceType.ROOK && checkNotMoved(chessBoardSlot2.getStack()) && !slotUnderAttack(chessBoardSlot1)) {
+                                    chessBoardSlot1.setHoverHintForOriginIndex(origin, ChessActionType.CASTLE);
+                                }
                             }
                         });
                     });
@@ -82,9 +86,11 @@ public class KingItem extends IChessPieceItem {
                         if (chessBoardSlot2.hasStack()) return;
                         chessBoardSlot2.right(false).ifPresent(chessBoardSlot3 -> {
                             // Rook
-                            chessBoardSlot3.getItem().ifPresent(chessPieceItem -> {
-                                if (chessPieceItem.getType() == ChessPieceType.ROOK && checkNotMoved(chessBoardSlot3.getStack()) && !slotUnderAttack(chessBoardSlot1)) {
-                                    chessBoardSlot1.setHoverHint(origin, ChessActionType.CASTLE);
+                            chessBoardSlot3.getItem().ifPresent(pieceItem -> {
+                                if (pieceItem instanceof IChessPieceItem chessPieceItem) {
+                                    if (chessPieceItem.getType() == ChessPieceType.ROOK && checkNotMoved(chessBoardSlot3.getStack()) && !slotUnderAttack(chessBoardSlot1)) {
+                                        chessBoardSlot1.setHoverHintForOriginIndex(origin, ChessActionType.CASTLE);
+                                    }
                                 }
                             });
                         });
@@ -96,7 +102,7 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    public void handleAction(ScreenHandler handler, ChessGridBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
+    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
         super.handleAction(handler, slot, cursorStack, actionType);
         NbtCompound nbtCompound = slot.getStack().getOrCreateSubNbt(GameBlocks.MOD_ID);
         if (!nbtCompound.contains("hasMoved")) {
@@ -130,47 +136,52 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    protected boolean moveOrCaptureCheck(@NotNull ChessGridBoardSlot current, int origin) {
-        Optional<IChessPieceItem> item = current.getItem();
-        if (item.isPresent()) {
-            if (item.get().isBlack() != this.isBlack()) {
-                current.setHoverHint(origin, ChessActionType.CAPTURE);
+    protected boolean moveOrCaptureCheck(@NotNull GridSlot current, int origin) {
+        if (current instanceof ChessGridSlot chessGridSlot) {
+            Optional<IChessPieceItem> item = chessGridSlot.getItem();
+            if (item.isPresent()) {
+                if (item.get().isBlack() != this.isBlack()) {
+                    chessGridSlot.setHoverHintForOriginIndex(origin, ChessActionType.CAPTURE);
+                }
+                return false;
             }
-            return false;
+            if (slotUnderAttack(current)) return false;
+            chessGridSlot.setHoverHintForOriginIndex(origin, ChessActionType.MOVE);
+            return true;
         }
-        if (slotUnderAttack(current)) return false;
-        current.setHoverHint(origin, ChessActionType.MOVE);
-        return true;
+        return false;
     }
 
     /**
      * Is not perfect, as moving the king will allow other pieces to move to spaces that we cannot expect to know.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean slotUnderAttack(@NotNull ChessGridBoardSlot slot) {
-        ChessBoardInventory x = slot.getInventory();
-        if (x.isClient()) return false;
-        ServerChessBoardInventory serverInv = (ServerChessBoardInventory) x;
-        ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = serverInv.slotHintPropertyDelegate;
-        for (int i = 0; i < slotHintPropertyDelegate.size(); i++) {
-            //Check if the slot exists
-            if (serverInv.getSlot(i).getItem().isPresent()) {
-                var chessPieceItem = serverInv.getSlot(i).getItem().get();
-                //Check if it is a chessItem (Should always be) and it is of the other team.
-                if (this.isBlack() != chessPieceItem.isBlack()) {
-                    ArrayPropertyDelegate arrayPropertyDelegate = slotHintPropertyDelegate.get(i);
-                    int actionId = arrayPropertyDelegate.get(slot.getIndex());
-                    // These action types can result into an attack.
-                    List<Integer> checks;
-                    if (chessPieceItem.getType() == ChessPieceType.PAWN) {
-                        //Pawn Moves do not capture
-                        checks = Arrays.asList(ChessActionType.CAPTURE.getId(), ChessActionType.PROMOTION_CAPTURE.getId(),
-                                ChessActionType.EN_PASSANT.getId(), ChessActionType.PAWN_POTENTIAL.getId());
-                    } else {
-                        checks = Arrays.asList(ChessActionType.CAPTURE.getId(), ChessActionType.MOVE.getId());
-                    }
-                    if (checks.contains(actionId)) {
-                        return true;
+    private boolean slotUnderAttack(@NotNull GridSlot slot) {
+        if (slot instanceof ChessGridSlot chessGridSlot) {
+            ChessBoardInventory x = chessGridSlot.getInventory();
+            if (x.isClient()) return false;
+            ServerChessBoardInventory serverInv = (ServerChessBoardInventory) x;
+            ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = serverInv.slotHintPropertyDelegate;
+            for (int i = 0; i < slotHintPropertyDelegate.size(); i++) {
+                //Check if the slot exists
+                if (serverInv.getSlot(i).getItem().isPresent()) {
+                    var chessPieceItem = serverInv.getSlot(i).getItem().get();
+                    //Check if it is a chessItem (Should always be) and it is of the other team.
+                    if (this.isBlack() != chessPieceItem.isBlack()) {
+                        ArrayPropertyDelegate arrayPropertyDelegate = slotHintPropertyDelegate.get(i);
+                        int actionId = arrayPropertyDelegate.get(chessGridSlot.getIndex());
+                        // These action types can result into an attack.
+                        List<Integer> checks;
+                        if (chessPieceItem.getType() == ChessPieceType.PAWN) {
+                            //Pawn Moves do not capture
+                            checks = Arrays.asList(ChessActionType.CAPTURE.getId(), ChessActionType.PROMOTION_CAPTURE.getId(),
+                                    ChessActionType.EN_PASSANT.getId(), ChessActionType.PAWN_POTENTIAL.getId());
+                        } else {
+                            checks = Arrays.asList(ChessActionType.CAPTURE.getId(), ChessActionType.MOVE.getId());
+                        }
+                        if (checks.contains(actionId)) {
+                            return true;
+                        }
                     }
                 }
             }

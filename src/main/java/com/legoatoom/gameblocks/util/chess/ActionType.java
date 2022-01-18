@@ -12,20 +12,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.items;
+package com.legoatoom.gameblocks.util.chess;
 
-import com.legoatoom.gameblocks.screen.slot.GridSlot;
-import com.legoatoom.gameblocks.util.chess.ActionType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.Text;
 
-public interface IPieceItem {
+import java.util.List;
 
-    boolean isDefaultLocation(int x, int y);
+public interface ActionType {
+    boolean shouldIgnore();
 
-    void calculateLegalActions(GridSlot slot);
+    int getColor();
 
-    void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType);
-
-    boolean isBlack();
+    List<Text> getInfo(TextRenderer textRenderer);
 }

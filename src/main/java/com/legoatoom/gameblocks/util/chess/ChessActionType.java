@@ -26,7 +26,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum ChessActionType {
+public enum ChessActionType implements ActionType {
     CAPTURE(1, 0x80cc0000),
     CASTLE(2, 0x8045818e),
     EN_PASSANT(3, 0x806aa84f),

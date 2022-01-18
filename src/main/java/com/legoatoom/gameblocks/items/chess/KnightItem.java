@@ -14,7 +14,7 @@
 
 package com.legoatoom.gameblocks.items.chess;
 
-import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.screen.slot.GridSlot;
 import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public class KnightItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
+    public void calculateLegalActions(@NotNull GridSlot slot) {
         int origin = slot.getIndex();
         slot.up(isBlack(), 2).ifPresent(chessBoardSlot -> {
             chessBoardSlot.left(isBlack()).ifPresent(chessBoardSlot1 -> moveOrCaptureCheck(chessBoardSlot1, origin));

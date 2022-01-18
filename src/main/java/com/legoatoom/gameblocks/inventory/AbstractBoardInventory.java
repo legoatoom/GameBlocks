@@ -18,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public abstract class AbstractBoardInventory implements Inventory {
     }
 
     public abstract void resetBoard();
+
+    public abstract ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates();
 
     /**
      * Retrieves the item list of this inventory.
@@ -131,7 +134,6 @@ public abstract class AbstractBoardInventory implements Inventory {
     public boolean canPlayerUse(PlayerEntity player) {
         return true;
     }
-
 
 
     /**

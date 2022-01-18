@@ -12,20 +12,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.items;
+package com.legoatoom.gameblocks.inventory.chess;
 
 import com.legoatoom.gameblocks.screen.slot.GridSlot;
-import com.legoatoom.gameblocks.util.chess.ActionType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ArrayPropertyDelegate;
 
-public interface IPieceItem {
+import java.util.List;
 
-    boolean isDefaultLocation(int x, int y);
+public interface ServerBoardInventory {
 
-    void calculateLegalActions(GridSlot slot);
+    void addSlot(GridSlot gridSlot);
 
-    void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType);
+    GridSlot getSlot(int index);
 
-    boolean isBlack();
+    GridSlot getSlot(int x, int y);
+
+    List<ArrayPropertyDelegate> getSlotHintsPropertyDelgates();
 }

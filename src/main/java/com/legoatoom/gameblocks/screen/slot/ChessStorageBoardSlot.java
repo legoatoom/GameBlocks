@@ -15,8 +15,8 @@
 package com.legoatoom.gameblocks.screen.slot;
 
 import com.legoatoom.gameblocks.GameBlocks;
+import com.legoatoom.gameblocks.inventory.chess.ChessBoardInventory;
 import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
 public class ChessStorageBoardSlot extends AbstractBoardSlot {
@@ -24,7 +24,7 @@ public class ChessStorageBoardSlot extends AbstractBoardSlot {
     public final Class<? extends IChessPieceItem> storeType;
     private final boolean isBlack;
 
-    public ChessStorageBoardSlot(Inventory inventory, int index, int x, int y, Class<? extends IChessPieceItem> storeType, boolean isBlack) {
+    public ChessStorageBoardSlot(ChessBoardInventory inventory, int index, int x, int y, Class<? extends IChessPieceItem> storeType, boolean isBlack) {
         super(inventory, index, x, y);
         this.storeType = storeType;
         this.isBlack = isBlack;
@@ -47,5 +47,10 @@ public class ChessStorageBoardSlot extends AbstractBoardSlot {
     @Override
     public int getSlotHighLighterSize() {
         return 14;
+    }
+
+    @Override
+    public ChessBoardInventory getInventory() {
+        return ((ChessBoardInventory) this.inventory);
     }
 }

@@ -15,22 +15,24 @@
 package com.legoatoom.gameblocks.inventory.chess;
 
 import com.google.common.collect.Lists;
-import com.legoatoom.gameblocks.items.chess.*;
-import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
+import com.legoatoom.gameblocks.items.chess.IChessPieceItem;
+import com.legoatoom.gameblocks.screen.slot.ChessGridSlot;
+import com.legoatoom.gameblocks.screen.slot.GridSlot;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.legoatoom.gameblocks.registry.ChessRegistry.*;
 
-public class ServerChessBoardInventory extends ChessBoardInventory {
+public class ServerChessBoardInventory extends ChessBoardInventory implements ServerBoardInventory {
 
 
     public final ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = new ArrayList<>();
-    final ChessGridBoardSlot[] slots;
+    final ChessGridSlot[] slots;
     private final BlockEntity entity;
 
 
@@ -39,30 +41,31 @@ public class ServerChessBoardInventory extends ChessBoardInventory {
         for (int i = 0; i < BOARD_SIZE; i++) {
             this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(BOARD_SIZE));
         }
-        slots = new ChessGridBoardSlot[BOARD_SIZE];
+        slots = new ChessGridSlot[BOARD_SIZE];
         this.entity = entity;
-    }
-
-    public ArrayPropertyDelegate getSlotHintPropertyDelegate(int origin) {
-        return slotHintPropertyDelegate.get(origin);
     }
 
     public void updateHints() {
         IChessPieceItem.cleanHoverActions(this.slots);
-        for (ChessGridBoardSlot slot : this.slots) {
+        for (ChessGridSlot slot : this.slots) {
             slot.calculateHints();
         }
     }
 
-    public void addSlot(ChessGridBoardSlot chessGridBoardSlot) {
-        this.slots[chessGridBoardSlot.getIndex()] = chessGridBoardSlot;
+    @Override
+    public void addSlot(GridSlot slot) {
+        if (slot instanceof ChessGridSlot chessGridSlot) {
+            this.slots[chessGridSlot.getIndex()] = chessGridSlot;
+        }
     }
 
-    public ChessGridBoardSlot getSlot(int index) {
+    @Override
+    public ChessGridSlot getSlot(int index) {
         return slots[index];
     }
 
-    public ChessGridBoardSlot getSlot(int x, int y) {
+    @Override
+    public ChessGridSlot getSlot(int x, int y) {
         return getSlot(y * BOARD_WIDTH + x);
     }
 
@@ -76,12 +79,13 @@ public class ServerChessBoardInventory extends ChessBoardInventory {
         }
     }
 
+    @Override
     public void resetBoard() {
         ArrayList<IChessPieceItem> availableItems = Lists.newArrayList();
         for (ItemStack stack : getItems()) {
             if (stack.isEmpty()) continue;
             for (int i = 0; i < stack.getCount(); i++) {
-                if (stack.getItem() instanceof IChessPieceItem item){
+                if (stack.getItem() instanceof IChessPieceItem item) {
                     availableItems.add(item);
                 }
             }
@@ -91,7 +95,7 @@ public class ServerChessBoardInventory extends ChessBoardInventory {
         for (IChessPieceItem chessPiece : availableItems) {
             for (int x = 0; x < BOARD_WIDTH; x++) {
                 for (int y = 0; y < BOARD_WIDTH; y++) {
-                    if (chessPiece.isDefaultLocation(x, y) && !getSlot(x,y).hasStack()) {
+                    if (chessPiece.isDefaultLocation(x, y) && !getSlot(x, y).hasStack()) {
                         setStack(y * BOARD_WIDTH + x, new ItemStack(chessPiece));
                         continue label;
                     }
@@ -101,22 +105,28 @@ public class ServerChessBoardInventory extends ChessBoardInventory {
 
     }
 
+    @Override
+    @NotNull
+    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
+        return slotHintPropertyDelegate;
+    }
+
     @SuppressWarnings("PointlessArithmeticExpression")
     @Override
     public void fillWithDefaultPieces() {
-        this.setStack(0 + 0 * 2 + BOARD_SIZE, new ItemStack(WHITE_PAWN,WHITE_PAWN.getMaxCount()));
-        this.setStack(0 + 1 * 2 + BOARD_SIZE, new ItemStack(WHITE_ROOK,WHITE_ROOK.getMaxCount()));
-        this.setStack(0 + 2 * 2 + BOARD_SIZE, new ItemStack(WHITE_KNIGHT,WHITE_KNIGHT.getMaxCount()));
-        this.setStack(0 + 3 * 2 + BOARD_SIZE, new ItemStack(WHITE_BISHOP,WHITE_BISHOP.getMaxCount()));
-        this.setStack(0 + 4 * 2 + BOARD_SIZE, new ItemStack(WHITE_QUEEN,WHITE_QUEEN.getMaxCount()));
-        this.setStack(0 + 5 * 2 + BOARD_SIZE, new ItemStack(WHITE_KING,WHITE_KING.getMaxCount()));
+        this.setStack(0 + 0 * 2 + BOARD_SIZE, new ItemStack(WHITE_PAWN, WHITE_PAWN.getMaxCount()));
+        this.setStack(0 + 1 * 2 + BOARD_SIZE, new ItemStack(WHITE_ROOK, WHITE_ROOK.getMaxCount()));
+        this.setStack(0 + 2 * 2 + BOARD_SIZE, new ItemStack(WHITE_KNIGHT, WHITE_KNIGHT.getMaxCount()));
+        this.setStack(0 + 3 * 2 + BOARD_SIZE, new ItemStack(WHITE_BISHOP, WHITE_BISHOP.getMaxCount()));
+        this.setStack(0 + 4 * 2 + BOARD_SIZE, new ItemStack(WHITE_QUEEN, WHITE_QUEEN.getMaxCount()));
+        this.setStack(0 + 5 * 2 + BOARD_SIZE, new ItemStack(WHITE_KING, WHITE_KING.getMaxCount()));
 
-        this.setStack(1 + 0 * 2 + BOARD_SIZE, new ItemStack(BLACK_PAWN,BLACK_PAWN.getMaxCount()));
-        this.setStack(1 + 1 * 2 + BOARD_SIZE, new ItemStack(BLACK_ROOK,BLACK_ROOK.getMaxCount()));
-        this.setStack(1 + 2 * 2 + BOARD_SIZE, new ItemStack(BLACK_KNIGHT,BLACK_KNIGHT.getMaxCount()));
-        this.setStack(1 + 3 * 2 + BOARD_SIZE, new ItemStack(BLACK_BISHOP,BLACK_BISHOP.getMaxCount()));
-        this.setStack(1 + 4 * 2 + BOARD_SIZE, new ItemStack(BLACK_QUEEN,BLACK_QUEEN.getMaxCount()));
-        this.setStack(1 + 5 * 2 + BOARD_SIZE, new ItemStack(BLACK_KING,BLACK_KING.getMaxCount()));
+        this.setStack(1 + 0 * 2 + BOARD_SIZE, new ItemStack(BLACK_PAWN, BLACK_PAWN.getMaxCount()));
+        this.setStack(1 + 1 * 2 + BOARD_SIZE, new ItemStack(BLACK_ROOK, BLACK_ROOK.getMaxCount()));
+        this.setStack(1 + 2 * 2 + BOARD_SIZE, new ItemStack(BLACK_KNIGHT, BLACK_KNIGHT.getMaxCount()));
+        this.setStack(1 + 3 * 2 + BOARD_SIZE, new ItemStack(BLACK_BISHOP, BLACK_BISHOP.getMaxCount()));
+        this.setStack(1 + 4 * 2 + BOARD_SIZE, new ItemStack(BLACK_QUEEN, BLACK_QUEEN.getMaxCount()));
+        this.setStack(1 + 5 * 2 + BOARD_SIZE, new ItemStack(BLACK_KING, BLACK_KING.getMaxCount()));
     }
 
     @Override
@@ -128,8 +138,8 @@ public class ServerChessBoardInventory extends ChessBoardInventory {
         int queen = WHITE_QUEEN.getMaxCount() + BLACK_QUEEN.getMaxCount();
         int kings = WHITE_KING.getMaxCount() + BLACK_KING.getMaxCount();
         for (ItemStack stack : getItems()) {
-            if (stack.getItem() instanceof IChessPieceItem item){
-                switch (item.getType()){
+            if (stack.getItem() instanceof IChessPieceItem item) {
+                switch (item.getType()) {
                     case ROOK -> rooks -= stack.getCount();
                     case PAWN -> pawns -= stack.getCount();
                     case KNIGHT -> knights -= stack.getCount();
@@ -141,4 +151,6 @@ public class ServerChessBoardInventory extends ChessBoardInventory {
         }
         return Arrays.stream(new int[]{pawns, rooks, knights, bishops, queen, kings}).allMatch(value -> value == 0);
     }
+
+
 }

@@ -15,8 +15,8 @@
 package com.legoatoom.gameblocks.items.chess;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.screen.slot.ChessGridBoardSlot;
-import com.legoatoom.gameblocks.util.chess.ChessActionType;
+import com.legoatoom.gameblocks.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.util.chess.ActionType;
 import com.legoatoom.gameblocks.util.chess.ChessPieceType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -35,12 +35,12 @@ public class RookItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull ChessGridBoardSlot slot) {
+    public void calculateLegalActions(@NotNull GridSlot slot) {
         this.checkHorizontals(slot);
     }
 
     @Override
-    public void handleAction(ScreenHandler handler, ChessGridBoardSlot slot, ItemStack cursorStack, ChessActionType actionType) {
+    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
         super.handleAction(handler, slot, cursorStack, actionType);
         NbtCompound nbtCompound = slot.getStack().getOrCreateSubNbt(GameBlocks.MOD_ID);
         if (!nbtCompound.contains("hasMoved")) {

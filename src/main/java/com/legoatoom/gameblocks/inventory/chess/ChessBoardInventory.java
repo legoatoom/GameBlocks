@@ -15,6 +15,9 @@
 package com.legoatoom.gameblocks.inventory.chess;
 
 import com.legoatoom.gameblocks.inventory.AbstractBoardInventory;
+import net.minecraft.screen.ArrayPropertyDelegate;
+
+import java.util.ArrayList;
 
 public class ChessBoardInventory extends AbstractBoardInventory {
     public ChessBoardInventory(boolean isClient) {
@@ -30,6 +33,11 @@ public class ChessBoardInventory extends AbstractBoardInventory {
     }
 
     @Override
+    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
+        return new ArrayList<>();
+    }
+
+    @Override
     public void fillWithDefaultPieces() {
     }
 
@@ -37,4 +45,5 @@ public class ChessBoardInventory extends AbstractBoardInventory {
     public boolean canDropPackage() {
         return false;
     }
+
 }
