@@ -12,19 +12,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.registry;
+package com.legoatoom.gameblocks.common.util;
 
-import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.text.Text;
 
-public class CommonRegistry {
+import java.util.List;
 
-    public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
+public interface ActionType {
+    boolean shouldIgnore();
 
-    public static void register() {
-        Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
-    }
+    int getColor();
+
+    List<Text> getInfo(TextRenderer textRenderer);
 }

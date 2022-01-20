@@ -14,11 +14,11 @@
 
 package com.legoatoom.gameblocks.registry;
 
-import com.legoatoom.gameblocks.blocks.ChessBoardBlock;
-import com.legoatoom.gameblocks.blocks.entity.ChessBoardBlockEntity;
-import com.legoatoom.gameblocks.client.gui.PawnPromotionWidget;
-import com.legoatoom.gameblocks.items.chess.*;
-import com.legoatoom.gameblocks.screen.chess.ChessBoardScreenHandler;
+import com.legoatoom.gameblocks.chess.blocks.ChessBoardBlock;
+import com.legoatoom.gameblocks.chess.items.*;
+import com.legoatoom.gameblocks.chess.blocks.entity.ChessBoardBlockEntity;
+import com.legoatoom.gameblocks.chess.client.gui.PawnPromotionWidget;
+import com.legoatoom.gameblocks.chess.screen.ChessBoardScreenHandler;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -50,18 +50,18 @@ public class ChessRegistry {
     // --- CHESS ---
     public static Block CHESS_BOARD_BLOCK = new ChessBoardBlock(FabricBlockSettings.of(Material.WOOD).strength(2.f).resistance(2.f).sounds(BlockSoundGroup.WOOD));
     public static Item CHESS_BOARD_ITEM = new BlockItem(CHESS_BOARD_BLOCK, new FabricItemSettings().group(GAME_BLOCKS));
-    public static Item WHITE_PAWN;
-    public static Item BLACK_PAWN;
-    public static Item WHITE_ROOK;
-    public static Item BLACK_ROOK;
-    public static Item WHITE_KING;
-    public static Item BLACK_KING;
-    public static Item WHITE_QUEEN;
-    public static Item BLACK_QUEEN;
-    public static Item WHITE_BISHOP;
-    public static Item BLACK_BISHOP;
-    public static Item WHITE_KNIGHT;
-    public static Item BLACK_KNIGHT;
+    public static IChessPieceItem WHITE_PAWN;
+    public static IChessPieceItem BLACK_PAWN;
+    public static IChessPieceItem WHITE_ROOK;
+    public static IChessPieceItem BLACK_ROOK;
+    public static IChessPieceItem WHITE_KING;
+    public static IChessPieceItem BLACK_KING;
+    public static IChessPieceItem WHITE_QUEEN;
+    public static IChessPieceItem BLACK_QUEEN;
+    public static IChessPieceItem WHITE_BISHOP;
+    public static IChessPieceItem BLACK_BISHOP;
+    public static IChessPieceItem WHITE_KNIGHT;
+    public static IChessPieceItem BLACK_KNIGHT;
 
     public static BlockEntityType<ChessBoardBlockEntity> CHESS_BOARD_BLOCK_ENTITY;
     public static ScreenHandlerType<ChessBoardScreenHandler> CHESS_BOARD_SCREEN_HANDLER;

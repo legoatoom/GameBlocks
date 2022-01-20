@@ -12,19 +12,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.registry;
+package com.legoatoom.gameblocks.common.screen.slot;
 
-import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import com.legoatoom.gameblocks.common.inventory.AbstractBoardInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.slot.Slot;
 
-public class CommonRegistry {
-
-    public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
-
-    public static void register() {
-        Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
+public abstract class AbstractBoardSlot extends Slot {
+    public AbstractBoardSlot(Inventory inventory, int index, int x, int y) {
+        super(inventory, index, x, y);
     }
+
+    public abstract int getSlotHighLighterSize();
+
+    public abstract AbstractBoardInventory getInventory();
 }

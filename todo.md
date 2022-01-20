@@ -5,8 +5,7 @@
   - Server has rules for enforcing rules that effect highlighting 
   - if FreePlay is enabled, no auto capture and highlighting is turned off.
   - Specific rules can be turned on and off in config, effecting highlighting.
-  - Client-Side cannot turn off highlighting. 
-    - Since it would lead to weird situation where players cannot do moves or see things behave without explanation.
+  - Client-Side can turn off tooltips, not hints.
 
 ## Future Games Considered
 - Backgammon

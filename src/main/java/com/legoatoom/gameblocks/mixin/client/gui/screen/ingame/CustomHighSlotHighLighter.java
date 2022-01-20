@@ -14,9 +14,8 @@
 
 package com.legoatoom.gameblocks.mixin.client.gui.screen.ingame;
 
-import com.legoatoom.gameblocks.client.screen.AbstractBoardScreen;
-import com.legoatoom.gameblocks.client.screen.ChessBoardScreen;
-import com.legoatoom.gameblocks.screen.slot.AbstractBoardSlot;
+import com.legoatoom.gameblocks.chess.client.screen.ChessBoardScreen;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractBoardSlot;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

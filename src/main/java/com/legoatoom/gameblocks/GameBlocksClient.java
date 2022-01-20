@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 legoatoom
+ * Copyright (C) 2021 legoatoom
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -12,19 +12,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.registry;
+package com.legoatoom.gameblocks;
 
-import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import com.legoatoom.gameblocks.chess.client.screen.ChessBoardScreen;
+import com.legoatoom.gameblocks.registry.ChessRegistry;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 
-public class CommonRegistry {
-
-    public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
-
-    public static void register() {
-        Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
+@Environment(EnvType.CLIENT)
+public class GameBlocksClient implements ClientModInitializer {
+    @Override
+    public void onInitializeClient() {
+        ScreenRegistry.register(ChessRegistry.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
     }
 }

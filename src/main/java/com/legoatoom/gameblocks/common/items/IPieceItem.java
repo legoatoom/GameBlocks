@@ -12,19 +12,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.registry;
+package com.legoatoom.gameblocks.common.items;
 
-import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.common.util.ActionType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
 
-public class CommonRegistry {
+public interface IPieceItem {
 
-    public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
+    boolean isDefaultLocation(int x, int y);
 
-    public static void register() {
-        Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
-    }
+    void calculateLegalActions(GridSlot slot);
+
+    void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType);
+
+    boolean isBlack();
 }

@@ -9,17 +9,16 @@
   ],
   "contact": {},
   "credits": [
-    "(Edited) Chess Pieces by Lucas312 licensed CC-BY 3.0 and CC-BY-SA 3.0: https://opengameart.org/content/pixel-chess-pieces"
+    "Chess Pieces Art Adapted from Lucas312 licensed CC-BY 3.0 and CC-BY-SA 3.0: https://opengameart.org/content/pixel-chess-pieces"
   ],
   "homepage": "https://github.com/legoatoom/GameBlocks",
   "sources": "https://github.com/legoatoom/GameBlocks",
   "issues": "https://github.com/legoatoom/GameBlocks/issues",
   "license": "LGPL-3.0",
-  "icon": "assets/gameblocks/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "com.legoatoom.gameblocks.client.GameblocksClient"
+      "com.legoatoom.gameblocks.GameBlocksClient"
     ],
     "main": [
       "com.legoatoom.gameblocks.GameBlocks"

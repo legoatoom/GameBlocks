@@ -12,19 +12,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.legoatoom.gameblocks.registry;
+package com.legoatoom.gameblocks.chess.items;
 
-import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.chess.util.ChessPieceType;
+import org.jetbrains.annotations.NotNull;
 
-public class CommonRegistry {
+public class BishopItem extends IChessPieceItem {
 
-    public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
+    public BishopItem(boolean isBlack) {
+        super(isBlack, 2, ChessPieceType.BISHOP);
+    }
 
-    public static void register() {
-        Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
+    @Override
+    public int getStorageIndex() {
+        return 6 + (isBlack() ? 1 : 0);
+    }
+
+    @Override
+    public boolean isDefaultLocation(int x, int y) {
+        return (x == 2 || x == 5) && y == (isBlack() ? 0 : 7);
+    }
+
+    @Override
+    public void calculateLegalActions(@NotNull GridSlot slot) {
+        checkDiagonals(slot);
     }
 }
