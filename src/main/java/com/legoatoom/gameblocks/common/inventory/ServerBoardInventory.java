@@ -91,17 +91,17 @@ public interface ServerBoardInventory<T extends AbstractGridSlot> extends Invent
                     }
                 }
             }
-//            for (int x = 0; x < getStorageSlotSize(); x++){
-//                if (x == pieceItem.getStorageIndex()){
-//                    ItemStack orig = getStack(x + getBoardSize());
-//                    if (orig.isEmpty()){
-//                        setStack(x + getBoardSize(), new ItemStack(pieceItem));
-//                    } else {
-//                        orig.increment(1);
-//                    }
-//                    continue forAllAvailable;
-//                }
-//            }
+            for (int x = 0; x < getStorageSlotSize(); x++){
+                if (x == pieceItem.getStorageIndex()){
+                    ItemStack orig = getStack(x + getBoardSize());
+                    if (orig.isEmpty()){
+                        setStack(x + getBoardSize(), new ItemStack(pieceItem));
+                    } else {
+                        orig.increment(1);
+                    }
+                    continue forAllAvailable;
+                }
+            }
         }
     }
 

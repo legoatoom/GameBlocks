@@ -25,9 +25,8 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import static com.legoatoom.gameblocks.registry.ChessRegistry.*;
+import static com.legoatoom.gameblocks.registry.ChessRegistry.CHESS_PIECES;
 
 public class ServerChessBoardInventory extends ChessBoardInventory implements ServerBoardInventory<ChessGridSlot> {
 
@@ -92,25 +91,55 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
 
     @Override
     public boolean canDropPackage() {
-        int pawns = WHITE_PAWN.getMaxCount() + BLACK_PAWN.getMaxCount();
-        int rooks = WHITE_ROOK.getMaxCount() + BLACK_ROOK.getMaxCount();
-        int knights = WHITE_KNIGHT.getMaxCount() + BLACK_KNIGHT.getMaxCount();
-        int bishops = WHITE_BISHOP.getMaxCount() + BLACK_BISHOP.getMaxCount();
-        int queen = WHITE_QUEEN.getMaxCount() + BLACK_QUEEN.getMaxCount();
-        int kings = WHITE_KING.getMaxCount() + BLACK_KING.getMaxCount();
+        int wpawns = 8, bpawns = 8;
+        int wrooks = 2, brooks = 2;
+        int wknights = 2, bknights = 2;
+        int wbishops = 2, bbishops = 2;
+        int wqueen = 1, bqueen = 1;
+        int wkings = 1, bkings = 1;
         for (ItemStack stack : getItems()) {
             if (stack.getItem() instanceof IChessPieceItem item) {
+                boolean isBlack = item.isBlack();
                 switch (item.getType()) {
-                    case ROOK -> rooks -= stack.getCount();
-                    case PAWN -> pawns -= stack.getCount();
-                    case KNIGHT -> knights -= stack.getCount();
-                    case BISHOP -> bishops -= stack.getCount();
-                    case QUEEN -> queen -= stack.getCount();
-                    case KING -> kings -= stack.getCount();
+                    case ROOK -> {
+                        if (isBlack) brooks -= stack.getCount();
+                        else wrooks -= stack.getCount();
+                    }
+                    case PAWN -> {
+                        if (isBlack) bpawns -= stack.getCount();
+                        else wpawns -= stack.getCount();
+                    }
+                    case KNIGHT -> {
+                        if (isBlack) bknights -= stack.getCount();
+                        else wknights -= stack.getCount();
+                    }case BISHOP -> {
+                        if (isBlack) bbishops -= stack.getCount();
+                        else wbishops -= stack.getCount();
+                    }
+                    case QUEEN -> {
+                        if (isBlack) bqueen -= stack.getCount();
+                        else wqueen -= stack.getCount();
+                    }
+                    case KING -> {
+                        if (isBlack) bkings -= stack.getCount();
+                        else wkings -= stack.getCount();
+                    }
                 }
             }
         }
-        return Arrays.stream(new int[]{pawns, rooks, knights, bishops, queen, kings}).allMatch(value -> value == 0);
+        if (wpawns != 0) return false;
+        if (wrooks != 0) return false;
+        if (wknights != 0) return false;
+        if (wbishops != 0) return false;
+        if (wqueen != 0) return false;
+        if (wkings != 0) return false;
+        if (bpawns != 0) return false;
+        if (brooks != 0) return false;
+        if (bknights != 0) return false;
+        if (bbishops != 0) return false;
+        if (bqueen != 0) return false;
+        if (bkings != 0) return false;
+        return true;
     }
 
 

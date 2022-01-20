@@ -4,7 +4,6 @@ import com.legoatoom.gameblocks.checkers.util.CheckersPieceType;
 import com.legoatoom.gameblocks.common.items.IPieceItem;
 import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
-import com.legoatoom.gameblocks.common.util.IPieceType;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -52,7 +51,7 @@ public abstract class ICheckersPieceItem extends Item implements IPieceItem {
     }
 
     @Override
-    public IPieceType getType() {
+    public CheckersPieceType getType() {
         return type;
     }
 }

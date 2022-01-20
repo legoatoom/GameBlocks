@@ -1,5 +1,6 @@
 package com.legoatoom.gameblocks.checkers.inventory;
 
+import com.legoatoom.gameblocks.checkers.items.ICheckersPieceItem;
 import com.legoatoom.gameblocks.checkers.screen.slot.CheckersGridSlot;
 import com.legoatoom.gameblocks.checkers.util.CheckersActionType;
 import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
@@ -72,7 +73,24 @@ public class ServerCheckersBoardInventory extends CheckersBoardInventory impleme
 
     @Override
     public boolean canDropPackage() {
-        return false;
+        int white = 20, black = 20;
+        for (ItemStack stack : getItems()) {
+            if (stack.getItem() instanceof ICheckersPieceItem item) {
+                boolean isBlack = item.isBlack();
+                switch (item.getType()) {
+                    case STONE, KING -> {
+                        if (isBlack) {
+                            black -= stack.getCount();
+                        } else {
+                            white -= stack.getCount();
+                        }
+                    }
+                }
+            }
+        }
+        if (black != 0) return false;
+        if (white != 0) return false;
+        return true;
     }
 
     public BlockEntity getEntity() {
