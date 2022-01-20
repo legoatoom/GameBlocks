@@ -40,7 +40,6 @@ public abstract class AbstractBoardBlockEntity extends BlockEntity implements Ex
         return new TranslatableText(getCachedState().getBlock().getTranslationKey());
     }
 
-
     /**
      * Writes additional server -&gt; client screen opening data to the buffer.
      *

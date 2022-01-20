@@ -18,7 +18,7 @@ import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.chess.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.chess.inventory.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import com.legoatoom.gameblocks.chess.util.ChessPieceType;
@@ -51,7 +51,7 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull GridSlot slot) {
+    public void calculateLegalActions(@NotNull AbstractGridSlot slot) {
         int origin = slot.getIndex();
         slot.up(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));
         slot.upRight(isBlack()).ifPresent(chessBoardSlot -> moveOrCaptureCheck(chessBoardSlot, origin));
@@ -107,7 +107,7 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
+    public void handleAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack cursorStack, ActionType actionType) {
         super.handleAction(handler, slot, cursorStack, actionType);
         NbtCompound nbtCompound = slot.getStack().getOrCreateSubNbt(GameBlocks.MOD_ID);
         if (!nbtCompound.contains("hasMoved")) {
@@ -141,7 +141,7 @@ public class KingItem extends IChessPieceItem {
     }
 
     @Override
-    protected boolean moveOrCaptureCheck(@NotNull GridSlot current, int origin) {
+    protected boolean moveOrCaptureCheck(@NotNull AbstractGridSlot current, int origin) {
         if (current instanceof ChessGridSlot chessGridSlot) {
             Optional<IChessPieceItem> item = chessGridSlot.getItem();
             if (item.isPresent()) {
@@ -161,7 +161,7 @@ public class KingItem extends IChessPieceItem {
      * Is not perfect, as moving the king will allow other pieces to move to spaces that we cannot expect to know.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean slotUnderAttack(@NotNull GridSlot slot) {
+    private boolean slotUnderAttack(@NotNull AbstractGridSlot slot) {
         if (slot instanceof ChessGridSlot chessGridSlot) {
             ChessBoardInventory x = chessGridSlot.getInventory();
             if (x.isClient()) return false;

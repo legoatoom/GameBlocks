@@ -15,6 +15,7 @@
 package com.legoatoom.gameblocks.registry;
 
 import com.legoatoom.gameblocks.GameBlocks;
+import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.item.Item;
@@ -25,6 +26,7 @@ public class CommonRegistry {
     public static Item PIECES_PACKAGE_ITEM = new PiecesPackageItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(16));
 
     public static void register() {
+        GameBlocksState.info("Registering Common");
         Registry.register(Registry.ITEM, GameBlocks.id("pieces_package"), PIECES_PACKAGE_ITEM);
     }
 }

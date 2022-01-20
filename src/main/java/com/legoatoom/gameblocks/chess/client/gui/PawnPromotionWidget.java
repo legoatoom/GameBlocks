@@ -15,7 +15,6 @@
 package com.legoatoom.gameblocks.chess.client.gui;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.client.screen.AbstractBoardScreen;
 import com.legoatoom.gameblocks.chess.client.screen.ChessBoardScreen;
 import com.legoatoom.gameblocks.chess.items.IChessPieceItem;
 import com.legoatoom.gameblocks.chess.items.KingItem;

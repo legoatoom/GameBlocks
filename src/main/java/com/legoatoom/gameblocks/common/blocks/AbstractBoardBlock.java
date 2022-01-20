@@ -21,6 +21,7 @@ import com.legoatoom.gameblocks.common.items.PiecesPackageItem;
 import com.legoatoom.gameblocks.registry.CommonRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
@@ -33,7 +34,10 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.tag.FluidTags;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
@@ -43,6 +47,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 @SuppressWarnings("deprecation")
 public abstract class AbstractBoardBlock extends BlockWithEntity
@@ -66,6 +72,12 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
         FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
         return getDefaultState().with(FACING, ctx.getPlayerFacing()).with(WATERLOGGED,
                 fluidState.getFluid().isIn(FluidTags.WATER));
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext context) {
+        tooltip.add(new TranslatableText("block.gameblocks.board.tooltip").formatted(Formatting.GRAY));
+        super.appendTooltip(stack, world, tooltip, context);
     }
 
     @Override

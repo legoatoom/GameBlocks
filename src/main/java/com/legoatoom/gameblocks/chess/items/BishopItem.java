@@ -14,7 +14,7 @@
 
 package com.legoatoom.gameblocks.chess.items;
 
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.chess.util.ChessPieceType;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +35,7 @@ public class BishopItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull GridSlot slot) {
+    public void calculateLegalActions(@NotNull AbstractGridSlot slot) {
         checkDiagonals(slot);
     }
 }

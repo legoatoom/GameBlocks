@@ -20,17 +20,22 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import java.util.ArrayList;
 
 public class ChessBoardInventory extends AbstractBoardInventory {
+
+    public ChessBoardInventory() {
+        this(true);
+    }
+
     public ChessBoardInventory(boolean isClient) {
         super(isClient, 8, 12);
     }
 
     @Override
-    public void markDirty() {
-        //Does nothing.
+    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
+        return new ArrayList<>();
     }
 
     @Override
-    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
-        return new ArrayList<>();
+    public void markDirty() {
+
     }
 }

@@ -14,17 +14,18 @@
 
 package com.legoatoom.gameblocks.common.screen;
 
+import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
+import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import com.legoatoom.gameblocks.common.inventory.AbstractBoardInventory;
-import com.legoatoom.gameblocks.chess.inventory.ServerChessBoardInventory;
+import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
 import com.legoatoom.gameblocks.common.items.IPieceItem;
 import com.legoatoom.gameblocks.common.screen.slot.AbstractBoardSlot;
-import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
-import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
@@ -34,30 +35,35 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Supplier;
 
-public abstract class AbstractBoardScreenHandler extends ScreenHandler implements ScreenHandlerListener {
+public abstract class AbstractBoardScreenHandler<T extends AbstractBoardInventory> extends ScreenHandler implements ScreenHandlerListener {
     protected final PlayerInventory playerInventory;
-    protected final AbstractBoardInventory boardInventory;
+    protected final T boardInventory;
     protected final int BOARD_WIDTH, BOARD_SIZE;
     protected final Direction FACING;
     protected final ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate;
 
-    protected AbstractBoardScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, AbstractBoardInventory boardInventory, Direction facing) {
+    public AbstractBoardScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerInventory inv, PacketByteBuf buf, Supplier<T> boardSupplier) {
+        this(type, syncId, inv, boardSupplier.get(), Direction.fromHorizontal(buf.readInt()));
+        //CLIENT
+    }
+
+    public AbstractBoardScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, T boardInventory, Direction facing) {
         super(type, syncId);
         this.playerInventory = playerInventory;
         this.boardInventory = boardInventory;
-        this.BOARD_WIDTH = boardInventory.BOARD_WIDTH;
-        this.BOARD_SIZE = boardInventory.BOARD_SIZE;
+        this.BOARD_WIDTH = boardInventory.boardWidth;
+        this.BOARD_SIZE = boardInventory.boardSize;
         this.FACING = facing;
         this.slotHintPropertyDelegate = boardInventory.getSlotHintsPropertyDelgates();
+        boardInventory.onOpen(playerInventory.player);
+        initializeSlots();
         if (boardInventory.isClient()) {
             initializeClient();
         } else {
             initializeServer();
         }
-        boardInventory.onOpen(playerInventory.player);
-        initializeSlots();
     }
 
     public ArrayList<ArrayPropertyDelegate> getSlotHintPropertyDelegate() {
@@ -83,6 +89,7 @@ public abstract class AbstractBoardScreenHandler extends ScreenHandler implement
             this.addProperties(pd);
         }
         this.addListener(this);
+        this.sendContentUpdates();
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -104,8 +111,8 @@ public abstract class AbstractBoardScreenHandler extends ScreenHandler implement
         return new Pair<>(y, BOARD_WIDTH - 1 - x);
     }
 
-    public List<GridSlot> getCurrentSlotActions(int origin) {
-        ArrayList<GridSlot> result = new ArrayList<>();
+    public ArrayList<AbstractGridSlot> getCurrentSlotActions(int origin) {
+        ArrayList<AbstractGridSlot> result = new ArrayList<>();
         for (Slot slot : this.slots) {
             if (slot instanceof ChessGridSlot s) {
                 ChessActionType type = ChessActionType.fromId(this.slotHintPropertyDelegate.get(origin).get(slot.getIndex()));
@@ -129,7 +136,7 @@ public abstract class AbstractBoardScreenHandler extends ScreenHandler implement
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (!this.insertItem(originalStack, boardInventory.BOARD_SIZE, this.boardInventory.size(), false)) {
+                if (!this.insertItem(originalStack, boardInventory.boardSize, this.boardInventory.size(), false)) {
                     return ItemStack.EMPTY;
                 }
             }
@@ -158,7 +165,7 @@ public abstract class AbstractBoardScreenHandler extends ScreenHandler implement
         return boardInventory.canPlayerUse(player);
     }
 
-    public AbstractBoardInventory getBoardInventory() {
+    public T getBoardInventory() {
         return boardInventory;
     }
 
@@ -173,7 +180,7 @@ public abstract class AbstractBoardScreenHandler extends ScreenHandler implement
 
         Slot slot = this.getSlot(slotId);
         // We check if the updated slot is a AbstractBoardSlot
-        if (slot instanceof GridSlot s) {
+        if (slot instanceof AbstractGridSlot s) {
             int slotIndex = s.getIndex();
             // If we grabbed something and the result is now empty.
             if (!this.getCursorStack().isEmpty() && stack.isEmpty()) {
@@ -189,12 +196,12 @@ public abstract class AbstractBoardScreenHandler extends ScreenHandler implement
                     // for the slot that was updated.
                     ActionType type = this.getActionTypeFromSlot(originIndex, slotIndex);
                     if (!type.shouldIgnore()) {
-                        chessPieceItem.handleAction(handler, s, getCursorStack(), type);
+                        chessPieceItem.handleAction(this, s, getCursorStack(), type);
                     }
                 }
                 // We checked above that it is indeed not client.
                 // Now that an action has happened we have to update hints.
-                ((ServerChessBoardInventory) s.getInventory()).updateHints();
+                ((ServerBoardInventory<?>) s.getInventory()).updateHints();
             }
         } else {
             originIndex = -1;

@@ -25,4 +25,6 @@ public interface ActionType {
     int getColor();
 
     List<Text> getInfo(TextRenderer textRenderer);
+
+    int getId();
 }

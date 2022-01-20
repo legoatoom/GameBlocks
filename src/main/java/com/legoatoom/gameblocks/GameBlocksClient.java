@@ -14,7 +14,9 @@
 
 package com.legoatoom.gameblocks;
 
+import com.legoatoom.gameblocks.checkers.client.screen.CheckersBoardScreen;
 import com.legoatoom.gameblocks.chess.client.screen.ChessBoardScreen;
+import com.legoatoom.gameblocks.registry.CheckersRegistry;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -26,5 +28,6 @@ public class GameBlocksClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ScreenRegistry.register(ChessRegistry.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
+        ScreenRegistry.register(CheckersRegistry.CHECKERS_BOARD_SCREEN_HANDLER, CheckersBoardScreen::new);
     }
 }

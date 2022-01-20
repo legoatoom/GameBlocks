@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks.registry;
 
+import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.chess.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.chess.items.*;
 import com.legoatoom.gameblocks.chess.blocks.entity.ChessBoardBlockEntity;
@@ -47,8 +48,9 @@ import static com.legoatoom.gameblocks.GameBlocks.*;
 public class ChessRegistry {
 
     public static final ArrayList<IChessPieceItem> CHESS_PIECES = new ArrayList<>();
-    // --- CHESS ---
-    public static Block CHESS_BOARD_BLOCK = new ChessBoardBlock(FabricBlockSettings.of(Material.WOOD).strength(2.f).resistance(2.f).sounds(BlockSoundGroup.WOOD));
+
+    public static Block CHESS_BOARD_BLOCK = new ChessBoardBlock(FabricBlockSettings.of(Material.WOOD)
+            .strength(2.f,2.f).sounds(BlockSoundGroup.WOOD));
     public static Item CHESS_BOARD_ITEM = new BlockItem(CHESS_BOARD_BLOCK, new FabricItemSettings().group(GAME_BLOCKS));
     public static IChessPieceItem WHITE_PAWN;
     public static IChessPieceItem BLACK_PAWN;
@@ -68,21 +70,23 @@ public class ChessRegistry {
 
 
     static {
+        // This order effects the order for the storage slots.
         BLACK_PAWN = new PawnItem(true);
         WHITE_PAWN = new PawnItem(false);
         BLACK_ROOK = new RookItem(true);
         WHITE_ROOK = new RookItem(false);
-        BLACK_KING = new KingItem(true);
-        WHITE_KING = new KingItem(false);
-        BLACK_QUEEN = new QueenItem(true);
-        WHITE_QUEEN = new QueenItem(false);
-        BLACK_BISHOP = new BishopItem(true);
-        WHITE_BISHOP = new BishopItem(false);
         BLACK_KNIGHT = new KnightItem(true);
         WHITE_KNIGHT = new KnightItem(false);
+        BLACK_BISHOP = new BishopItem(true);
+        WHITE_BISHOP = new BishopItem(false);
+        BLACK_QUEEN = new QueenItem(true);
+        WHITE_QUEEN = new QueenItem(false);
+        BLACK_KING = new KingItem(true);
+        WHITE_KING = new KingItem(false);
     }
 
     public static void register() {
+        GameBlocksState.info("Registering Game: Chess ♔");
         registerPieces();
         registerBoard();
         registerNetworking();
@@ -103,18 +107,18 @@ public class ChessRegistry {
     }
 
     private static void registerPieces() {
-        Registry.register(Registry.ITEM, id("white_pawn"), WHITE_PAWN);
-        Registry.register(Registry.ITEM, id("black_pawn"), BLACK_PAWN);
-        Registry.register(Registry.ITEM, id("white_rook"), WHITE_ROOK);
-        Registry.register(Registry.ITEM, id("black_rook"), BLACK_ROOK);
-        Registry.register(Registry.ITEM, id("white_king"), WHITE_KING);
-        Registry.register(Registry.ITEM, id("black_king"), BLACK_KING);
-        Registry.register(Registry.ITEM, id("white_queen"), WHITE_QUEEN);
-        Registry.register(Registry.ITEM, id("black_queen"), BLACK_QUEEN);
-        Registry.register(Registry.ITEM, id("white_bishop"), WHITE_BISHOP);
-        Registry.register(Registry.ITEM, id("black_bishop"), BLACK_BISHOP);
-        Registry.register(Registry.ITEM, id("white_knight"), WHITE_KNIGHT);
-        Registry.register(Registry.ITEM, id("black_knight"), BLACK_KNIGHT);
+        Registry.register(Registry.ITEM, id("chess/white_pawn"), WHITE_PAWN);
+        Registry.register(Registry.ITEM, id("chess/black_pawn"), BLACK_PAWN);
+        Registry.register(Registry.ITEM, id("chess/white_rook"), WHITE_ROOK);
+        Registry.register(Registry.ITEM, id("chess/black_rook"), BLACK_ROOK);
+        Registry.register(Registry.ITEM, id("chess/white_king"), WHITE_KING);
+        Registry.register(Registry.ITEM, id("chess/black_king"), BLACK_KING);
+        Registry.register(Registry.ITEM, id("chess/white_queen"), WHITE_QUEEN);
+        Registry.register(Registry.ITEM, id("chess/black_queen"), BLACK_QUEEN);
+        Registry.register(Registry.ITEM, id("chess/white_bishop"), WHITE_BISHOP);
+        Registry.register(Registry.ITEM, id("chess/black_bishop"), BLACK_BISHOP);
+        Registry.register(Registry.ITEM, id("chess/white_knight"), WHITE_KNIGHT);
+        Registry.register(Registry.ITEM, id("chess/black_knight"), BLACK_KNIGHT);
     }
 
     private static void receivePromotionRequest(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {

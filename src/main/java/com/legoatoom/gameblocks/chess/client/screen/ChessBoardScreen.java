@@ -22,19 +22,23 @@ import com.legoatoom.gameblocks.chess.screen.ChessBoardScreenHandler;
 import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.chess.util.ChessActionType;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class ChessBoardScreen extends AbstractBoardScreen<ChessBoardScreenHandler> {
     private static final Identifier TEXTURE = GameBlocks.id("textures/gui/chess_board_fancy.png");
     private boolean isSelectingPromotion = false;
 
     public ChessBoardScreen(ChessBoardScreenHandler handler, PlayerInventory inventory, Text title) {
-        super(handler, inventory, title, 64);
+        super(handler, inventory, title, 64, 204, 244);
     }
 
     @Override
@@ -55,17 +59,21 @@ public class ChessBoardScreen extends AbstractBoardScreen<ChessBoardScreenHandle
     }
 
     private boolean checkPromotion(Slot slot, int button, SlotActionType actionType) {
-        if (lastClickedSlotPre != null && slot instanceof ChessGridSlot s && !handler.getCursorStack().isEmpty() && lastClickedSlotPre instanceof ChessGridSlot s2) {
-            int newPreSlotId = s2.getIndex();
-            int newSlotId = s.getIndex();
-            boolean isBlack = ((IChessPieceItem) handler.getCursorStack().getItem()).isBlack();
-            ActionType type = this.handler.getActionTypeFromSlot(newPreSlotId, newSlotId);
-            if (type instanceof ChessActionType type1){
-                if (type1 == ChessActionType.PROMOTION || type1 == ChessActionType.PROMOTION_CAPTURE) {
-                    this.isSelectingPromotion = true;
-                    this.addDrawableChild(new PawnPromotionWidget(this, slot.x + this.x, slot.y + this.y, this.client, isBlack, s, button, actionType));
-                    return false;
-                }
+        ItemStack cursor = handler.getCursorStack();
+        if (lastClickedSlotPre == null
+                || !(slot instanceof ChessGridSlot s)
+                || cursor.isEmpty()
+                || (!(cursor.getItem() instanceof IChessPieceItem c))
+                || !(lastClickedSlotPre instanceof ChessGridSlot s2))
+            return true;
+        int newPreSlotId = s2.getIndex();
+        int newSlotId = s.getIndex();
+        ActionType type = this.handler.getActionTypeFromSlot(newPreSlotId, newSlotId);
+        if (type instanceof ChessActionType type1){
+            if (type1 == ChessActionType.PROMOTION || type1 == ChessActionType.PROMOTION_CAPTURE) {
+                this.isSelectingPromotion = true;
+                this.addDrawableChild(new PawnPromotionWidget(this, slot.x + this.x, slot.y + this.y, this.client, c.isBlack(), s, button, actionType));
+                return false;
             }
         }
         return true;

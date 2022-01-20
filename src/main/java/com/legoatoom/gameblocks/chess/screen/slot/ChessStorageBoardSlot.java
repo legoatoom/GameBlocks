@@ -25,10 +25,10 @@ public class ChessStorageBoardSlot extends AbstractBoardSlot {
     public final Class<? extends IChessPieceItem> storeType;
     private final boolean isBlack;
 
-    public ChessStorageBoardSlot(ChessBoardInventory inventory, int index, int x, int y, Class<? extends IChessPieceItem> storeType, boolean isBlack) {
+    public ChessStorageBoardSlot(ChessBoardInventory inventory, int index, int x, int y, IChessPieceItem item) {
         super(inventory, index, x, y);
-        this.storeType = storeType;
-        this.isBlack = isBlack;
+        this.storeType = item.getClass();
+        this.isBlack = item.isBlack();
     }
 
     @Override

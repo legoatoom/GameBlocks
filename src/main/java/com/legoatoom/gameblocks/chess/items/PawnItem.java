@@ -15,7 +15,7 @@
 package com.legoatoom.gameblocks.chess.items;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import com.legoatoom.gameblocks.chess.util.ChessPieceType;
@@ -45,15 +45,15 @@ public class PawnItem extends IChessPieceItem {
     }
 
     @Override
-    public void calculateLegalActions(@NotNull GridSlot slot) {
-        Optional<GridSlot> up = slot.up(isBlack());
+    public void calculateLegalActions(@NotNull AbstractGridSlot slot) {
+        Optional<AbstractGridSlot> up = slot.up(isBlack());
         //Moving
         up.ifPresent(chessBoardSlot -> {
             if (!chessBoardSlot.hasStack()) {
                 chessBoardSlot.setHoverHintForOriginIndex(slot.getIndex(), isPromotion(chessBoardSlot) ? ChessActionType.PROMOTION : ChessActionType.MOVE);
                 // First move can be 2 steps.
                 if (isDefaultLocation(slot.getBoardXLoc(), slot.getBoardYLoc())) {
-                    Optional<GridSlot> up2 = slot.up(isBlack(), 2);
+                    Optional<AbstractGridSlot> up2 = slot.up(isBlack(), 2);
                     up2.ifPresent(chessBoardSlot1 -> {
                         if (!chessBoardSlot1.hasStack()) {
                             chessBoardSlot1.setHoverHintForOriginIndex(slot.getIndex(), ChessActionType.INITIAL_MOVE);
@@ -74,13 +74,13 @@ public class PawnItem extends IChessPieceItem {
     }
 
     @Override
-    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
+    public void handleAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack cursorStack, ActionType actionType) {
         if (actionType == ChessActionType.CAPTURE || actionType == ChessActionType.PROMOTION_CAPTURE) {
             slot.capturePiece(handler, cursorStack);
         }
 
         if (actionType == ChessActionType.EN_PASSANT) {
-            slot.down(isBlack()).ifPresent(GridSlot::capturePiece);
+            slot.down(isBlack()).ifPresent(AbstractGridSlot::captureMe);
         }
 
         for (int i = 0; i < slot.getInventory().size(); i++) {
@@ -115,7 +115,7 @@ public class PawnItem extends IChessPieceItem {
         }
     }
 
-    private void testCapture(@NotNull GridSlot current, int origin) {
+    private void testCapture(@NotNull AbstractGridSlot current, int origin) {
         current.getItem().ifPresentOrElse(chessPieceItem -> {
             if (chessPieceItem.isBlack() != this.isBlack()) {
                 current.setHoverHintForOriginIndex(origin, isPromotion(current) ? ChessActionType.PROMOTION_CAPTURE : ChessActionType.CAPTURE);
@@ -123,11 +123,11 @@ public class PawnItem extends IChessPieceItem {
         }, () -> current.setHoverHintForOriginIndex(origin, ChessActionType.PAWN_POTENTIAL));
     }
 
-    private boolean isPromotion(@NotNull GridSlot current) {
+    private boolean isPromotion(@NotNull AbstractGridSlot current) {
         return current.getBoardYLoc() == 0 || current.getBoardYLoc() == 7;
     }
 
-    private void testEnPassant(@NotNull GridSlot current, int origin) {
+    private void testEnPassant(@NotNull AbstractGridSlot current, int origin) {
         current.getItem().ifPresent(chessPieceItem -> {
             NbtCompound compound = current.getStack().getSubNbt(GameBlocks.MOD_ID);
             if (compound != null && compound.contains("mayEnPassant") && chessPieceItem.isBlack() != this.isBlack()) {

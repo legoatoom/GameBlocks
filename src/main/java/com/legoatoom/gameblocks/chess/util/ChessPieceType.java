@@ -14,6 +14,8 @@
 
 package com.legoatoom.gameblocks.chess.util;
 
-public enum ChessPieceType {
+import com.legoatoom.gameblocks.common.util.IPieceType;
+
+public enum ChessPieceType implements IPieceType {
     PAWN, KING, KNIGHT, ROOK, QUEEN, BISHOP
 }

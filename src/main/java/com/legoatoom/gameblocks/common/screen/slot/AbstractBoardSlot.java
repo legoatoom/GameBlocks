@@ -15,11 +15,12 @@
 package com.legoatoom.gameblocks.common.screen.slot;
 
 import com.legoatoom.gameblocks.common.inventory.AbstractBoardInventory;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.slot.Slot;
 
 public abstract class AbstractBoardSlot extends Slot {
-    public AbstractBoardSlot(Inventory inventory, int index, int x, int y) {
+
+
+    public AbstractBoardSlot(AbstractBoardInventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
     }
 

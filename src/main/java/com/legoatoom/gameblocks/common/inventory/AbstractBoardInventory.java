@@ -25,23 +25,32 @@ import java.util.ArrayList;
 
 public abstract class AbstractBoardInventory implements Inventory {
 
-    public final int BOARD_WIDTH;
-    public final int BOARD_SIZE;
+    private final int storageSlotSize;
+
+    public int getBoardWidth() {
+        return boardWidth;
+    }
+
+    public int getBoardSize() {
+        return boardSize;
+    }
+
+    public final int boardWidth;
+    public final int boardSize;
     private final DefaultedList<ItemStack> board;
     private final boolean isClient;
 
     public AbstractBoardInventory(boolean isClient, int boardWidth, int storageSlotSize) {
-        this.BOARD_WIDTH = boardWidth;
-        this.BOARD_SIZE = boardWidth * boardWidth;
+        this.boardWidth = boardWidth;
+        this.boardSize = boardWidth * boardWidth;
         this.isClient = isClient;
-        this.board = DefaultedList.ofSize(BOARD_SIZE + storageSlotSize, ItemStack.EMPTY);
+        this.storageSlotSize = storageSlotSize;
+        this.board = DefaultedList.ofSize(boardSize + storageSlotSize, ItemStack.EMPTY);
     }
 
     public boolean isClient() {
         return isClient;
     }
-
-
 
     /**
      * Retrieves the item list of this inventory.
@@ -144,4 +153,8 @@ public abstract class AbstractBoardInventory implements Inventory {
 
 
     public abstract ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates();
+
+    public int getStorageSlotSize() {
+        return storageSlotSize;
+    }
 }

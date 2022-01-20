@@ -16,26 +16,24 @@ package com.legoatoom.gameblocks.common.screen.slot;
 
 import com.legoatoom.gameblocks.common.inventory.AbstractBoardInventory;
 import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
-import com.legoatoom.gameblocks.chess.inventory.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.common.items.IPieceItem;
-import com.legoatoom.gameblocks.chess.items.IChessPieceItem;
-import com.legoatoom.gameblocks.chess.util.ChessActionType;
+import com.legoatoom.gameblocks.common.util.ActionType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public abstract class GridSlot extends AbstractBoardSlot {
+public abstract class AbstractGridSlot extends AbstractBoardSlot {
 
     private final int BOARD_WIDTH;
     private final int xLoc, yLoc;
 
-    public GridSlot(AbstractBoardInventory inventory, int boardXLoc, int boardYLoc, int screenXLoc, int screenYLoc) {
-        super(inventory, boardYLoc * inventory.BOARD_WIDTH + boardXLoc, screenXLoc, screenYLoc);
+    public AbstractGridSlot(AbstractBoardInventory inventory, int boardXLoc, int boardYLoc, int screenXLoc, int screenYLoc) {
+        super(inventory, boardYLoc * inventory.getBoardWidth() + boardXLoc, screenXLoc, screenYLoc);
         this.xLoc = boardXLoc;
         this.yLoc = boardYLoc;
-        this.BOARD_WIDTH = inventory.BOARD_WIDTH;
+        this.BOARD_WIDTH = inventory.getBoardWidth();
         if (!inventory.isClient() && inventory instanceof ServerBoardInventory serverBoardInventory) {
             //noinspection unchecked
             serverBoardInventory.addSlot(this);
@@ -69,7 +67,7 @@ public abstract class GridSlot extends AbstractBoardSlot {
     }
 
     public IPieceItem getCurrentPiece() {
-        if (!hasStack() || !(this.getStack().getItem() instanceof IChessPieceItem)) return null;
+        if (!hasStack() || !(this.getStack().getItem() instanceof IPieceItem)) return null;
         return (IPieceItem) this.getStack().getItem();
     }
 
@@ -77,102 +75,136 @@ public abstract class GridSlot extends AbstractBoardSlot {
      * Set the current hint type for this slot from a specified origin.
      *
      */
-    public void setHoverHintForOriginIndex(int originIndex, @NotNull ChessActionType currentHoverAction) {
+    public void setHoverHintForOriginIndex(int originIndex, @NotNull ActionType currentHoverAction) {
         // Just making sure the inventory isn't empty and this is not the client.
         if (this.getInventory().isEmpty() || this.getInventory().isClient()) return;
-        ((ServerBoardInventory) getInventory()).getSlotHintsPropertyDelgates().get(originIndex).set(getIndex(), currentHoverAction.getId());
+        ((ServerBoardInventory<?>) getInventory()).getSlotHintsPropertyDelgates().get(originIndex).set(getIndex(), currentHoverAction.getId());
     }
 
-    public abstract void capturePiece();
+    /**
+     * Capture the piece that this slot holds.
+     */
+    public void captureMe(){
+        ItemStack stack = getStack();
+        IPieceItem pieceItem = (IPieceItem) stack.getItem();
+        if (pieceItem != null) {
+            int slotId = pieceItem.getStorageIndex() + (BOARD_WIDTH * BOARD_WIDTH);
+            getInventory().setStack(getIndex(), ItemStack.EMPTY);
+            int i = getInventory().getStack(slotId).getCount();
+            stack.setCount(i + 1);
+            getInventory().setStack(slotId, stack);
+        }
+    }
 
-    public abstract void capturePiece(ScreenHandler handler, ItemStack stack);
+    /**
+     * Capturing from a specified stack.
+     */
+    public void capturePiece(ScreenHandler handler, ItemStack stack){
+        if (stack.getItem() instanceof IPieceItem item) {
+            int slotId = item.getStorageIndex() + (BOARD_WIDTH * BOARD_WIDTH);
+            handler.setCursorStack(ItemStack.EMPTY);
+            int i = getInventory().getStack(slotId).getCount();
+            stack.setCount(i + 1);
+            getInventory().setStack(slotId, stack);
+        }
+    }
+
+    @Override
+    public int getMaxItemCount() {
+        return 1;
+    }
+
+    @Override
+    public int getMaxItemCount(ItemStack stack) {
+        return getMaxItemCount();
+    }
 
     @NotNull
-    public Optional<GridSlot> upLeft(boolean isBlack) {
+    public Optional<AbstractGridSlot> upLeft(boolean isBlack) {
         return upLeft(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> downLeft(boolean isBlack) {
+    public Optional<AbstractGridSlot> downLeft(boolean isBlack) {
         return downLeft(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> upRight(boolean isBlack) {
+    public Optional<AbstractGridSlot> upRight(boolean isBlack) {
         return upRight(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> downRight(boolean isBlack) {
+    public Optional<AbstractGridSlot> downRight(boolean isBlack) {
         return downRight(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> up(boolean isBlack) {
+    public Optional<AbstractGridSlot> up(boolean isBlack) {
         return up(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> down(boolean isBlack) {
+    public Optional<AbstractGridSlot> down(boolean isBlack) {
         return down(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> left(boolean isBlack) {
+    public Optional<AbstractGridSlot> left(boolean isBlack) {
         return left(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> right(boolean isBlack) {
+    public Optional<AbstractGridSlot> right(boolean isBlack) {
         return right(isBlack, 1);
     }
 
     @NotNull
-    public Optional<GridSlot> up(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> up(boolean isBlack, int amount) {
         return isBlack ? down(false, amount) : getSlotFromInventory(this.xLoc, this.yLoc - amount);
     }
 
     @NotNull
-    public Optional<GridSlot> down(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> down(boolean isBlack, int amount) {
         return isBlack ? up(false, amount) : getSlotFromInventory(this.xLoc, this.yLoc + amount);
     }
 
     @NotNull
-    public Optional<GridSlot> left(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> left(boolean isBlack, int amount) {
         return isBlack ? right(false, amount) : getSlotFromInventory(this.xLoc + amount, this.yLoc);
     }
 
     @NotNull
-    public Optional<GridSlot> right(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> right(boolean isBlack, int amount) {
         return isBlack ? left(false, amount) : getSlotFromInventory(this.xLoc - amount, this.yLoc);
     }
 
     @NotNull
-    public Optional<GridSlot> upLeft(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> upLeft(boolean isBlack, int amount) {
         return isBlack ? downRight(false, amount) : getSlotFromInventory(this.xLoc + amount, this.yLoc - amount);
     }
 
     @NotNull
-    public Optional<GridSlot> upRight(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> upRight(boolean isBlack, int amount) {
         return isBlack ? downLeft(false, amount) : getSlotFromInventory(this.xLoc - amount, this.yLoc - amount);
     }
 
     @NotNull
-    public Optional<GridSlot> downLeft(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> downLeft(boolean isBlack, int amount) {
         return isBlack ? upRight(false, amount) : getSlotFromInventory(this.xLoc + amount, this.yLoc + amount);
     }
 
     @NotNull
-    public Optional<GridSlot> downRight(boolean isBlack, int amount) {
+    public Optional<AbstractGridSlot> downRight(boolean isBlack, int amount) {
         return isBlack ? upLeft(false, amount) : getSlotFromInventory(this.xLoc - amount, this.yLoc + amount);
     }
 
     @NotNull
-    private Optional<GridSlot> getSlotFromInventory(int xLoc, int yLoc) {
+    private Optional<AbstractGridSlot> getSlotFromInventory(int xLoc, int yLoc) {
         if (this.getInventory().isClient() || 0 > xLoc || xLoc >= BOARD_WIDTH || 0 > yLoc || yLoc >= BOARD_WIDTH) {
             return Optional.empty();
         }
-        return Optional.of(((ServerChessBoardInventory) this.getInventory()).getSlot(xLoc, yLoc));
+        return Optional.of(((ServerBoardInventory<?>) this.getInventory()).getSlot(xLoc, yLoc));
     }
 
 }

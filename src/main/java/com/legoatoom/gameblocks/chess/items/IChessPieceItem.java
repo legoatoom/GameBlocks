@@ -15,13 +15,13 @@
 package com.legoatoom.gameblocks.chess.items;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import com.legoatoom.gameblocks.common.items.IPieceItem;
-import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
-import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import com.legoatoom.gameblocks.chess.util.ChessPieceType;
+import com.legoatoom.gameblocks.common.items.IPieceItem;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
+import com.legoatoom.gameblocks.common.util.ActionType;
+import com.legoatoom.gameblocks.registry.ChessRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -58,16 +58,6 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         this.type = type;
     }
 
-    public abstract int getStorageIndex();
-
-    public static void cleanHoverActions(ChessGridSlot @NotNull [] slots) {
-        for (ChessGridSlot slot : slots) {
-            for (ChessGridSlot slot2 : slots) {
-                slot.setHoverHintForOriginIndex(slot2.getIndex(), ChessActionType.NONE);
-            }
-        }
-    }
-
     public ChessPieceType getType() {
         return type;
     }
@@ -76,16 +66,10 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
     public abstract boolean isDefaultLocation(int x, int y);
 
     @Override
-    public abstract void calculateLegalActions(@NotNull GridSlot slot);
+    public abstract void calculateLegalActions(@NotNull AbstractGridSlot slot);
 
-    public void handleAction(ScreenHandler handler, GridSlot slot, ItemStack cursorStack, ActionType actionType) {
-        if (actionType == ChessActionType.CAPTURE) {
-            if (isPromoted(cursorStack)) {
-                slot.capturePiece(handler, new ItemStack(isBlack() ? WHITE_PAWN : BLACK_PAWN));
-            } else {
-                slot.capturePiece(handler, cursorStack);
-            }
-        }
+    public void handleAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack cursorStack, ActionType actionType) {
+        if (actionType == ChessActionType.CAPTURE) slot.capturePiece(handler, (defaultState(cursorStack)));
     }
 
     public boolean isBlack() {
@@ -113,15 +97,13 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        if (isPromoted(stack)) tooltip.add(new TranslatableText("game.chess.tooltip.promotion").fillStyle(Style.EMPTY.withColor(Formatting.GRAY)));
         super.appendTooltip(stack, world, tooltip, context); // Just in case another mod mixins into the super.
-        if (isPromoted(stack)) {
-            tooltip.add(new TranslatableText("game.chess.tooltip.promotion").fillStyle(Style.EMPTY.withColor(Formatting.GRAY)));
-        }
     }
 
-    protected void checkDiagonals(@NotNull GridSlot slot) {
+    protected void checkDiagonals(@NotNull AbstractGridSlot slot) {
         int origin = slot.getIndex();
-        GridSlot current = slot;
+        AbstractGridSlot current = slot;
         while (true) {
             var x = current.upLeft(isBlack);
             if (x.isPresent()) {
@@ -175,11 +157,11 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
     }
 
-    protected void checkHorizontals(@NotNull GridSlot slot) {
+    protected void checkHorizontals(@NotNull AbstractGridSlot slot) {
         int origin = slot.getIndex();
-        GridSlot current = slot;
+        AbstractGridSlot current = slot;
         while (true) {
-            Optional<GridSlot> x = current.up(isBlack);
+            Optional<AbstractGridSlot> x = current.up(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -192,7 +174,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
         current = slot;
         while (true) {
-            Optional<GridSlot> x = current.down(isBlack);
+            Optional<AbstractGridSlot> x = current.down(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -205,7 +187,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
         current = slot;
         while (true) {
-            Optional<GridSlot> x = current.left(isBlack);
+            Optional<AbstractGridSlot> x = current.left(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -218,7 +200,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
         current = slot;
         while (true) {
-            Optional<GridSlot> x = current.right(isBlack);
+            Optional<AbstractGridSlot> x = current.right(isBlack);
             if (x.isPresent()) {
                 if (!moveOrCaptureCheck(x.get(), origin)) {
                     break;
@@ -231,7 +213,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         }
     }
 
-    protected boolean moveOrCaptureCheck(@NotNull GridSlot current, int origin) {
+    protected boolean moveOrCaptureCheck(@NotNull AbstractGridSlot current, int origin) {
         if (current instanceof ChessGridSlot chessGridSlot) {
             Optional<IChessPieceItem> item = chessGridSlot.getItem();
             if (item.isPresent()) {
@@ -257,4 +239,11 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         return false;
     }
 
+    @Override
+    public ItemStack defaultState(ItemStack stack) {
+        if (isPromoted(stack)){
+            return new ItemStack(isBlack() ? BLACK_PAWN : WHITE_PAWN, stack.getCount());
+        }
+        return stack;
+    }
 }

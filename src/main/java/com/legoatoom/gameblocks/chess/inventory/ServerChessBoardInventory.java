@@ -14,24 +14,22 @@
 
 package com.legoatoom.gameblocks.chess.inventory;
 
-import com.google.common.collect.Lists;
-import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
 import com.legoatoom.gameblocks.chess.items.IChessPieceItem;
 import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
-import com.legoatoom.gameblocks.registry.ChessRegistry;
+import com.legoatoom.gameblocks.chess.util.ChessActionType;
+import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
+import com.legoatoom.gameblocks.common.util.ActionType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.legoatoom.gameblocks.registry.ChessRegistry.*;
 
-public class ServerChessBoardInventory extends ChessBoardInventory implements ServerBoardInventory {
+public class ServerChessBoardInventory extends ChessBoardInventory implements ServerBoardInventory<ChessGridSlot> {
 
     public final ArrayList<ArrayPropertyDelegate> slotHintPropertyDelegate = new ArrayList<>();
     final ChessGridSlot[] slots;
@@ -40,25 +38,26 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
 
     public ServerChessBoardInventory(BlockEntity entity) {
         super(false);
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(BOARD_SIZE));
+        for (int i = 0; i < boardSize; i++) {
+            this.slotHintPropertyDelegate.add(new ArrayPropertyDelegate(boardSize));
         }
-        slots = new ChessGridSlot[BOARD_SIZE];
+        slots = new ChessGridSlot[boardSize];
         this.entity = entity;
     }
 
-    public void updateHints() {
-        IChessPieceItem.cleanHoverActions(this.slots);
-        for (ChessGridSlot slot : this.slots) {
-            slot.calculateHints();
-        }
+    @Override
+    public ChessGridSlot[] getSlots() {
+        return slots;
     }
 
     @Override
-    public void addSlot(GridSlot slot) {
-        if (slot instanceof ChessGridSlot chessGridSlot) {
-            this.slots[chessGridSlot.getIndex()] = chessGridSlot;
-        }
+    public ActionType getDefaultHint() {
+        return ChessActionType.NONE;
+    }
+
+    @Override
+    public void setSlot(int index, ChessGridSlot slot) {
+        this.slots[index] = slot;
     }
 
     @Override
@@ -66,56 +65,8 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
         return slots[index];
     }
 
-    @Override
-    public ChessGridSlot getSlot(int x, int y) {
-        return getSlot(y * BOARD_WIDTH + x);
-    }
-
-    /**
-     * Very important, it makes sure that the inventory is stored.
-     */
-    @Override
-    public void markDirty() {
-        if (entity.getWorld() != null) {
-            entity.markDirty();
-        }
-    }
-
-    @Override
-    public void resetBoard() {
-        ArrayList<IChessPieceItem> availableItems = Lists.newArrayList();
-        for (ItemStack stack : getItems()) {
-            if (stack.isEmpty()) continue;
-            for (int i = 0; i < stack.getCount(); i++) {
-                if (stack.getItem() instanceof IChessPieceItem item) {
-                    availableItems.add(item);
-                }
-            }
-        }
-        this.clear();
-        forAllAvailable:
-        for (IChessPieceItem chessPiece : availableItems) {
-            for (int x = 0; x < BOARD_WIDTH; x++) {
-                for (int y = 0; y < BOARD_WIDTH; y++) {
-                    if (chessPiece.isDefaultLocation(x, y) && !getSlot(x, y).hasStack()) {
-                        setStack(y * BOARD_WIDTH + x, new ItemStack(chessPiece));
-                        continue forAllAvailable;
-                    }
-                }
-            }
-            for (int x = 0; x < 12; x++){
-                if (x == chessPiece.getStorageIndex()){
-                    ItemStack orig = getStack(x + BOARD_SIZE);
-                    if (orig.isEmpty()){
-                        setStack(x + BOARD_SIZE, new ItemStack(chessPiece));
-                    } else {
-                        orig.increment(1);
-                    }
-                    continue forAllAvailable;
-                }
-            }
-        }
-
+    public BlockEntity getEntity() {
+        return entity;
     }
 
     @Override
@@ -127,7 +78,15 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
     @Override
     public void fillWithDefaultPieces() {
         for (IChessPieceItem chessPiece : CHESS_PIECES) {
-            this.setStack(BOARD_SIZE + chessPiece.getStorageIndex(),  new ItemStack(chessPiece, chessPiece.getMaxCount()));
+            this.setStack(boardSize + chessPiece.getStorageIndex(),  new ItemStack(chessPiece, chessPiece.getMaxCount()));
+        }
+    }
+
+    @Override
+    public void markDirty() {
+        var entity = getEntity();
+        if (getEntity().getWorld() != null) {
+            entity.markDirty();
         }
     }
 

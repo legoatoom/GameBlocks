@@ -14,14 +14,16 @@
 
 package com.legoatoom.gameblocks;
 
+import com.legoatoom.gameblocks.registry.CheckersRegistry;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.registry.CommonRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.Version;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import static com.legoatoom.gameblocks.registry.ChessRegistry.BLACK_PAWN;
@@ -34,17 +36,19 @@ public final class GameBlocks implements ModInitializer {
      * The ID of this mod.
      */
     public static final String MOD_ID = "gameblocks";
+    public static final Version version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
     public static ItemGroup GAME_BLOCKS = FabricItemGroupBuilder.build(id("main"), () -> new ItemStack(BLACK_PAWN));
 
-
-    @Contract("_ -> new")
     public static @NotNull Identifier id(String path) {
         return new Identifier(MOD_ID, path);
     }
 
     @Override
     public void onInitialize() {
+        GameBlocksState.env = FabricLoader.getInstance().getEnvironmentType();
+        GameBlocksState.isDev = FabricLoader.getInstance().isDevelopmentEnvironment();
         CommonRegistry.register();
         ChessRegistry.register();
+        CheckersRegistry.register();
     }
 }

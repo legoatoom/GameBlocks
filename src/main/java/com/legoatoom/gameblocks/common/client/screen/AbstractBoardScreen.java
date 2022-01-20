@@ -16,7 +16,7 @@ package com.legoatoom.gameblocks.common.client.screen;
 
 import com.legoatoom.gameblocks.common.items.IPieceItem;
 import com.legoatoom.gameblocks.common.screen.AbstractBoardScreenHandler;
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -32,19 +32,20 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler> extends HandledScreen<T> {
+public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler<?>> extends HandledScreen<T> {
 
-    private final int BOARD_SIZE;
+    private final int boardSize;
     protected Slot lastClickedSlotPre, lastClickedSlotPost;
 
 
 
-    public AbstractBoardScreen(T handler, PlayerInventory inventory, Text title, int board_size) {
+    public AbstractBoardScreen(T handler, PlayerInventory inventory, Text title, int boardSize, int backgroundWidth, int backgroundHeight) {
         super(handler, inventory, title);
-        backgroundWidth = 204;
-        backgroundHeight = 252;
-        BOARD_SIZE = board_size;
+        this.backgroundWidth = backgroundWidth;
+        this.backgroundHeight = backgroundHeight;
+        this.boardSize = boardSize;
         this.playerInventoryTitleY = this.backgroundHeight - 94;
+        this.titleY = 0;
 
     }
 
@@ -53,14 +54,14 @@ public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler> 
     private void drawChessMoveHints(MatrixStack matrices) {
         if (!handler.getCursorStack().isEmpty()
                 && handler.getCursorStack().getItem() instanceof IPieceItem
-                && lastClickedSlotPost != null && lastClickedSlotPost instanceof GridSlot gridSlot) {
+                && lastClickedSlotPost != null && lastClickedSlotPost instanceof AbstractGridSlot abstractGridSlot) {
             //When holding a Piece
-            List<GridSlot> actions = this.handler.getCurrentSlotActions(gridSlot.getIndex());
+            List<AbstractGridSlot> actions = this.handler.getCurrentSlotActions(abstractGridSlot.getIndex());
             if (this.focusedSlot != null) {
                 RenderSystem.disableDepthTest();
-                for (GridSlot action : actions) {
+                for (AbstractGridSlot action : actions) {
                     if (action == this.focusedSlot) {
-                        ActionType type = this.handler.getActionTypeFromSlot(gridSlot.getIndex(), action.getIndex());
+                        ActionType type = this.handler.getActionTypeFromSlot(abstractGridSlot.getIndex(), action.getIndex());
                         List<Text> info = type.getInfo(this.textRenderer);
                         if (!info.isEmpty()) {
                             renderTooltip(matrices, info, this.focusedSlot.x + this.x + 12, this.focusedSlot.y + this.y);
@@ -70,24 +71,24 @@ public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler> 
                 RenderSystem.enableDepthTest();
 
             }
-            drawChessGuide(matrices, actions, gridSlot);
-        } else if (this.focusedSlot != null && this.focusedSlot instanceof GridSlot gridSlot) {
+            drawChessGuide(matrices, actions, abstractGridSlot);
+        } else if (this.focusedSlot != null && this.focusedSlot instanceof AbstractGridSlot abstractGridSlot) {
             // When hovering a Piece
-            if (gridSlot.hasStack()) {
-                List<GridSlot> actions = this.handler.getCurrentSlotActions(gridSlot.getIndex());
-                drawChessGuide(matrices, actions, gridSlot);
+            if (abstractGridSlot.hasStack()) {
+                List<AbstractGridSlot> actions = this.handler.getCurrentSlotActions(abstractGridSlot.getIndex());
+                drawChessGuide(matrices, actions, abstractGridSlot);
             }
         }
     }
 
 
 
-    private void drawChessGuide(MatrixStack matrices, List<GridSlot> legalAction, GridSlot focusPoint) {
+    private void drawChessGuide(MatrixStack matrices, List<AbstractGridSlot> legalAction, AbstractGridSlot focusPoint) {
         int slotSize = focusPoint.getSlotHighLighterSize();
         int offset = (16 - slotSize) / 2;
 
         if (!legalAction.isEmpty()) {
-            for (GridSlot action : legalAction) {
+            for (AbstractGridSlot action : legalAction) {
                 RenderSystem.colorMask(true, true, true, false);
                 ActionType type = this.handler.getActionTypeFromSlot(focusPoint.getIndex(), action.getIndex());
                 int color = type.getColor();
@@ -102,7 +103,11 @@ public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler> 
     protected void init() {
         super.init();
         // Center the title
-        titleX = (176 - textRenderer.getWidth(title)) / 2;
+        titleX = getTitleX();
+    }
+
+    protected int getTitleX(){
+        return (176 - textRenderer.getWidth(title)) / 2;
     }
 
     @Override
@@ -131,12 +136,12 @@ public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler> 
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        lastClickedSlotPre = (this.lastClickedSlot == null || this.lastClickedSlot.getIndex() >= BOARD_SIZE) ? lastClickedSlotPre : this.lastClickedSlot;
+        lastClickedSlotPre = (this.lastClickedSlot == null || this.lastClickedSlot.getIndex() >= boardSize) ? lastClickedSlotPre : this.lastClickedSlot;
         if (this.mouseClickedPre(mouseX, mouseY, button)){
             return true;
         }
         boolean result = super.mouseClicked(mouseX, mouseY, button);
-        lastClickedSlotPost = (this.lastClickedSlot == null || this.lastClickedSlot.getIndex() >= BOARD_SIZE) ? lastClickedSlotPost : this.lastClickedSlot;
+        lastClickedSlotPost = (this.lastClickedSlot == null || this.lastClickedSlot.getIndex() >= boardSize) ? lastClickedSlotPost : this.lastClickedSlot;
         return result;
     }
 

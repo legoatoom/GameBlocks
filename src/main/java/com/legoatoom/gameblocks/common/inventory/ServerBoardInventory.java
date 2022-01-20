@@ -14,18 +14,54 @@
 
 package com.legoatoom.gameblocks.common.inventory;
 
-import com.legoatoom.gameblocks.common.screen.slot.GridSlot;
+import com.google.common.collect.Lists;
+import com.legoatoom.gameblocks.common.items.IPieceItem;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
+import com.legoatoom.gameblocks.common.util.ActionType;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 
-public interface ServerBoardInventory {
+public interface ServerBoardInventory<T extends AbstractGridSlot> extends Inventory {
 
-    void addSlot(GridSlot gridSlot);
+    default void addSlot(T slot) {
+        this.setSlot(slot.getIndex(), slot);
+    }
 
-    GridSlot getSlot(int index);
+    default void updateHints(){
+        cleanHoverActions();
+        for (T slot : getSlots()) {
+            slot.calculateHints();
+        }
+    }
 
-    GridSlot getSlot(int x, int y);
+    default void cleanHoverActions(){
+        for (T origin : getSlots()) {
+            for (T focus : getSlots()) {
+                origin.setHoverHintForOriginIndex(focus.getIndex(), getDefaultHint());
+            }
+        }
+    }
+
+    T[] getSlots();
+
+    ActionType getDefaultHint();
+
+
+    void setSlot(int index, T slot);
+
+    T getSlot(int index);
+
+    default T getSlot(int x, int y) {
+        return getSlot(y * getBoardWidth() + x);
+    }
+
+    int getBoardWidth();
+
+    int getBoardSize();
 
     ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates();
 
@@ -34,5 +70,48 @@ public interface ServerBoardInventory {
     // Possibly replace with function that will handle the dropping of Packages and leftovers.
     boolean canDropPackage();
 
-    void resetBoard();
+    default void resetBoard() {
+        ArrayList<IPieceItem> availableItems = Lists.newArrayList();
+        for (ItemStack stack : getItems()) {
+            if (stack.isEmpty()) continue;
+            for (int i = 0; i < stack.getCount(); i++) {
+                if (stack.getItem() instanceof IPieceItem item) {
+                    availableItems.add((IPieceItem) item.defaultState(stack).getItem());
+                }
+            }
+        }
+        this.clear();
+        forAllAvailable:
+        for (IPieceItem pieceItem : availableItems) {
+            for (int y = 0; y < getBoardWidth(); y++) {
+                for (int x = 0; x < getBoardWidth(); x++) {
+                    if (pieceItem.isDefaultLocation(x, y) && !getSlot(x, y).hasStack()) {
+                        setStack(y * getBoardWidth() + x, new ItemStack(pieceItem));
+                        continue forAllAvailable;
+                    }
+                }
+            }
+//            for (int x = 0; x < getStorageSlotSize(); x++){
+//                if (x == pieceItem.getStorageIndex()){
+//                    ItemStack orig = getStack(x + getBoardSize());
+//                    if (orig.isEmpty()){
+//                        setStack(x + getBoardSize(), new ItemStack(pieceItem));
+//                    } else {
+//                        orig.increment(1);
+//                    }
+//                    continue forAllAvailable;
+//                }
+//            }
+        }
+    }
+
+    int getStorageSlotSize();
+
+    /**
+     * Retrieves the item list of this inventory.
+     * Must return the same instance every time it's called.
+     *
+     * @see AbstractBoardInventory#getItems()
+     */
+    DefaultedList<ItemStack> getItems();
 }
