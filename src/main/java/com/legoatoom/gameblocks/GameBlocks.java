@@ -21,6 +21,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
+import net.minecraft.client.resource.SplashTextResourceSupplier;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -35,6 +36,7 @@ public final class GameBlocks implements ModInitializer {
     /**
      * The ID of this mod.
      */
+
     public static final String MOD_ID = "gameblocks";
     public static final Version version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion();
     public static ItemGroup GAME_BLOCKS = FabricItemGroupBuilder.build(id("main"), () -> new ItemStack(BLACK_PAWN));
