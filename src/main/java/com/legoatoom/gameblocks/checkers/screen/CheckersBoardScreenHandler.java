@@ -1,10 +1,13 @@
 package com.legoatoom.gameblocks.checkers.screen;
 
 import com.legoatoom.gameblocks.checkers.inventory.CheckersBoardInventory;
-import com.legoatoom.gameblocks.checkers.items.ICheckersPieceItem;
+import com.legoatoom.gameblocks.checkers.items.CheckersStoneItem;
 import com.legoatoom.gameblocks.checkers.screen.slot.CheckersGridSlot;
 import com.legoatoom.gameblocks.checkers.screen.slot.CheckersStorageBoardSlot;
+import com.legoatoom.gameblocks.checkers.util.CheckersActionType;
 import com.legoatoom.gameblocks.common.screen.AbstractBoardScreenHandler;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
+import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.registry.CheckersRegistry;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
@@ -12,7 +15,10 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
-import static com.legoatoom.gameblocks.registry.CheckersRegistry.*;
+import java.util.ArrayList;
+
+import static com.legoatoom.gameblocks.registry.CheckersRegistry.BLACK_STONE;
+import static com.legoatoom.gameblocks.registry.CheckersRegistry.WHITE_STONE;
 
 public class CheckersBoardScreenHandler extends AbstractBoardScreenHandler<CheckersBoardInventory> {
 
@@ -44,7 +50,7 @@ public class CheckersBoardScreenHandler extends AbstractBoardScreenHandler<Check
         startY = 64;
         startX = 164;
         CheckersBoardInventory inv = getBoardInventory();
-        for (ICheckersPieceItem checkersPieceItem : new ICheckersPieceItem[]{WHITE_STONE, BLACK_STONE}) {
+        for (CheckersStoneItem checkersPieceItem : new CheckersStoneItem[]{WHITE_STONE, BLACK_STONE}) {
             int a = checkersPieceItem.isBlack() ? 1 : 0;
             this.addSlot(new CheckersStorageBoardSlot(inv, checkersPieceItem.getStorageIndex() + BOARD_SIZE,
                     startX, startY + (a * 14), checkersPieceItem));
@@ -65,7 +71,26 @@ public class CheckersBoardScreenHandler extends AbstractBoardScreenHandler<Check
     }
 
     @Override
+    public ArrayList<AbstractGridSlot> getCurrentSlotActions(int origin) {
+        ArrayList<AbstractGridSlot> result = new ArrayList<>();
+        for (Slot slot : this.slots) {
+            if (slot instanceof CheckersGridSlot s) {
+                CheckersActionType type = CheckersActionType.fromId(this.slotHintPropertyDelegate.get(origin).get(slot.getIndex()));
+                if (!type.shouldIgnore()) {
+                    result.add(s);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
     public CheckersBoardInventory getBoardInventory() {
         return this.boardInventory;
+    }
+
+    @Override
+    public ActionType getActionTypeFromSlot(int origin, int slotId) {
+        return CheckersActionType.fromId(getSlotHintPropertyDelegate().get(origin).get(slotId));
     }
 }

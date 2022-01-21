@@ -1,7 +1,7 @@
 package com.legoatoom.gameblocks.checkers.screen.slot;
 
 import com.legoatoom.gameblocks.checkers.inventory.CheckersBoardInventory;
-import com.legoatoom.gameblocks.checkers.items.ICheckersPieceItem;
+import com.legoatoom.gameblocks.checkers.items.CheckersStoneItem;
 import com.legoatoom.gameblocks.common.inventory.AbstractBoardInventory;
 import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import net.minecraft.item.ItemStack;
@@ -21,14 +21,14 @@ public class CheckersGridSlot extends AbstractGridSlot {
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        return stack.isEmpty() || (stack.getItem().asItem() instanceof ICheckersPieceItem && stack.getCount() == getMaxItemCount());
+        return stack.isEmpty() || (stack.getItem().asItem() instanceof CheckersStoneItem && stack.getCount() == getMaxItemCount());
     }
 
 
     @SuppressWarnings("unchecked")
     @Override
-    public Optional<ICheckersPieceItem> getItem() {
-        return (Optional<ICheckersPieceItem>) super.getItem();
+    public Optional<CheckersStoneItem> getItem() {
+        return (Optional<CheckersStoneItem>) super.getItem();
     }
 
     @Override

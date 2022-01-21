@@ -71,19 +71,19 @@ public abstract class AbstractBoardScreen<T extends AbstractBoardScreenHandler<?
                 RenderSystem.enableDepthTest();
 
             }
-            drawChessGuide(matrices, actions, abstractGridSlot);
+            drawGuide(matrices, actions, abstractGridSlot);
         } else if (this.focusedSlot != null && this.focusedSlot instanceof AbstractGridSlot abstractGridSlot) {
             // When hovering a Piece
             if (abstractGridSlot.hasStack()) {
                 List<AbstractGridSlot> actions = this.handler.getCurrentSlotActions(abstractGridSlot.getIndex());
-                drawChessGuide(matrices, actions, abstractGridSlot);
+                drawGuide(matrices, actions, abstractGridSlot);
             }
         }
     }
 
 
 
-    private void drawChessGuide(MatrixStack matrices, List<AbstractGridSlot> legalAction, AbstractGridSlot focusPoint) {
+    private void drawGuide(MatrixStack matrices, List<AbstractGridSlot> legalAction, AbstractGridSlot focusPoint) {
         int slotSize = focusPoint.getSlotHighLighterSize();
         int offset = (16 - slotSize) / 2;
 

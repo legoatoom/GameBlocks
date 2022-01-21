@@ -79,6 +79,7 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
         for (IChessPieceItem chessPiece : CHESS_PIECES) {
             this.setStack(boardSize + chessPiece.getStorageIndex(),  new ItemStack(chessPiece, chessPiece.getMaxCount()));
         }
+        markDirty();
     }
 
     @Override
@@ -127,19 +128,8 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
                 }
             }
         }
-        if (wpawns != 0) return false;
-        if (wrooks != 0) return false;
-        if (wknights != 0) return false;
-        if (wbishops != 0) return false;
-        if (wqueen != 0) return false;
-        if (wkings != 0) return false;
-        if (bpawns != 0) return false;
-        if (brooks != 0) return false;
-        if (bknights != 0) return false;
-        if (bbishops != 0) return false;
-        if (bqueen != 0) return false;
-        if (bkings != 0) return false;
-        return true;
+        return wpawns == 0 && wrooks == 0 && wknights == 0 && wbishops == 0 && wqueen == 0 && wkings == 0
+                && bpawns == 0 && brooks == 0 && bknights == 0 && bbishops == 0 && bqueen == 0 && bkings == 0;
     }
 
 

@@ -1,6 +1,6 @@
 package com.legoatoom.gameblocks.checkers.inventory;
 
-import com.legoatoom.gameblocks.checkers.items.ICheckersPieceItem;
+import com.legoatoom.gameblocks.checkers.items.CheckersStoneItem;
 import com.legoatoom.gameblocks.checkers.screen.slot.CheckersGridSlot;
 import com.legoatoom.gameblocks.checkers.util.CheckersActionType;
 import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
@@ -58,6 +58,7 @@ public class ServerCheckersBoardInventory extends CheckersBoardInventory impleme
     public void fillWithDefaultPieces() {
         this.setStack(boardSize + WHITE_STONE.getStorageIndex(), new ItemStack(WHITE_STONE, WHITE_STONE.getMaxCount()));
         this.setStack(boardSize + BLACK_STONE.getStorageIndex(), new ItemStack(BLACK_STONE, BLACK_STONE.getMaxCount()));
+        markDirty();
     }
 
     /**
@@ -75,22 +76,15 @@ public class ServerCheckersBoardInventory extends CheckersBoardInventory impleme
     public boolean canDropPackage() {
         int white = 20, black = 20;
         for (ItemStack stack : getItems()) {
-            if (stack.getItem() instanceof ICheckersPieceItem item) {
-                boolean isBlack = item.isBlack();
-                switch (item.getType()) {
-                    case STONE, KING -> {
-                        if (isBlack) {
-                            black -= stack.getCount();
-                        } else {
-                            white -= stack.getCount();
-                        }
-                    }
-                }
+            if (!(stack.getItem() instanceof CheckersStoneItem item)) continue;
+            boolean isBlack = item.isBlack();
+            if (isBlack) {
+                black -= stack.getCount();
+            } else {
+                white -= stack.getCount();
             }
         }
-        if (black != 0) return false;
-        if (white != 0) return false;
-        return true;
+        return black == 0 && white == 0;
     }
 
     public BlockEntity getEntity() {

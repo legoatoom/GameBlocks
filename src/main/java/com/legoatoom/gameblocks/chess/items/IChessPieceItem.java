@@ -24,8 +24,6 @@ import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
@@ -33,8 +31,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,11 +39,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.legoatoom.gameblocks.GameBlocks.GAME_BLOCKS;
-import static com.legoatoom.gameblocks.GameBlocks.MOD_ID;
 import static com.legoatoom.gameblocks.registry.ChessRegistry.BLACK_PAWN;
 import static com.legoatoom.gameblocks.registry.ChessRegistry.WHITE_PAWN;
 
-public abstract class IChessPieceItem extends Item implements IPieceItem {
+public abstract class IChessPieceItem extends IPieceItem {
     private final boolean isBlack;
     private final ChessPieceType type;
 
@@ -58,6 +53,7 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
         this.type = type;
     }
 
+    @NotNull
     public ChessPieceType getType() {
         return type;
     }
@@ -74,25 +70,6 @@ public abstract class IChessPieceItem extends Item implements IPieceItem {
 
     public boolean isBlack() {
         return isBlack;
-    }
-
-    @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        if (world.isClient) return super.use(world, user, hand);
-        ItemStack stack = user.getStackInHand(hand);
-
-        // Clearing data when using.
-        if (isPromoted(stack)) {
-            var newStack = new ItemStack(isBlack() ? BLACK_PAWN : WHITE_PAWN, stack.getCount());
-            user.setStackInHand(hand, newStack);
-            return TypedActionResult.pass(newStack);
-        }
-        var subNbt = stack.getSubNbt(MOD_ID);
-        if (subNbt != null) {
-            stack.removeSubNbt(MOD_ID);
-            return TypedActionResult.pass(stack);
-        }
-        return super.use(world, user, hand);
     }
 
     @Override

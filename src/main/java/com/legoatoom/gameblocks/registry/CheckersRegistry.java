@@ -3,9 +3,7 @@ package com.legoatoom.gameblocks.registry;
 import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.checkers.blocks.CheckersBoardBlock;
 import com.legoatoom.gameblocks.checkers.blocks.entity.CheckersBoardBlockEntity;
-import com.legoatoom.gameblocks.checkers.items.ICheckersPieceItem;
-import com.legoatoom.gameblocks.checkers.items.KingItem;
-import com.legoatoom.gameblocks.checkers.items.StoneItem;
+import com.legoatoom.gameblocks.checkers.items.CheckersStoneItem;
 import com.legoatoom.gameblocks.checkers.screen.CheckersBoardScreenHandler;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -28,10 +26,8 @@ public class CheckersRegistry {
 
 
     // I ain't calling the pieces 'MEN' here, you can probably figure out why.
-    public static ICheckersPieceItem BLACK_STONE;
-    public static ICheckersPieceItem BLACK_KING;
-    public static ICheckersPieceItem WHITE_STONE;
-    public static ICheckersPieceItem WHITE_KING;
+    public static CheckersStoneItem BLACK_STONE;
+    public static CheckersStoneItem WHITE_STONE;
 
     public static Block CHECKERS_BOARD_BLOCK = new CheckersBoardBlock(FabricBlockSettings.of(Material.WOOD)
             .strength(2.f, 2.f).sounds(BlockSoundGroup.WOOD));
@@ -40,10 +36,8 @@ public class CheckersRegistry {
     public static ScreenHandlerType<CheckersBoardScreenHandler> CHECKERS_BOARD_SCREEN_HANDLER;
 
     static {
-        BLACK_STONE = new StoneItem(true);
-        WHITE_STONE = new StoneItem(false);
-        BLACK_KING = new KingItem(true);
-        WHITE_KING = new KingItem(false);
+        BLACK_STONE = new CheckersStoneItem(true);
+        WHITE_STONE = new CheckersStoneItem(false);
     }
 
     public static void register() {
@@ -66,8 +60,6 @@ public class CheckersRegistry {
     }
 
     private static void registerPieces() {
-        Registry.register(Registry.ITEM, id("checkers/black_king"), BLACK_KING);
-        Registry.register(Registry.ITEM, id("checkers/white_king"), WHITE_KING);
         Registry.register(Registry.ITEM, id("checkers/black_stone"), BLACK_STONE);
         Registry.register(Registry.ITEM, id("checkers/white_stone"), WHITE_STONE);
     }

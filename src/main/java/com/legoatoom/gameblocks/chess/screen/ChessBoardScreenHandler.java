@@ -18,13 +18,18 @@ import com.legoatoom.gameblocks.chess.inventory.ChessBoardInventory;
 import com.legoatoom.gameblocks.chess.inventory.ServerChessBoardInventory;
 import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
 import com.legoatoom.gameblocks.chess.screen.slot.ChessStorageBoardSlot;
+import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import com.legoatoom.gameblocks.common.screen.AbstractBoardScreenHandler;
+import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
+import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
+
+import java.util.ArrayList;
 
 import static com.legoatoom.gameblocks.registry.ChessRegistry.*;
 
@@ -83,6 +88,25 @@ public class ChessBoardScreenHandler extends AbstractBoardScreenHandler<ChessBoa
         for (y = 0; y < 9; ++y) {
             this.addSlot(new Slot(playerInventory, y, startX + y * 18, startY));
         }
+    }
+
+    @Override
+    public ArrayList<AbstractGridSlot> getCurrentSlotActions(int origin) {
+        ArrayList<AbstractGridSlot> result = new ArrayList<>();
+        for (Slot slot : this.slots) {
+            if (slot instanceof ChessGridSlot s) {
+                ChessActionType type = ChessActionType.fromId(this.slotHintPropertyDelegate.get(origin).get(slot.getIndex()));
+                if (!type.shouldIgnore()) {
+                    result.add(s);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public ActionType getActionTypeFromSlot(int origin, int slotId) {
+        return ChessActionType.fromId(getSlotHintPropertyDelegate().get(origin).get(slotId));
     }
 
 

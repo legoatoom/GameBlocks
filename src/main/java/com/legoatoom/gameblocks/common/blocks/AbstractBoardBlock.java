@@ -137,7 +137,7 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
             if (player.getStackInHand(hand).getItem() instanceof PiecesPackageItem) {
                 // Import pieces
                 if (extractPackageInto(player.getStackInHand(hand), world, pos, player.isCreative())) {
-                    player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 0.8f, 0.8f + world.getRandom().nextFloat() * 0.4f);
+                    player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.3f, 0.8f + world.getRandom().nextFloat() * 0.4f);
                     return ActionResult.CONSUME;
                 }
                 return ActionResult.PASS;
@@ -147,7 +147,7 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
                     BlockEntity entity = world.getBlockEntity(pos);
                     if (entity instanceof AbstractBoardBlockEntity e) {
                         var board = e.getBoard();
-                        player.playSound(SoundEvents.ITEM_BOOK_PUT, SoundCategory.PLAYERS, 0.8f, 0.8f + world.getRandom().nextFloat() * 0.4f);
+                        player.playSound(SoundEvents.ITEM_BOOK_PUT, SoundCategory.PLAYERS, 1.3f, 0.8f + world.getRandom().nextFloat() * 0.4f);
                         if (board instanceof ServerBoardInventory serverBoard){
                             serverBoard.resetBoard();
                         }

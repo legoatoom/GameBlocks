@@ -14,28 +14,52 @@
 
 package com.legoatoom.gameblocks.common.items;
 
+import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
 import com.legoatoom.gameblocks.common.util.IPieceType;
-import net.minecraft.item.ItemConvertible;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-public interface IPieceItem extends ItemConvertible {
+public abstract class IPieceItem extends Item {
 
-    int getStorageIndex();
+    public IPieceItem(Settings settings) {
+        super(settings);
+    }
 
-    boolean isDefaultLocation(int x, int y);
+    public abstract int getStorageIndex();
 
-    void calculateLegalActions(AbstractGridSlot slot);
+    public abstract boolean isDefaultLocation(int x, int y);
 
-    void handleAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack cursorStack, ActionType actionType);
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        if (world.isClient) return super.use(world, user, hand);
+        ItemStack stack = user.getStackInHand(hand);
 
-    boolean isBlack();
+        // Clearing data when using.
+        return TypedActionResult.pass(defaultState(stack));
+    }
 
-    default ItemStack defaultState(ItemStack stack) {
+    public abstract void calculateLegalActions(AbstractGridSlot slot);
+
+    public abstract void handleAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack cursorStack, ActionType actionType);
+
+    public abstract boolean isBlack();
+
+    public ItemStack defaultState(ItemStack stack) {
         return stack;
     }
 
-    IPieceType getType();
+    @Nullable
+    public IPieceType getType(){
+        GameBlocksState.warn("Tried to access %s Piece Type even though there isn't one.".formatted(new TranslatableText(this.getTranslationKey())));
+        return null;
+    };
 }

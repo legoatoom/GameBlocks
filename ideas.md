@@ -24,3 +24,6 @@
 - Card Games?
 
 *= Potentional Legal Issues
+
+
+Cards could have a special background that if the mod becomes _really_ popular donations could get special backgrounds.

@@ -14,8 +14,6 @@
 
 package com.legoatoom.gameblocks.common.screen;
 
-import com.legoatoom.gameblocks.chess.screen.slot.ChessGridSlot;
-import com.legoatoom.gameblocks.chess.util.ChessActionType;
 import com.legoatoom.gameblocks.common.inventory.AbstractBoardInventory;
 import com.legoatoom.gameblocks.common.inventory.ServerBoardInventory;
 import com.legoatoom.gameblocks.common.items.IPieceItem;
@@ -111,18 +109,7 @@ public abstract class AbstractBoardScreenHandler<T extends AbstractBoardInventor
         return new Pair<>(y, BOARD_WIDTH - 1 - x);
     }
 
-    public ArrayList<AbstractGridSlot> getCurrentSlotActions(int origin) {
-        ArrayList<AbstractGridSlot> result = new ArrayList<>();
-        for (Slot slot : this.slots) {
-            if (slot instanceof ChessGridSlot s) {
-                ChessActionType type = ChessActionType.fromId(this.slotHintPropertyDelegate.get(origin).get(slot.getIndex()));
-                if (!type.shouldIgnore()) {
-                    result.add(s);
-                }
-            }
-        }
-        return result;
-    }
+    public abstract ArrayList<AbstractGridSlot> getCurrentSlotActions(int origin);
 
     @Override
     public ItemStack transferSlot(PlayerEntity player, int invSlot) {
@@ -208,9 +195,7 @@ public abstract class AbstractBoardScreenHandler<T extends AbstractBoardInventor
         }
     }
 
-    public ActionType getActionTypeFromSlot(int origin, int slotId) {
-        return ChessActionType.fromId(getSlotHintPropertyDelegate().get(origin).get(slotId));
-    }
+    public abstract ActionType getActionTypeFromSlot(int origin, int slotId);
 
     @Override
     public void onPropertyUpdate(ScreenHandler handler, int property, int value) {

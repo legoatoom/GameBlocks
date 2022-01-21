@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "gameblocks:chess_board"
+          "name": "gameblocks:checkers_board"
         }
       ],
       "conditions": [

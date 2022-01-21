@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ChessBoardBlock extends AbstractBoardBlock {
 
-    protected static final VoxelShape SHAPE = Block.createCuboidShape(1, 0, 1, 15, 3, 15);
+    protected static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 3, 16);
 
     public ChessBoardBlock(Settings settings) {
         super(settings);

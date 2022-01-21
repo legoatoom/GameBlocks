@@ -15,6 +15,7 @@
 package com.legoatoom.gameblocks;
 
 import com.legoatoom.gameblocks.checkers.client.screen.CheckersBoardScreen;
+import com.legoatoom.gameblocks.checkers.items.CheckersStoneItem;
 import com.legoatoom.gameblocks.chess.client.screen.ChessBoardScreen;
 import com.legoatoom.gameblocks.registry.CheckersRegistry;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
@@ -22,6 +23,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class GameBlocksClient implements ClientModInitializer {
@@ -29,5 +35,14 @@ public class GameBlocksClient implements ClientModInitializer {
     public void onInitializeClient() {
         ScreenRegistry.register(ChessRegistry.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
         ScreenRegistry.register(CheckersRegistry.CHECKERS_BOARD_SCREEN_HANDLER, CheckersBoardScreen::new);
+
+        registerKingedModelPredicate(CheckersRegistry.BLACK_STONE);
+        registerKingedModelPredicate(CheckersRegistry.WHITE_STONE);
+    }
+
+    private void registerKingedModelPredicate(CheckersStoneItem whiteStone) {
+        FabricModelPredicateProviderRegistry.register(whiteStone, GameBlocks.id("kinged"),
+                (ItemStack itemStack, @Nullable ClientWorld clientWorld, @Nullable LivingEntity livingEntity, int i) ->
+                        CheckersStoneItem.isKinged(itemStack) ? 1.F : 0.F);
     }
 }

@@ -103,6 +103,7 @@ public interface ServerBoardInventory<T extends AbstractGridSlot> extends Invent
                 }
             }
         }
+        markDirty();
     }
 
     int getStorageSlotSize();
