@@ -8,7 +8,7 @@
 <br>
 <p align="center">
       <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html"><img alt="GitHub" src="https://img.shields.io/github/license/legoatoom/GameBlocks?style=for-the-badge"></a>
-        <a href="https://github.com/legoatoom/GameBlocks/releases"><img src="https://img.shields.io/github/v/release/legoatoom/GameBlocks?style=for-the-badge"></a>
+        <a href="https://github.com/legoatoom/GameBlocks/releases"><img src="https://img.shields.io/github/v/release/legoatoom/GameBlocks?style=for-the-badge&include_prereleases"></a>
         <a href="https://github.com/legoatoom/GameBlocks/issues"><img src="https://img.shields.io/github/issues-raw/legoatoom/GameBlocks?style=for-the-badge"></a>
         <br>
         <a href="https://www.curseforge.com/minecraft/mc-mods/gameblocks"><img src="https://img.shields.io/badge/dynamic/json?color=orange&label=Fabric%20Downloads&query=downloadCount&style=for-the-badge&logo=CurseForge&url=https%3A%2F%2Faddons-ecs.forgesvc.net%2Fapi%2Fv2%2Faddon%2F571170"></a>
