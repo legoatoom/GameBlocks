@@ -6,9 +6,20 @@ import com.legoatoom.gameblocks.common.items.IPieceItem;
 import com.legoatoom.gameblocks.common.screen.slot.AbstractGridSlot;
 import com.legoatoom.gameblocks.common.util.ActionType;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 import static com.legoatoom.gameblocks.GameBlocks.GAME_BLOCKS;
 
@@ -35,74 +46,84 @@ public class CheckersStoneItem extends IPieceItem {
     public void calculateLegalActions(@NotNull AbstractGridSlot slot) {
         ItemStack current = slot.getStack();
         if (isKinged(current)){
-            calculateLegalActionsKing(slot, current);
+            calculateLegalActionsKing(slot);
         } else {
-            calculateLegalActionsStone(slot, current);
+            calculateLegalActionsStone(slot);
         }
     }
 
-    private void calculateLegalActionsStone(AbstractGridSlot slot, ItemStack current) {
-        // TODO Settings for American Checkers (Cannot move backwards)
-        slot.upLeft(isBlack()).ifPresent(slot1 -> {
-            if (slot1.getStack().getItem() instanceof CheckersStoneItem checkersStoneItem) {
-                if (checkersStoneItem.isBlack() != isBlack()) {
-                    // Check for jump
-                    slot1.upLeft(isBlack()).ifPresent(slot2 -> {
-                        if (slot2.getStack().getItem() instanceof CheckersStoneItem) return;
-                        slot2.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.JUMP_UP_LEFT);
-                    });
-                }
-            } else {
-                // Otherwise move
-                slot1.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.MOVE);
-            }
-        });
-        slot.upRight(isBlack()).ifPresent(slot1 -> {
-            if (slot1.getStack().getItem() instanceof CheckersStoneItem checkersStoneItem) {
-                if (checkersStoneItem.isBlack() != isBlack()) {
-                    // Check for jump
-                    slot1.upRight(isBlack()).ifPresent(slot2 -> {
-                        if (slot2.getStack().getItem() instanceof CheckersStoneItem) return;
-                        slot2.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.JUMP_UP_RIGHT);
-                    });
-                }
-            } else {
-                // Otherwise move
-                slot1.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.MOVE);
-            }
-        });
-        slot.downLeft(isBlack()).ifPresent(slot1 -> {
-            if (slot1.getStack().getItem() instanceof CheckersStoneItem checkersStoneItem) {
-                if (checkersStoneItem.isBlack() != isBlack()) {
-                    // Check for jump
-                    slot1.downLeft(isBlack()).ifPresent(slot2 -> {
-                        if (slot2.getStack().getItem() instanceof CheckersStoneItem) return;
-                        slot2.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.JUMP_DOWN_LEFT);
-                    });
-                }
-            } else {
-                // Otherwise move
-                slot1.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.MOVE);
-            }
-        });
-        slot.downRight(isBlack()).ifPresent(slot1 -> {
-            if (slot1.getStack().getItem() instanceof CheckersStoneItem checkersStoneItem) {
-                if (checkersStoneItem.isBlack() != isBlack()) {
-                    // Check for jump
-                    slot1.downRight(isBlack()).ifPresent(slot2 -> {
-                        if (slot2.getStack().getItem() instanceof CheckersStoneItem) return;
-                        slot2.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.JUMP_DOWN_RIGHT);
-                    });
-                }
-            } else {
-                // Otherwise move
-                slot1.setHoverHintForOriginIndex(slot.getIndex(), CheckersActionType.MOVE);
-            }
-        });
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        if (isKinged(stack)){
+            tooltip.add(new TranslatableText("game.checkers.tooltip.kinged").formatted(Formatting.GRAY));
+        }
     }
 
-    private void calculateLegalActionsKing(AbstractGridSlot slot, ItemStack current) {
+    private void calculateLegalActionsStone(AbstractGridSlot slot) {
+        // TODO Settings for American Checkers (Cannot jump backwards)
+        checkerJumpCheck(slot, abstractGridSlot -> abstractGridSlot.upLeft(isBlack()), CheckersActionType.JUMP_UP_LEFT_KINGS_ROW, CheckersActionType.JUMP_UP_LEFT, true);
+        checkerJumpCheck(slot, abstractGridSlot -> abstractGridSlot.upRight(isBlack()), CheckersActionType.JUMP_UP_RIGHT_KINGS_ROW, CheckersActionType.JUMP_UP_RIGHT, true);
+        checkerJumpCheck(slot, abstractGridSlot -> abstractGridSlot.downLeft(isBlack()), CheckersActionType.JUMP_DOWN_LEFT_KINGS_ROW, CheckersActionType.JUMP_DOWN_LEFT, false);
+        checkerJumpCheck(slot, abstractGridSlot -> abstractGridSlot.downRight(isBlack()), CheckersActionType.JUMP_DOWN_RIGHT_KINGS_ROW, CheckersActionType.JUMP_DOWN_RIGHT, false);
+    }
+
+    private void calculateLegalActionsKing(AbstractGridSlot slot) {
         // TODO Settings for American Checkers (Kings same as stone but also backwards)
+        checkerFlyingKingJumpCheck(slot, abstractGridSlot -> abstractGridSlot.upLeft(isBlack()), CheckersActionType.JUMP_UP_LEFT);
+        checkerFlyingKingJumpCheck(slot, abstractGridSlot -> abstractGridSlot.upRight(isBlack()), CheckersActionType.JUMP_UP_RIGHT);
+        checkerFlyingKingJumpCheck(slot, abstractGridSlot -> abstractGridSlot.downLeft(isBlack()), CheckersActionType.JUMP_DOWN_LEFT);
+        checkerFlyingKingJumpCheck(slot, abstractGridSlot -> abstractGridSlot.downRight(isBlack()), CheckersActionType.JUMP_DOWN_RIGHT);
+    }
+
+    private void checkerFlyingKingJumpCheck(AbstractGridSlot slot, Function<AbstractGridSlot, Optional<AbstractGridSlot>> function, CheckersActionType JUMP){
+        var current = slot;
+        boolean found = false;
+        while(true) {
+            Optional<AbstractGridSlot> x = function.apply(current);
+            if (x.isPresent()) {
+                current = x.get();
+                Item item = current.getStack().getItem();
+                if (item instanceof CheckersStoneItem checkersStoneItem) {
+                    if (checkersStoneItem.isBlack() != isBlack()) {
+                        if (found) {
+                            // already found an enemy.
+                            break;
+                        }
+
+                        found = true;
+                        continue;
+                    } else {
+                        // found our own type;
+                        break;
+                    }
+                }
+                // kinged pieces cannot get kinged again.
+                current.setHoverHintForOriginIndex(slot.getIndex(), found ? JUMP : CheckersActionType.MOVE);
+                //continue
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void checkerJumpCheck(AbstractGridSlot slot, Function<AbstractGridSlot, Optional<AbstractGridSlot>> function, CheckersActionType KING, CheckersActionType JUMP, boolean canMove){
+        function.apply(slot).ifPresent(slot1 -> {
+            if (slot1.getStack().getItem() instanceof CheckersStoneItem checkersStoneItem) {
+                if (checkersStoneItem.isBlack() != isBlack()) {
+                    // Check for jump
+                    //TODO American checkers cannot do this backwards
+                    function.apply(slot1).ifPresent(slot2 -> {
+                        if (slot2.getStack().getItem() instanceof CheckersStoneItem) return;
+                        slot2.setHoverHintForOriginIndex(slot.getIndex(),
+                                isKingRow(slot2.getBoardYLoc()) ? KING : JUMP);
+                    });
+                }
+            } else if (canMove){
+                // Otherwise move
+                slot1.setHoverHintForOriginIndex(slot.getIndex(),
+                        isKingRow(slot1.getBoardYLoc()) ? CheckersActionType.MOVE_KINGS_ROW : CheckersActionType.MOVE);
+            }
+        });
     }
 
 
@@ -110,9 +131,9 @@ public class CheckersStoneItem extends IPieceItem {
     public void handleAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack cursorStack, ActionType actionType) {
         ItemStack current = slot.getStack();
         if (isKinged(current)){
-            handleKingAction(handler, slot, current, cursorStack, actionType);
+            handleKingAction(handler, slot, (CheckersActionType) actionType);
         } else {
-            handleStoneAction(handler, slot, current, cursorStack, actionType);
+            handleStoneAction(slot, current, (CheckersActionType) actionType);
         }
     }
 
@@ -121,10 +142,94 @@ public class CheckersStoneItem extends IPieceItem {
         return (s != null && s.contains("kinged"));
     }
 
-    private void handleKingAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack current, ItemStack cursorStack, ActionType actionType) {
+    private boolean isKingRow(int yLoc){
+        return (isBlack()) ? yLoc == 9 : yLoc == 0;
     }
 
-    private void handleStoneAction(ScreenHandler handler, AbstractGridSlot slot, ItemStack current, ItemStack cursorStack, ActionType actionType) {
+    private void handleKingAction(ScreenHandler handler, AbstractGridSlot slot, CheckersActionType actionType) {
+        switch (actionType) {
+            case JUMP_UP_LEFT -> {
+                var current = slot;
+                while (true){
+                    var s = current.downRight(isBlack());
+                    if (s.isEmpty()) break;
+
+                    current = s.get();
+                    if (current.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                        current.captureMe();
+                        break;
+                    }
+                }
+            }
+            case JUMP_UP_RIGHT -> {
+                var current = slot;
+                while (true){
+                    var s = current.downLeft(isBlack());
+                    if (s.isEmpty()) break;
+
+                    current = s.get();
+                    if (current.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                        current.captureMe();
+                        break;
+                    }
+                }
+            }
+            case JUMP_DOWN_LEFT -> {
+                var current = slot;
+                while (true){
+                    var s = current.upRight(isBlack());
+                    if (s.isEmpty()) break;
+
+                    current = s.get();
+                    if (current.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                        current.captureMe();
+                        break;
+                    }
+                }
+            }
+            case JUMP_DOWN_RIGHT -> {
+                var current = slot;
+                while (true){
+                    var s = current.upLeft(isBlack());
+                    if (s.isEmpty()) break;
+
+                    current = s.get();
+                    if (current.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                        current.captureMe();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleStoneAction(AbstractGridSlot slot, ItemStack current, CheckersActionType actionType) {
+        switch (actionType) {
+            case JUMP_UP_LEFT, JUMP_UP_LEFT_KINGS_ROW -> slot.downRight(isBlack()).ifPresent(abstractGridSlot -> {
+                if (abstractGridSlot.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                    abstractGridSlot.captureMe();
+                }
+            });
+            case JUMP_DOWN_LEFT, JUMP_DOWN_LEFT_KINGS_ROW -> slot.upRight(isBlack()).ifPresent(abstractGridSlot -> {
+                if (abstractGridSlot.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                    abstractGridSlot.captureMe();
+                }
+            });
+            case JUMP_UP_RIGHT, JUMP_UP_RIGHT_KINGS_ROW -> slot.downLeft(isBlack()).ifPresent(abstractGridSlot -> {
+                if (abstractGridSlot.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                    abstractGridSlot.captureMe();
+                }
+            });
+            case JUMP_DOWN_RIGHT, JUMP_DOWN_RIGHT_KINGS_ROW -> slot.upLeft(isBlack()).ifPresent(abstractGridSlot -> {
+                if (abstractGridSlot.getStack().getItem() instanceof CheckersStoneItem item && item.isBlack() != isBlack()) {
+                    abstractGridSlot.captureMe();
+                }
+            });
+        }
+        if (actionType.isKinged()){
+            var s = current.getOrCreateSubNbt(GameBlocks.MOD_ID);
+            s.putBoolean("kinged", true);
+        }
     }
 
     @Override

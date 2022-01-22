@@ -2,5 +2,13 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "gameblocks:item/checkers/black_stone"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "gameblocks:kinged": 1.0
+      },
+      "model": "gameblocks:item/checkers/black_king"
+    }
+  ]
 }

@@ -1,6 +1,12 @@
 {
+  "block.gameblocks.board.tooltip": "Sneak + Open to Reset",
   "block.gameblocks.checkers_board": "Dambord",
   "block.gameblocks.chess_board": "Schaakbord",
+  "game.checkers.action.tooltip.detail.jump": "Een actie van een schijf of dam dat een andere dam of koning verwijderd van de tegenparty dat over gesprongen is.",
+  "game.checkers.action.tooltip.detail.king": "Wanneer een schijf aan de basislijn van de andere party bereikt, word het een dam en mag het meer doen.",
+  "game.checkers.action.tooltip.title.jump": "Slaan",
+  "game.checkers.action.tooltip.title.king": "Basislijn Bereikt",
+  "game.checkers.tooltip.kinged": "Dam",
   "game.chess.action.tooltip.detail.capture": "Een actie van een pion of stuk dat een andere pion of stuk verwijderd van de tegenparty.",
   "game.chess.action.tooltip.detail.castle": "Een actie waarbij de koning en de toren worden verplaats in een beurt. De enige actie in het spel waarbij twee stukken worden verplaatst. Kastelen kan gedaan worden links en recht. Het mag niet gedaan worden als reactie op schaak, of als de locatie waar de koning endigt is onder aanval, of als de toren of koning al bewogen hebben.",
   "game.chess.action.tooltip.detail.en_passant": "Een regel die ervoor zorgt dat een pion, die net twee stappen had gezet en lande naast de pion van de tegenpartij, geslagen kan worden. De pion word dan geslagen alsof het maar een stap had gezet. En passant slaat is alleen mogelijk de volgende beurt",

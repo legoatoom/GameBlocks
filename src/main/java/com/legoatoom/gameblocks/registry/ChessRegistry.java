@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks.registry;
 
+import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.chess.blocks.ChessBoardBlock;
 import com.legoatoom.gameblocks.chess.items.*;
@@ -94,7 +95,7 @@ public class ChessRegistry {
 
     private static void registerNetworking() {
         ServerPlayNetworking.registerGlobalReceiver(
-                PawnPromotionWidget.PawnPromotionChooseButtonWidget.PAWN_PROMOTION_C2S_UPDATE_KEY,
+                GameBlocks.id("pawn_promotion_c2s_update_key"),
                 ChessRegistry::receivePromotionRequest);
     }
 

@@ -11,6 +11,7 @@
   "credits": [
     "Chess Pieces Art Adapted from Lucas312 licensed CC-BY 3.0 and CC-BY-SA 3.0: https://opengameart.org/content/pixel-chess-pieces"
   ],
+  "icon": "assets/gameblocks/logo.png",
   "homepage": "https://github.com/legoatoom/GameBlocks",
   "sources": "https://github.com/legoatoom/GameBlocks",
   "issues": "https://github.com/legoatoom/GameBlocks/issues",

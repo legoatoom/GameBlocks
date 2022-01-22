@@ -74,7 +74,7 @@ public abstract class IChessPieceItem extends IPieceItem {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        if (isPromoted(stack)) tooltip.add(new TranslatableText("game.chess.tooltip.promotion").fillStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+        if (isPromoted(stack)) tooltip.add(new TranslatableText("game.chess.tooltip.promotion").formatted(Formatting.GRAY));
         super.appendTooltip(stack, world, tooltip, context); // Just in case another mod mixins into the super.
     }
 

@@ -13,8 +13,8 @@
 			"faces": {
 				"north": {"uv": [13, 0, 16, 3], "texture": "#1"},
 				"east": {"uv": [0, 0, 1, 1], "texture": "#1"},
-				"south": {"uv": [0, 0, 1, 1], "texture": "#1"},
-				"west": {"uv": [0, 0, 1, 1], "texture": "#1"},
+				"south": {"uv": [0, 0, 3, 3], "texture": "#1"},
+				"west": {"uv": [0, 3, 16, 6], "texture": "#1"},
 				"up": {"uv": [0, 0, 3, 16], "texture": "#0"},
 				"down": {"uv": [0, 0, 3, 16], "texture": "#2"}
 			}
@@ -25,7 +25,7 @@
 			"faces": {
 				"north": {"uv": [0, 0, 3, 3], "texture": "#1"},
 				"east": {"uv": [0, 0, 16, 3], "texture": "#1"},
-				"south": {"uv": [0, 0, 1, 1], "texture": "#1"},
+				"south": {"uv": [13, 0, 16, 3], "texture": "#1"},
 				"west": {"uv": [0, 0, 1, 1], "texture": "#1"},
 				"up": {"uv": [13, 0, 16, 16], "texture": "#0"},
 				"down": {"uv": [13, 0, 16, 16], "texture": "#2"}
@@ -98,5 +98,13 @@
 		"fixed": {
 			"scale": [0.5, 0.5, 0.5]
 		}
-	}
+	},
+	"groups": [
+		{
+			"name": "chess_board",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2, 3, 4]
+		}
+	]
 }

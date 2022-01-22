@@ -72,6 +72,8 @@ public class CheckersBoardScreenHandler extends AbstractBoardScreenHandler<Check
 
     @Override
     public ArrayList<AbstractGridSlot> getCurrentSlotActions(int origin) {
+        // TODO SETTING for if capture is mandatory.
+        // it has a better fit here since it just easier.
         ArrayList<AbstractGridSlot> result = new ArrayList<>();
         for (Slot slot : this.slots) {
             if (slot instanceof CheckersGridSlot s) {

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OS",
+    "SO"
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:spruce_pressure_plate"
+    },
+    "O": {
+      "item": "minecraft:oak_pressure_plate"
+    }
+  },
+  "result": {
+    "item": "gameblocks:checkers_board",
+    "count": 1
+  }
+}
