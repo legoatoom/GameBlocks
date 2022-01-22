@@ -1,3 +1,4 @@
+
 <h3 align="center">Game Blocks</h3>
 <p align="center">Recreating Old Games into Minecraft</p>
 <p align="center">
@@ -16,7 +17,7 @@
         <a href="https://github.com/legoatoom/GameBlocks"><img src="https://img.shields.io/github/downloads/legoatoom/GameBlocks/total?logo=GitHub&style=for-the-badge"></a>
 </p>
 
-
+<p align="center"><img src="https://raw.githubusercontent.com/legoatoom/GameBlocks/master/images/chessExample.png" height="700"></p>
 ## Description
 GameBlocks Currently adds two new blocks. A chessboard and a checkerboard. Both crafted in a grid patter with dark oak and spruce pressure plates and spruce and oak pressure plates.
 Craft Calcite and Deepslate for a Sack that contains game pieces. Right-click on a board to fill that boards pieces.
