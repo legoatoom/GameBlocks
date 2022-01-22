@@ -52,4 +52,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           loaders: fabric
           java: 17
-          files-secondary: none
+          files: build/libs/!(*-@(dev|sources)).jar
