@@ -20,6 +20,8 @@
 - Scrabble
 - Stratego
 - Cards Against Humanity*
+- Surakarta (to honour java)
+- Royal Game of Ur https://en.wikipedia.org/wiki/Royal_Game_of_Ur
 
 - Card Games?
 
