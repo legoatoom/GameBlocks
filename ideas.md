@@ -27,5 +27,8 @@
 
 *= Potentional Legal Issues
 
+- playing against ai with a block in front of it dropper = easy, dispenser =  medium, detector = hard
+- Cats jumping on boards.
+
 
 Cards could have a special background that if the mod becomes _really_ popular donations could get special backgrounds.
