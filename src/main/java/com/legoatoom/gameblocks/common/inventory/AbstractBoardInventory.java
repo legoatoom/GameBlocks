@@ -149,6 +149,7 @@ public abstract class AbstractBoardInventory implements Inventory {
     @Override
     public void clear() {
         getItems().clear();
+        this.markDirty();
     }
 
 

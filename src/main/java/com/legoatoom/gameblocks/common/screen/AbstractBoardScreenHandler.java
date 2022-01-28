@@ -137,11 +137,6 @@ public abstract class AbstractBoardScreenHandler<T extends AbstractBoardInventor
     }
 
     @Override
-    protected boolean insertItem(ItemStack originalStack, int startIndex, int endIndex, boolean fromLast) {
-        return super.insertItem(originalStack,startIndex, endIndex, fromLast);
-    }
-
-    @Override
     public void close(PlayerEntity player) {
         super.close(player);
         boardInventory.onClose(player);
