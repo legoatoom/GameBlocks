@@ -14,6 +14,7 @@
 
 package com.legoatoom.gameblocks;
 
+import com.legoatoom.gameblocks.registry.CardRegistry;
 import com.legoatoom.gameblocks.registry.CheckersRegistry;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
 import com.legoatoom.gameblocks.registry.CommonRegistry;
@@ -50,5 +51,6 @@ public final class GameBlocks implements ModInitializer {
         CommonRegistry.register();
         ChessRegistry.register();
         CheckersRegistry.register();
+        CardRegistry.register();
     }
 }

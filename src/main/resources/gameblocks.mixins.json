@@ -4,9 +4,12 @@
   "package": "com.legoatoom.gameblocks.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+
   ],
   "client": [
-    "client.gui.screen.ingame.CustomHighSlotHighLighter"
+    "client.gui.screen.ingame.CustomHighSlotHighLighter",
+    "client.render.item.GameRendererMixin",
+    "client.render.item.CardItemHoldingRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

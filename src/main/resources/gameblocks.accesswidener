@@ -1,3 +1,4 @@
 accessWidener v1 named
 accessible    field    net/minecraft/client/gui/screen/ingame/HandledScreen    lastClickedSlot    Lnet/minecraft/screen/slot/Slot;
-accessible    method    net/minecraft/client/gui/DrawableHelper fillGradient (Lnet/minecraft/client/util/math/MatrixStack;IIIIIII)V
+accessible    method   net/minecraft/client/gui/DrawableHelper fillGradient (Lnet/minecraft/client/util/math/MatrixStack;IIIIIII)V
+accessible    method    net/minecraft/client/render/item/HeldItemRenderer    renderArm    (Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/util/Arm;)V
