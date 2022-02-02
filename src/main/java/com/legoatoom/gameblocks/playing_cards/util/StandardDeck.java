@@ -15,11 +15,13 @@
 package com.legoatoom.gameblocks.playing_cards.util;
 
 import com.legoatoom.gameblocks.GameBlocks;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import static com.legoatoom.gameblocks.playing_cards.util.CardType.Suit.*;
+import static com.legoatoom.gameblocks.playing_cards.util.StandardDeck.Suit.*;
 
-public enum CardType {
+public enum StandardDeck implements ICardType{
     H_ACE(H, 1),
     C_ACE(C, 1),
     S_ACE(S, 1),
@@ -76,7 +78,7 @@ public enum CardType {
     private final int rank;
     private final Suit suit;
 
-    CardType(Suit suit, int rank){
+    StandardDeck(Suit suit, int rank){
         this.suit = suit;
         this.rank = rank;
     }
@@ -98,6 +100,11 @@ public enum CardType {
             default -> String.valueOf(rank);
         };
         return GameBlocks.id("item/playing_cards/%s_%s".formatted(suit.asString(), rankName));
+    }
+
+    @Override
+    public Text toText() {
+        return new LiteralText("Temporary Text");
     }
 
     enum Suit{

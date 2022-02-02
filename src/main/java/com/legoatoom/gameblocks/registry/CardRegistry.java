@@ -17,7 +17,7 @@ package com.legoatoom.gameblocks.registry;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.playing_cards.items.CardItem;
-import com.legoatoom.gameblocks.playing_cards.util.CardType;
+import com.legoatoom.gameblocks.playing_cards.util.StandardDeck;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 
 import net.minecraft.item.Item;
@@ -25,7 +25,7 @@ import net.minecraft.util.registry.Registry;
 
 public class CardRegistry {
 
-    public static Item DIAMOND_ACE = new CardItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(1), CardType.D_ACE);
+    public static Item DIAMOND_ACE = new CardItem(new FabricItemSettings().group(GameBlocks.GAME_BLOCKS).maxCount(1), StandardDeck.D_ACE);
 
     public static void register() {
         GameBlocksState.info("Registering Cards");

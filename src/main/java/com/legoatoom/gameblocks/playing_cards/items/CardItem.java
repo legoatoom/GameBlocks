@@ -14,20 +14,22 @@
 
 package com.legoatoom.gameblocks.playing_cards.items;
 
-import com.legoatoom.gameblocks.playing_cards.util.CardType;
+import com.legoatoom.gameblocks.playing_cards.util.ICardType;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 
 public class CardItem extends Item {
-    private final CardType type;
+    private final ICardType type;
 
-    public CardItem(Settings settings, CardType type) {
+    public CardItem(Settings settings, ICardType type) {
         super(settings);
         this.type =type;
     }
 
 
-    public CardType getType() {
+
+
+
+    public ICardType getType() {
         return type;
     }
 }
