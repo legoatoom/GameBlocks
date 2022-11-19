@@ -35,7 +35,6 @@ import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -76,7 +75,7 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext context) {
-        tooltip.add(new TranslatableText("block.gameblocks.board.tooltip").formatted(Formatting.GRAY));
+        tooltip.add(Text.translatable("block.gameblocks.board.tooltip").formatted(Formatting.GRAY));
         super.appendTooltip(stack, world, tooltip, context);
     }
 
@@ -148,6 +147,7 @@ public abstract class AbstractBoardBlock extends BlockWithEntity
                     if (entity instanceof AbstractBoardBlockEntity e) {
                         var board = e.getBoard();
                         player.playSound(SoundEvents.ITEM_BOOK_PUT, SoundCategory.PLAYERS, 1.3f, 0.8f + world.getRandom().nextFloat() * 0.4f);
+                        //noinspection rawtypes
                         if (board instanceof ServerBoardInventory serverBoard){
                             serverBoard.resetBoard();
                         }

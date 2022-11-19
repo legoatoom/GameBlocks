@@ -38,7 +38,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class PawnPromotionWidget extends DrawableHelper implements Drawable, Ele
 
         @Override
         public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY) {
-            screen.renderTooltip(matrices, new TranslatableText(item.getTranslationKey()), x, y);
+            screen.renderTooltip(matrices, Text.translatable(item.getTranslationKey()), x, y);
         }
     }
 }

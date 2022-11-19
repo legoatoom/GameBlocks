@@ -15,7 +15,6 @@
 package com.legoatoom.gameblocks.playing_cards.util;
 
 import com.legoatoom.gameblocks.GameBlocks;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -104,7 +103,7 @@ public enum StandardDeck implements ICardType{
 
     @Override
     public Text toText() {
-        return new LiteralText("Temporary Text");
+        return Text.literal("Temporary Text");
     }
 
     enum Suit{

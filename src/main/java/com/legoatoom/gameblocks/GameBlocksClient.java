@@ -17,17 +17,19 @@ package com.legoatoom.gameblocks;
 import com.legoatoom.gameblocks.checkers.client.screen.CheckersBoardScreen;
 import com.legoatoom.gameblocks.checkers.items.CheckersStoneItem;
 import com.legoatoom.gameblocks.chess.client.screen.ChessBoardScreen;
-import com.legoatoom.gameblocks.playing_cards.client.CardRenderer;
-import com.legoatoom.gameblocks.playing_cards.items.CardItem;
 import com.legoatoom.gameblocks.registry.CheckersRegistry;
 import com.legoatoom.gameblocks.registry.ChessRegistry;
-import dev.architectury.event.EventResult;
-import dev.architectury.event.events.client.ClientRawInputEvent;
+import io.wispforest.owo.ui.event.MouseScroll;
+import io.wispforest.owo.ui.event.UIEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.client.Mouse;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -38,24 +40,15 @@ public final class GameBlocksClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ScreenRegistry.register(ChessRegistry.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
-        ScreenRegistry.register(CheckersRegistry.CHECKERS_BOARD_SCREEN_HANDLER, CheckersBoardScreen::new);
+        HandledScreens.register(ChessRegistry.CHESS_BOARD_SCREEN_HANDLER, ChessBoardScreen::new);
+        HandledScreens.register(CheckersRegistry.CHECKERS_BOARD_SCREEN_HANDLER, CheckersBoardScreen::new);
 
         registerKingedModelPredicate(CheckersRegistry.BLACK_STONE);
         registerKingedModelPredicate(CheckersRegistry.WHITE_STONE);
-        ClientRawInputEvent.MOUSE_SCROLLED.register((client, amount) -> {
-            if (client.player.isHolding(stack -> stack.getItem() instanceof CardItem) && client.player.isSneaking()){
-                CardRenderer.addCurrentSelected(amount >= 0 ? -1 : 1);
-                return EventResult.interruptTrue();
-            }
-            return EventResult.pass();
-        });
-
-//        ModelLoadingRegistry.INSTANCE.registerModelProvider((manager, out) -> out.accept(new ModelIdentifier("gameblocks:playing_cards/card_in_hand#inventory")));
     }
 
     private void registerKingedModelPredicate(CheckersStoneItem whiteStone) {
-        FabricModelPredicateProviderRegistry.register(whiteStone, GameBlocks.id("kinged"),
+        ModelPredicateProviderRegistry.register(whiteStone, GameBlocks.id("kinged"),
                 (ItemStack itemStack, @Nullable ClientWorld clientWorld, @Nullable LivingEntity livingEntity, int i) ->
                         CheckersStoneItem.isKinged(itemStack) ? 1.F : 0.F);
     }

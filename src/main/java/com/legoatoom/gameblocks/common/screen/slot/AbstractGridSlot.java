@@ -78,7 +78,7 @@ public abstract class AbstractGridSlot extends AbstractBoardSlot {
     public void setHoverHintForOriginIndex(int originIndex, @NotNull ActionType currentHoverAction) {
         // Just making sure the inventory isn't empty and this is not the client.
         if (this.getInventory().isEmpty() || this.getInventory().isClient()) return;
-        ((ServerBoardInventory<?>) getInventory()).getSlotHintsPropertyDelgates().get(originIndex).set(getIndex(), currentHoverAction.getId());
+        ((ServerBoardInventory<?>) getInventory()).getSlotHintsPropertyDelegates().get(originIndex).set(getIndex(), currentHoverAction.getId());
     }
 
     /**

@@ -22,7 +22,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
@@ -59,7 +59,7 @@ public abstract class IPieceItem extends Item {
 
     @Nullable
     public IPieceType getType(){
-        GameBlocksState.warn("Tried to access %s Piece Type even though there isn't one.".formatted(new TranslatableText(this.getTranslationKey())));
+        GameBlocksState.warn("Tried to access %s Piece Type even though there isn't one.".formatted(Text.translatable(this.getTranslationKey())));
         return null;
     };
 }

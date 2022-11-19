@@ -15,7 +15,7 @@
 package com.legoatoom.gameblocks.mixin.client.render.item;
 
 import com.legoatoom.gameblocks.playing_cards.client.CardRenderer;
-import com.legoatoom.gameblocks.playing_cards.items.CardItem;
+import com.legoatoom.gameblocks.playing_cards.items.CardDeckItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -26,8 +26,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,7 +49,7 @@ public abstract class CardItemHoldingRenderer {
 
     @Inject(method = "renderFirstPersonItem", at = @At("HEAD"), cancellable = true)
     private void renderFirstPersonItemInject(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci){
-        if (item.getItem() instanceof CardItem){
+        if (item.getItem() instanceof CardDeckItem){
             boolean bl = hand == Hand.MAIN_HAND;
             Arm arm = bl ? player.getMainArm() : player.getMainArm().getOpposite();
             if (bl && this.offHand.isEmpty()) {
@@ -62,7 +60,5 @@ public abstract class CardItemHoldingRenderer {
             }
         }
     }
-
-
 
 }

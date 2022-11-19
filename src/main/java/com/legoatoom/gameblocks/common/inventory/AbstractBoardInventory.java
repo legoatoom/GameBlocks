@@ -152,7 +152,7 @@ public abstract class AbstractBoardInventory implements Inventory {
     }
 
 
-    public abstract ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates();
+    public abstract ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelegates();
 
     public int getStorageSlotSize() {
         return storageSlotSize;

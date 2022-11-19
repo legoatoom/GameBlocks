@@ -30,7 +30,7 @@ public class ServerCheckersBoardInventory extends CheckersBoardInventory impleme
     }
 
     @Override
-    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
+    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelegates() {
         return slotHintPropertyDelegate;
     }
 

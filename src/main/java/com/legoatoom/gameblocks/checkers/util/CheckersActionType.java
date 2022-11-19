@@ -110,14 +110,18 @@ public enum CheckersActionType implements ActionType {
     public List<Text> getInfo(TextRenderer renderer) {
         ArrayList<Text> list = Lists.newArrayListWithExpectedSize(2);
         if (!hasToolTip) return list;
-        Text title = new TranslatableText("game.checkers.action.tooltip.title.%s".formatted(hintName))
+
+        Text title = Text.translatable("game.checkers.action.tooltip.title.%s".formatted(hintName))
                 .setStyle(Style.EMPTY.withColor(color));
+
         var detail = renderer.getTextHandler().wrapLines(
-                new TranslatableText("game.checkers.action.tooltip.detail.%s".formatted(hintName)),
+                Text.translatable("game.checkers.action.tooltip.detail.%s".formatted(hintName)),
                 150, Style.EMPTY);
+
         list.add(title);
+
         for (StringVisitable stringVisitable : detail) {
-            list.add(new LiteralText(stringVisitable.getString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+            list.add(Text.literal(stringVisitable.getString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
         }
         return list;
     }

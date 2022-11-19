@@ -70,7 +70,7 @@ public class ServerChessBoardInventory extends ChessBoardInventory implements Se
 
     @Override
     @NotNull
-    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
+    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelegates() {
         return slotHintPropertyDelegate;
     }
 

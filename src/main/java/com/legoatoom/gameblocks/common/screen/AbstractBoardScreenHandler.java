@@ -54,7 +54,7 @@ public abstract class AbstractBoardScreenHandler<T extends AbstractBoardInventor
         this.BOARD_WIDTH = boardInventory.boardWidth;
         this.BOARD_SIZE = boardInventory.boardSize;
         this.FACING = facing;
-        this.slotHintPropertyDelegate = boardInventory.getSlotHintsPropertyDelgates();
+        this.slotHintPropertyDelegate = boardInventory.getSlotHintsPropertyDelegates();
         boardInventory.onOpen(playerInventory.player);
         initializeSlots();
         if (boardInventory.isClient()) {

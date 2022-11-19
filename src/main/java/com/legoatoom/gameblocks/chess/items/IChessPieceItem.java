@@ -27,9 +27,7 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -74,7 +72,7 @@ public abstract class IChessPieceItem extends IPieceItem {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        if (isPromoted(stack)) tooltip.add(new TranslatableText("game.chess.tooltip.promotion").formatted(Formatting.GRAY));
+        if (isPromoted(stack)) tooltip.add(Text.translatable("game.chess.tooltip.promotion").formatted(Formatting.GRAY));
         super.appendTooltip(stack, world, tooltip, context); // Just in case another mod mixins into the super.
     }
 

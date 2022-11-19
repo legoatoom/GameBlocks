@@ -16,7 +16,7 @@ public class CheckersBoardInventory extends AbstractBoardInventory {
     }
 
     @Override
-    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates() {
+    public ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelegates() {
         return new ArrayList<>();
     }
 

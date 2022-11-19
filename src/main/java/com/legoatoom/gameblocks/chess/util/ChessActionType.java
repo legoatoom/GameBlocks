@@ -83,13 +83,13 @@ public enum ChessActionType implements ActionType {
     public List<Text> getInfo(TextRenderer renderer) {
         ArrayList<Text> list = Lists.newArrayListWithExpectedSize(2);
         if (this == MOVE) return list;
-        Text title = new TranslatableText("game.chess.action.tooltip.title.%s".formatted(toString())).setStyle(Style.EMPTY.withColor(this.color));
+        Text title = Text.translatable("game.chess.action.tooltip.title.%s".formatted(toString())).setStyle(Style.EMPTY.withColor(this.color));
         var detail = renderer.getTextHandler().wrapLines(
-                new TranslatableText("game.chess.action.tooltip.detail.%s".formatted(toString())),
+                Text.translatable("game.chess.action.tooltip.detail.%s".formatted(toString())),
                 150, Style.EMPTY);
         list.add(title);
         for (StringVisitable stringVisitable : detail) {
-            list.add(new LiteralText(stringVisitable.getString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
+            list.add(Text.literal(stringVisitable.getString()).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
         }
         return list;
     }

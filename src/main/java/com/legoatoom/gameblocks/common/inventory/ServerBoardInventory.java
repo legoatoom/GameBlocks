@@ -63,7 +63,7 @@ public interface ServerBoardInventory<T extends AbstractGridSlot> extends Invent
 
     int getBoardSize();
 
-    ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelgates();
+    ArrayList<ArrayPropertyDelegate> getSlotHintsPropertyDelegates();
 
     void fillWithDefaultPieces();
 

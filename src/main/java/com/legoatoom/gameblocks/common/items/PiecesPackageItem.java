@@ -14,15 +14,20 @@
 
 package com.legoatoom.gameblocks.common.items;
 
+import io.wispforest.owo.ui.event.KeyPress;
+import io.wispforest.owo.ui.event.UIEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class PiecesPackageItem extends Item {
@@ -32,7 +37,7 @@ public class PiecesPackageItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        tooltip.add(new TranslatableText(getTranslationKey() + ".tooltip").formatted(Formatting.GRAY));
+        tooltip.add(Text.translatable(getTranslationKey() + ".tooltip").formatted(Formatting.GRAY));
         super.appendTooltip(stack, world, tooltip, context);
     }
 }

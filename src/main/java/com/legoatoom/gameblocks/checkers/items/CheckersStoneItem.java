@@ -11,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +54,7 @@ public class CheckersStoneItem extends IPieceItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         if (isKinged(stack)){
-            tooltip.add(new TranslatableText("game.checkers.tooltip.kinged").formatted(Formatting.GRAY));
+            tooltip.add(Text.translatable("game.checkers.tooltip.kinged").formatted(Formatting.GRAY));
         }
     }
 

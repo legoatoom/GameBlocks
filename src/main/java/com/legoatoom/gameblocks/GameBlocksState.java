@@ -26,4 +26,8 @@ public class GameBlocksState {
     public static void info(String reason) {
         LOGGER.info(reason);
     }
+
+    public static void debug(String reason) {
+        LOGGER.debug(reason);
+    }
 }

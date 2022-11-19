@@ -14,7 +14,7 @@
 
 package com.legoatoom.gameblocks.playing_cards.client;
 
-import com.legoatoom.gameblocks.playing_cards.items.CardItem;
+import com.legoatoom.gameblocks.playing_cards.items.CardDeckItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -25,7 +25,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -35,7 +35,9 @@ import net.minecraft.util.math.Vec3f;
 @Environment(EnvType.CLIENT)
 public class CardRenderer{
 
+
     public static int currentSelected = 0;
+    private boolean selected = false;
 
     public static void render(ItemStack stack, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         matrices.push();
@@ -130,13 +132,15 @@ public class CardRenderer{
         return f;
     }
 
+
+
     public static void addCurrentSelected(int i) {
         currentSelected += i;
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
             ItemStack stack = player.getMainHandStack();
-            if (stack.getItem() instanceof CardItem item) {
-                MinecraftClient.getInstance().player.sendMessage(new TranslatableText(item.getTranslationKey()), true);
+            if (stack.getItem() instanceof CardDeckItem item) {
+                MinecraftClient.getInstance().player.sendMessage(Text.translatable(item.getTranslationKey()), true);
             }
         }
     }
