@@ -17,6 +17,7 @@ package com.legoatoom.gameblocks.playing_cards.items;
 import com.legoatoom.gameblocks.GameBlocks;
 import com.legoatoom.gameblocks.GameBlocksState;
 import com.legoatoom.gameblocks.playing_cards.util.Card;
+import com.legoatoom.gameblocks.playing_cards.util.StandardDeck;
 import com.legoatoom.gameblocks.registry.CardRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -142,7 +143,7 @@ public class CardDeckItem extends Item {
         return stack;
     }
 
-    private static List<Card> getCards(ItemStack deck) {
+    public static List<Card> getCards(ItemStack deck) {
         NbtCompound nbtCompound = deck.getNbt();
         if (nbtCompound == null) {
             return List.of();
@@ -192,10 +193,11 @@ public class CardDeckItem extends Item {
         // TODO: 19/11/2022 REMOVE THIS CODE
         if (!stack.hasNbt()){
             NbtList newList = new NbtList();
-            NbtCompound card = new NbtCompound();
-
-            card.putString("Name", "gameblocks:temp_card_"+Random.create().nextInt(200));
-            newList.add(card);
+            for (StandardDeck value : StandardDeck.values()) {
+                NbtCompound card = new NbtCompound();
+                value.asCard().writeNbt(card);
+                newList.add(card);
+            }
             stack.setSubNbt(CARDS_KEY, newList);
         }
     }
@@ -204,7 +206,7 @@ public class CardDeckItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         List<Card> cards = CardDeckItem.getCards(stack);
         for (Card card : cards) {
-            tooltip.add(Text.literal(card.name().toString()));
+            tooltip.add(Text.translatable(card.key()));
         }
     }
 }

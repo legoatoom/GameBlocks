@@ -33,8 +33,8 @@ repositories {
         }
     }
     maven {
-        name = 'Ladysnake Mods'
-        url = 'https://ladysnake.jfrog.io/artifactory/mods'
+        name = "Ladysnake Mods"
+        url = 'https://maven.ladysnake.org/releases'
     }
 }
 

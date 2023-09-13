@@ -90,7 +90,7 @@ public enum StandardDeck implements ICardType{
         return suit;
     }
 
-    public Identifier asID() {
+    public Identifier getFaceId() {
         String rankName = switch (rank){
             case 1 -> "ace";
             case 11 -> "jack";
@@ -98,12 +98,27 @@ public enum StandardDeck implements ICardType{
             case 13 -> "king";
             default -> String.valueOf(rank);
         };
-        return GameBlocks.id("item/playing_cards/%s_%s".formatted(suit.asString(), rankName));
+        return GameBlocks.id("textures/item/playing_cards/%s_%s.png".formatted(suit.asString(), rankName));
+    }
+
+    public Identifier getBackId(){
+        return getFaceId(); // Alter to a back texture.
     }
 
     @Override
-    public Text toText() {
-        return Text.literal("Temporary Text");
+    public String getTranslationKey() {
+        String rankName = switch (rank){
+            case 1 -> "ace";
+            case 11 -> "jack";
+            case 12 -> "queen";
+            case 13 -> "king";
+            default -> String.valueOf(rank);
+        };
+        return "card.standard_deck.%s_%s".formatted(rankName, getSuit());
+    }
+
+    public Card asCard() {
+        return new Card(getTranslationKey(), getFaceId(), getBackId());
     }
 
     enum Suit{

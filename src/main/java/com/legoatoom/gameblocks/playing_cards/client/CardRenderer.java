@@ -15,6 +15,7 @@
 package com.legoatoom.gameblocks.playing_cards.client;
 
 import com.legoatoom.gameblocks.playing_cards.items.CardDeckItem;
+import com.legoatoom.gameblocks.playing_cards.util.Card;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -32,46 +33,70 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;
 
+import java.util.List;
+
 @Environment(EnvType.CLIENT)
-public class CardRenderer{
+public class CardRenderer {
 
 
-    public static int currentSelected = 0;
-    private boolean selected = false;
+    public static int     currentSelected = 0;
+    private       boolean selected        = false;
 
-    public static void render(ItemStack stack, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+    public static void render(Card card, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                              int light) {
         matrices.push();
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180.0f));
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0f));
 
-//        matrices.scale(0.1f, 0.1f, 0.1f);
+        //        matrices.scale(0.1f, 0.1f, 0.1f);
         matrices.scale(0.012f, 0.012f, 0.012f);
 
-        Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-        Identifier texture = MinecraftClient.getInstance().getItemRenderer().getModels().getModel(stack).getParticleSprite().getId();
-        texture = new Identifier(texture.getNamespace(), "textures/%s.png".formatted(texture.getPath()));
+        Matrix4f   matrix4f = matrices.peek().getPositionMatrix();
+        Identifier texture  = card.getFaceTexture();
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getText(texture));
-        vertexConsumer.vertex(matrix4f, -8f, -64.0f, 0f).color(255, 255, 255, 255).texture(0.0f, 1.0f).light(light).next();
-        vertexConsumer.vertex(matrix4f, 8f, -64.0f, 0f).color(255, 255, 255, 255).texture(1.0f, 1.0f).light(light).next();
-        vertexConsumer.vertex(matrix4f, 8f, -80.0f, 0f).color(255, 255, 255, 255).texture(1.0f, 0.0f).light(light).next();
-        vertexConsumer.vertex(matrix4f, -8f, -80.0f, 0f).color(255, 255, 255, 255).texture(0.0f, 0.0f).light(light).next();
-//        matrices.scale(0.9f, 0.9f, 0.9f);
-//        MinecraftClient.getInstance().textRenderer.draw(matrices, "♦", 0f, 3f, 0xfff);
+        vertexConsumer.vertex(matrix4f, -8f, -64.0f, 0f)
+                      .color(255, 255, 255, 255)
+                      .texture(0.0f, 1.0f)
+                      .light(light)
+                      .next();
+        vertexConsumer.vertex(matrix4f, 8f, -64.0f, 0f)
+                      .color(255, 255, 255, 255)
+                      .texture(1.0f, 1.0f)
+                      .light(light)
+                      .next();
+        vertexConsumer.vertex(matrix4f, 8f, -80.0f, 0f)
+                      .color(255, 255, 255, 255)
+                      .texture(1.0f, 0.0f)
+                      .light(light)
+                      .next();
+        vertexConsumer.vertex(matrix4f, -8f, -80.0f, 0f)
+                      .color(255, 255, 255, 255)
+                      .texture(0.0f, 0.0f)
+                      .light(light)
+                      .next();
+        //        matrices.scale(0.9f, 0.9f, 0.9f);
+        //        MinecraftClient.getInstance().textRenderer.draw(matrices, "♦", 0f, 3f, 0xfff);
         matrices.pop();
     }
 
-    public static void renderCardInBothHand(HeldItemRenderer cardItemHoldingRenderer, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
-                                            float pitch, float equipProgress, float swingProgress, ItemStack stack) {
+    public static void renderCardInBothHand(HeldItemRenderer cardItemHoldingRenderer, MatrixStack matrices,
+                                            VertexConsumerProvider vertexConsumers, int light, float pitch,
+                                            float equipProgress, float swingProgress, ItemStack stack) {
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        final int count = 13;
-        float i = getCardAngle(pitch);
-        if (player == null) return;
+        List<Card>         cards  = CardDeckItem.getCards(stack);
+        final int          count  = cards.size();
+        float              i      = getCardAngle(pitch);
+        if (player == null) {
+            return;
+        }
         float f = MathHelper.sqrt(swingProgress);
-        float g = -0.2f * MathHelper.sin(swingProgress * (float)Math.PI);
-        float h = -0.4f * MathHelper.sin(f * (float)Math.PI);
+        float g = -0.2f * MathHelper.sin(swingProgress * (float) Math.PI);
+        float h = -0.4f * MathHelper.sin(f * (float) Math.PI);
         matrices.translate(0.0, -g / 2.0f, h);
-        if (pitch < -10f) matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(pitch+10f));
+        if (pitch < -10f) {
+            matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(pitch + 10f));
+        }
         matrices.translate(0.0, 0.04f + equipProgress * -1.2f + i * -0.5f, -0.72f);
         matrices.push();
         {
@@ -93,29 +118,30 @@ public class CardRenderer{
             }
         }
         matrices.pop();
-//        matrices.scale(0.0625f, 0.0625f, 0.0625f);
-////        matrices.translate(-1f, 0f, 0f);
-////        matrices.scale(16f, 16f, 16f);
-//        CardRenderer.render(stack, matrices, vertexConsumers, light);
+        //        matrices.scale(0.0625f, 0.0625f, 0.0625f);
+        ////        matrices.translate(-1f, 0f, 0f);
+        ////        matrices.scale(16f, 16f, 16f);
+        //        CardRenderer.render(stack, matrices, vertexConsumers, light);
 
-        float angle = Math.min(15f/count, 4f);
+        float angle = Math.min(15f / count, 4f);
         matrices.translate(0, -1.15f, 0f);
-        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(angle * (count-1f)));
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(angle * (count - 1f)));
         int current = getCurrentSelected(count);
         for (int j = 0; j < count; j++) {
-            if (j == current){
+            Card card = cards.get(j);
+            if (j == current) {
+                // Offset the currently selected card.
                 matrices.push();
                 matrices.translate(0f, .1f, .002f);
-                CardRenderer.render(stack, matrices, vertexConsumers, light);
+                CardRenderer.render(card, matrices, vertexConsumers, light);
                 matrices.pop();
             } else {
-                CardRenderer.render(stack, matrices, vertexConsumers, light);
+                CardRenderer.render(card, matrices, vertexConsumers, light);
             }
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-angle*2f));
+            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-angle * 2f));
             matrices.translate(0, 0f, .00001f);
 
         }
-
 
 
     }
@@ -128,10 +154,9 @@ public class CardRenderer{
     private static float getCardAngle(float tickDelta) {
         float f = 1.0f - tickDelta / 45.0f + 0.1f;
         f = MathHelper.clamp(f, 0.0f, 0.5f);
-        f = -MathHelper.cos(f * (float)Math.PI) * 0.5f + 0.1f;
+        f = -MathHelper.cos(f * (float) Math.PI) * 0.5f + 0.1f;
         return f;
     }
-
 
 
     public static void addCurrentSelected(int i) {
@@ -146,34 +171,34 @@ public class CardRenderer{
     }
 
 
-//    @Environment(EnvType.CLIENT)
-//    static class CardTexture
-//    implements AutoCloseable{
-//        private final ResourceTexture texture;
-//        private final RenderLayer renderLayer;
-//
-//        CardTexture(Identifier identifier){
-//            this.texture = new ResourceTexture(identifier);
-//            try {
-//                this.texture.load(MinecraftClient.getInstance().getResourceManager());
-//            } catch (IOException e) {
-//                GameBlocksState.warn(e.getMessage());
-//            }
-//            this.renderLayer = RenderLayer.getText(identifier);
-//        }
-//
-//        @Override
-//        public void close() {
-//            this.texture.close();
-//        }
-//
-//        public void draw(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-//            Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-//            VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.renderLayer);
-//            vertexConsumer.vertex(matrix4f, 0.0f, 128.0f, -0.01f).color(255, 255, 255, 255).texture(0.0f, 1.0f).light(light).next();
-//            vertexConsumer.vertex(matrix4f, 128.0f, 128.0f, -0.01f).color(255, 255, 255, 255).texture(1.0f, 1.0f).light(light).next();
-//            vertexConsumer.vertex(matrix4f, 128.0f, 0.0f, -0.01f).color(255, 255, 255, 255).texture(1.0f, 0.0f).light(light).next();
-//            vertexConsumer.vertex(matrix4f, 0.0f, 0.0f, -0.01f).color(255, 255, 255, 255).texture(0.0f, 0.0f).light(light).next();
-//        }
-//    }
+    //    @Environment(EnvType.CLIENT)
+    //    static class CardTexture
+    //    implements AutoCloseable{
+    //        private final ResourceTexture texture;
+    //        private final RenderLayer renderLayer;
+    //
+    //        CardTexture(Identifier identifier){
+    //            this.texture = new ResourceTexture(identifier);
+    //            try {
+    //                this.texture.load(MinecraftClient.getInstance().getResourceManager());
+    //            } catch (IOException e) {
+    //                GameBlocksState.warn(e.getMessage());
+    //            }
+    //            this.renderLayer = RenderLayer.getText(identifier);
+    //        }
+    //
+    //        @Override
+    //        public void close() {
+    //            this.texture.close();
+    //        }
+    //
+    //        public void draw(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+    //            Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+    //            VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.renderLayer);
+    //            vertexConsumer.vertex(matrix4f, 0.0f, 128.0f, -0.01f).color(255, 255, 255, 255).texture(0.0f, 1.0f).light(light).next();
+    //            vertexConsumer.vertex(matrix4f, 128.0f, 128.0f, -0.01f).color(255, 255, 255, 255).texture(1.0f, 1.0f).light(light).next();
+    //            vertexConsumer.vertex(matrix4f, 128.0f, 0.0f, -0.01f).color(255, 255, 255, 255).texture(1.0f, 0.0f).light(light).next();
+    //            vertexConsumer.vertex(matrix4f, 0.0f, 0.0f, -0.01f).color(255, 255, 255, 255).texture(0.0f, 0.0f).light(light).next();
+    //        }
+    //    }
 }

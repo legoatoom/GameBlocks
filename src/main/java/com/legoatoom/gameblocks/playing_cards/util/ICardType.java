@@ -4,5 +4,7 @@ import net.minecraft.text.Text;
 
 public interface ICardType {
 
-    Text toText();
+    String getTranslationKey();
+
+    Card asCard();
 }
